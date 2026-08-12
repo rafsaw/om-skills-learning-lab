@@ -1,0 +1,10 @@
+# QA artifacts and running-state descriptor are generated per run, not source.
+# The generated launchers under .ai/scripts/ stay committed so the environment
+# is reproducible.
+.ai/qa/artifacts_*/
+.ai/qa/test-env.json
+
+# Local harness wiring: .claude/skills/ holds symlinks into .agents/skills/
+# (the canonical source, which is committed), and settings.local.json is
+# per-machine permission config. Kept untracked deliberately.
+.claude/

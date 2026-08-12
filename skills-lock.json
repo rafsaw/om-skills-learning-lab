@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "om-setup-agent-pipeline": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-setup-agent-pipeline/SKILL.md",
+      "computedHash": "c2917be8e84f08868b4c79e84de4619de83f88688c4281aec207267566550a4d"
+    }
+  }
+}
