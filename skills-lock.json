@@ -25,6 +25,12 @@
       "skillPath": "skills/om-code-review/SKILL.md",
       "computedHash": "9085047b819fe2523d730366b3101578acd45ae2d8454fecbe86f90a77c13a4d"
     },
+    "om-open-pr": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-open-pr/SKILL.md",
+      "computedHash": "02fcaf135aadb0c0db4c38d90608870a088b1a2ae56fb6b83916f752c4258c6f"
+    },
     "om-setup-agent-pipeline": {
       "source": "open-mercato/skills",
       "sourceType": "github",
