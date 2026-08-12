@@ -1,6 +1,30 @@
 {
   "version": 1,
   "skills": {
+    "om-approve-merge-pr": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-approve-merge-pr/SKILL.md",
+      "computedHash": "649fe546c90f224a715896c657b815bb4070d4c30f2a9fb0c0fefd3d75e700d4"
+    },
+    "om-auto-review-pr": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-review-pr/SKILL.md",
+      "computedHash": "30eaddba210ac4bac7bafa022859e4cc4bcbf5948d87b6d9f20342e8d489209f"
+    },
+    "om-check-and-commit": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-check-and-commit/SKILL.md",
+      "computedHash": "c3fe0fb6a849f0d0e5fb306b6ee84bf0bab5f8901c1e898d354eb55d68915b63"
+    },
+    "om-code-review": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-code-review/SKILL.md",
+      "computedHash": "9085047b819fe2523d730366b3101578acd45ae2d8454fecbe86f90a77c13a4d"
+    },
     "om-setup-agent-pipeline": {
       "source": "open-mercato/skills",
       "sourceType": "github",
