@@ -87,9 +87,19 @@ Open Mercato separates **configuration** from **repository guidance**.
 
 ## Finding 004 — Lesson 4: Pipeline execution through skills
 
+### Question
+
+What does running a change through the pipeline reveal about how the skills relate to each other?
+
+### Evidence
+
+Issue #2 and PR #3 — the issue-driven run: the issue was assigned and claimed by comment before work started.
+
+PR #4 — the branch-driven run: label transitions from `review` to `changes-requested` to `merge-queue`, the claim and release around the review stage, the rejected same-account approval, and the merge.
+
 ### Observation
 
-A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, claims prevented concurrent agents from working on the same PR, and dedicated skills handled review, autofix, re-review, merge queue, and merge.
+A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, and dedicated skills handled review, autofix, re-review, merge queue, and merge. Each skill claimed the PR with an assignee, the `in-progress` label, and a claim comment, then released the claim when its stage finished — the mechanism intended to keep concurrent agents off the same PR, although no contention actually occurred during these runs.
 
 ### Conclusion
 

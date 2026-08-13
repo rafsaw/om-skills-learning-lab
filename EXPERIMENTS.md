@@ -42,19 +42,19 @@ _What the experiment settled: confirmed, refuted, or inconclusive._
 
 Run a real repository change through the Open Mercato PR pipeline and observe the pipeline states, claims, review loop, and merge behavior.
 
+Two runs are covered, because no single run exercised every stage: the issue-driven run behind PR #3 (from issue #2), and the branch-driven run behind PR #4, which had no issue at all.
+
 ### Observations
 
-- A real GitHub issue was claimed before work started.
-- Opening the PR applied the expected pipeline, category, QA, priority, and risk labels.
-- `om-auto-review-pr` claimed the PR while working on it.
-- Review moved the PR from `review` to `changes-requested`, applied autofixes, re-reviewed it, and moved it to `merge-queue`.
+- A real GitHub issue was claimed before work started — issue #2 was assigned and claimed by comment before the work that became PR #3.
+- Opening the PR applied the expected pipeline, category, QA, priority, and risk labels (PR #4).
+- `om-auto-review-pr` claimed the PR while working on it (PR #4).
+- Review moved the PR from `review` to `changes-requested`, applied autofixes, re-reviewed it, and moved it to `merge-queue` (PR #4).
 - `om-code-review` acted as the review engine used by `om-auto-review-pr`.
-- GitHub rejected formal approval because the PR author and reviewer were the same account.
-- `om-approve-merge-pr` detected that limitation and asked before merging without formal approval.
+- GitHub rejected formal approval because the PR author and reviewer were the same account (PR #4).
+- `om-approve-merge-pr` detected that limitation and asked before merging without formal approval (PR #4).
 - Review/autofix used isolated worktrees and left local `review/pr-*` branch refs that required cleanup afterwards.
 
 ### Result
 
 Confirmed that the Open Mercato pipeline is a stateful workflow coordinated through GitHub claims and labels. Skills perform specific stages of the workflow and can hand work from one stage to the next, including review, autofix, re-review, merge queue, and merge.
-
----
