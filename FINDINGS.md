@@ -106,3 +106,15 @@ A real repository change was taken through the Open Mercato workflow using pipel
 The Open Mercato pipeline is not one monolithic agent workflow. It is composed of specialized skills that perform individual SDLC stages and coordinate through shared repository state, primarily GitHub issues, PRs, claims, and labels.
 
 This allows work to move between agents and skills while the repository and tracker remain the shared source of workflow state.
+
+## Finding 005 — Issue orchestration is explicit and resumable
+
+`om-auto-fix-issue` acts as a high-level flow runner for a single issue-driven session. It does not implement every SDLC stage itself; instead, it orchestrates specialized companion skills and controls routing, sequencing, worktree lifecycle, concurrency, handoffs, failure cleanup, and reporting.
+
+Skills communicate through explicit contracts such as machine-readable reference lines, control markers, structured previous-step outputs, and tracker state. The process can stop cleanly and later resume from durable repository/tracker state rather than depending on one continuous agent session.
+
+This creates a layered model:
+
+`flow runner → specialized skills → repo/tracker state`
+
+The orchestration layer coordinates the workflow while individual skills retain narrow responsibilities and remain independently runnable.
