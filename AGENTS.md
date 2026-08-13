@@ -41,13 +41,12 @@ Not installed, but referenced by the skills above:
 |---|---|---|
 | `om-auto-fix-pr` | `om-approve-merge-pr` (conflicts, red CI, `changes-requested`) | The blocker-recovery route. A conflicted or CI-red PR must be fixed by hand or through `om-auto-review-pr --autofix`, which fixes findings but is not the `--ci-only` path. |
 | `om-followup-issue-from-pr` | `om-approve-merge-pr` | Filing a follow-up issue from a PR or comment link; open the issue manually. |
-| `om-auto-fix-issue`, `om-verify-in-repo`, `om-root-cause`, `om-fix` | `om-open-pr` (the autofix chain in its opening paragraph), `SDLC.md` | The issue-driven chain that produces the branch `om-open-pr` expects to already exist. |
 | `om-auto-create-pr`, `om-auto-continue-pr` | `om-open-pr`, `om-code-review`, `SDLC.md` | Alternative PR-opening callers. No loss: `om-open-pr` is the shared implementation they delegate to and works standalone. |
 | `om-auto-qa-pr` | `om-open-pr` (`references/pr-finalize.md`) | The manual-QA pass and the self-QA `qa-approved` exception. The QA gate is off (`qaGate: false`), so this blocks nothing today. |
 | `om-review-prs` | `om-code-review`, `SDLC.md` | Batch review across open PRs; review them one at a time with `om-auto-review-pr` instead. |
 | `om-merge-buddy`, `om-close-fixed-issues` | `SDLC.md` | The read-only "which PRs can merge now" report, and post-merge issue housekeeping. |
 | `om-auto-write-spec`, `om-auto-implement-spec` | `om-open-pr` | The spec-driven run that hands `om-open-pr` a spec-only design PR. |
-| `om-spec-writing`, `om-prepare-issue`, `om-brainstorm` | `BACKWARD_COMPATIBILITY.md` §5, `om-auto-review-pr` (`references/spec-review.md`) | The `paths.specs` handoff chain that produces the specs a spec-only PR reviews. |
+| `om-spec-writing`, `om-brainstorm` | `BACKWARD_COMPATIBILITY.md` §5, `om-auto-review-pr` (`references/spec-review.md`) | The `paths.specs` handoff chain that produces the specs a spec-only PR reviews. |
 
 Add one with `npx skills add` (never by hand-copying — the lockfile hash comes from the tool) and delete its row here in the same PR.
 

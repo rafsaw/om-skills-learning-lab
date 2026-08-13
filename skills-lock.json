@@ -7,6 +7,12 @@
       "skillPath": "skills/om-approve-merge-pr/SKILL.md",
       "computedHash": "649fe546c90f224a715896c657b815bb4070d4c30f2a9fb0c0fefd3d75e700d4"
     },
+    "om-auto-fix-issue": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-fix-issue/SKILL.md",
+      "computedHash": "b3c283e880e111aae1186d4d259ecf8c0545b9d94e7ad5fcbe031583adcc1833"
+    },
     "om-auto-review-pr": {
       "source": "open-mercato/skills",
       "sourceType": "github",
@@ -25,17 +31,41 @@
       "skillPath": "skills/om-code-review/SKILL.md",
       "computedHash": "9085047b819fe2523d730366b3101578acd45ae2d8454fecbe86f90a77c13a4d"
     },
+    "om-fix": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-fix/SKILL.md",
+      "computedHash": "609532a84920e89e86f1a9577bf3284dc5bc589bf0f71c35ab7073103c1496e2"
+    },
     "om-open-pr": {
       "source": "open-mercato/skills",
       "sourceType": "github",
       "skillPath": "skills/om-open-pr/SKILL.md",
       "computedHash": "02fcaf135aadb0c0db4c38d90608870a088b1a2ae56fb6b83916f752c4258c6f"
     },
+    "om-prepare-issue": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-prepare-issue/SKILL.md",
+      "computedHash": "3a30dd1919ae2cf9357e5bb7f7b9ceddd398e900cdfab75c78ac4b8770d45d7c"
+    },
+    "om-root-cause": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-root-cause/SKILL.md",
+      "computedHash": "5f14b1d7e799dd53be17e77fc24da9dd0818baf161357a9720cebf36afcfe88b"
+    },
     "om-setup-agent-pipeline": {
       "source": "open-mercato/skills",
       "sourceType": "github",
       "skillPath": "skills/om-setup-agent-pipeline/SKILL.md",
       "computedHash": "c2917be8e84f08868b4c79e84de4619de83f88688c4281aec207267566550a4d"
+    },
+    "om-verify-in-repo": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-verify-in-repo/SKILL.md",
+      "computedHash": "f6732e4046e88e4b9fa11d9fbb93ad2f35978c5ac0bf333f3710daa664afbe78"
     }
   }
 }
