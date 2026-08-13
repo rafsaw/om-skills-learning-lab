@@ -1474,8 +1474,8 @@ tr:last-child td{border-bottom:0}
       <div class="gap-ev">
         <div class="t">Dowody — grep po zainstalowanych plikach</div>
         <ol>
-          <li>W całym <code>.agents/skills/</code> istnieje <strong>jedno</strong> tworzenie gałęzi — i to nie ta gałąź: <code>git switch -c "review/pr-{prNumber}"</code>, czyli branch <em>recenzyjny</em> w izolowanym worktree.
-            <span class="src">om-auto-review-pr/references/worktree-setup.md:27</span></li>
+          <li>Jedyne tworzenie gałęzi w <code>.agents/skills/</code> dotyczy gałęzi <strong>recenzyjnej</strong>, nie roboczej — dwa miejsca w tym samym pliku: <code>git switch -c "review/pr-{prNumber}"</code> przy zakładaniu worktree i <code>git checkout -B "review/pr-{prNumber}" FETCH_HEAD</code> przy ponownym użyciu istniejącego.
+            <span class="src">om-auto-review-pr/references/worktree-setup.md:27 i :60</span></li>
           <li><code>om-open-pr</code> gałąź wyłącznie <strong>odczytuje</strong>, nigdy nie zakłada: <code>git push -u origin "$(git branch --show-current)"</code>.
             <span class="src">om-open-pr/SKILL.md:70</span></li>
           <li>Mówi to zresztą wprost: <q>Use whatever branch name the caller prepared. Do not rename the branch.</q> — zakłada, że ktoś wyżej już ją przygotował.
