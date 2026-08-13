@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open Mercato Skills — Learning Map</title>
+<style>
+:root{
+  --bg:#0b0f16;
+  --panel:#111824;
+  --panel2:#151f2d;
+  --panel3:#0f1722;
+  --text:#edf2f7;
+  --muted:#9aa8b8;
+  --muted2:#6f7f91;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);
+  --purple:#b59cff;
+  --blue:#71b8ff;
+  --green:#45e6b5;
+  --amber:#f4bd62;
+  --coral:#ff8f7a;
+  --shadow:0 18px 48px rgba(0,0,0,.22);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 20% -10%,rgba(181,156,255,.10),transparent 30%),
+    radial-gradient(circle at 100% 0,rgba(69,230,181,.08),transparent 28%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+code{font-family:var(--mono)}
+.page{max-width:1460px;margin:0 auto;padding:40px 32px 64px}
+.top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:24px;
+  align-items:end;
+  padding-bottom:26px;
+  border-bottom:1px solid var(--border2);
+}
+.eyebrow{
+  color:var(--green);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+h1{
+  margin:0;
+  font-size:clamp(34px,5vw,58px);
+  line-height:.98;
+  letter-spacing:-.045em;
+}
+h1 span{color:var(--green)}
+.subtitle{
+  color:var(--muted);
+  max-width:820px;
+  line-height:1.65;
+  margin-top:16px;
+  font-size:15px;
+}
+.meta{
+  text-align:right;
+  color:var(--muted2);
+  font-size:12px;
+  line-height:1.7;
+}
+.nav{
+  display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 28px;
+}
+.nav a{
+  text-decoration:none;
+  font-size:12px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--muted);
+  background:rgba(255,255,255,.02);
+}
+.nav a:hover{border-color:var(--border2);color:var(--text)}
+.legend{
+  display:flex; flex-wrap:wrap; gap:14px 22px;
+  margin-bottom:28px; color:var(--muted); font-size:12px;
+}
+.legend-item{display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.observed{background:var(--green)}
+.dot.documented{background:var(--blue)}
+.dot.untested{background:transparent;border:1px solid var(--muted2)}
+.swatch{width:18px;height:3px;border-radius:3px}
+.sw-purple{background:var(--purple)}
+.sw-blue{background:var(--blue)}
+.sw-green{background:var(--green)}
+.sw-amber{background:var(--amber)}
+.sw-coral{background:var(--coral)}
+
+.section{
+  margin-top:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006)),var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.section-head{
+  padding:20px 24px 17px;
+  display:flex; justify-content:space-between; gap:20px; align-items:flex-start;
+  border-bottom:1px solid var(--border);
+}
+.section-head h2{margin:0;font-size:19px;letter-spacing:-.015em}
+.section-head p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.55}
+.section-kicker{font-family:var(--mono);color:var(--muted2);font-size:11px;white-space:nowrap}
+.section-body{padding:24px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{
+  background:var(--panel3);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+.card h3{margin:0 0 8px;font-size:15px}
+.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.arch-title{
+  font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px
+}
+.arch-row{
+  display:grid;grid-template-columns:1fr 54px 1fr;gap:8px;align-items:center;
+}
+.arch-box{
+  border:1px solid var(--border2);border-radius:12px;padding:14px;min-height:118px;
+}
+.arch-box h3{margin:0 0 8px;font-size:14px}
+.arch-box ul{margin:0;padding-left:17px;color:var(--muted);font-size:12px;line-height:1.65}
+.arch-arrow{text-align:center;color:var(--muted2);font-size:24px}
+.callout{
+  margin-top:14px;border-left:3px solid var(--green);background:rgba(69,230,181,.055);
+  border-radius:10px;padding:12px 14px;color:var(--muted);font-size:12.5px;line-height:1.65;
+}
+.callout strong{color:var(--text)}
+
+.mini-flow{display:flex;flex-direction:column;align-items:stretch;max-width:520px;margin:0 auto}
+.mini-node{
+  border:1px solid var(--border2);
+  border-radius:10px;padding:9px 11px;background:rgba(255,255,255,.018);
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+}
+.mini-node code{font-family:var(--mono);font-size:11.5px}
+.mini-node span{color:var(--muted2);font-size:10.5px;text-align:right}
+.v-arrow{text-align:center;color:var(--muted2);font-size:16px;line-height:19px}
+
+.config-flow{
+  display:grid;
+  grid-template-columns:1fr auto 1fr auto 1fr;
+  gap:10px; align-items:center;
+}
+.config-box{
+  border:1px solid var(--border2);border-radius:12px;padding:14px;background:rgba(255,255,255,.018);min-height:100px;
+}
+.config-box h4{margin:0 0 7px;font-family:var(--mono);font-size:12px}
+.config-box ul{margin:0;padding-left:17px;color:var(--muted);font-size:11px;line-height:1.55}
+.config-arrow{color:var(--blue);font-size:23px;text-align:center}
+
+.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+.state-card,.arch-card{background:var(--panel3);border:1px solid var(--border);border-radius:14px;padding:18px}
+.state-list{display:grid;gap:10px}
+.state-row{
+  display:grid;grid-template-columns:128px 1fr;gap:12px;border-bottom:1px solid var(--border);padding-bottom:9px;
+}
+.state-row:last-child{border-bottom:0;padding-bottom:0}
+.state-row .k{color:var(--muted2);font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.state-row .v{color:var(--text);font-family:var(--mono);font-size:11.5px;line-height:1.55}
+
+.flow-wrap{overflow-x:auto;padding-bottom:3px}
+.flow{min-width:1260px;display:flex;align-items:center;gap:0}
+.node{
+  flex:0 0 auto; min-width:120px; max-width:150px; padding:11px 12px;
+  border:1px solid var(--border2); border-radius:12px; background:var(--panel3); text-align:center;
+}
+.node .name{font-family:var(--mono);font-size:11.5px;font-weight:700}
+.node .sub{color:var(--muted2);font-size:10.5px;margin-top:5px;line-height:1.35}
+.node.read{border-color:rgba(113,184,255,.35)}
+.node.mutate{border-color:rgba(69,230,181,.35)}
+.node.review{border-color:rgba(244,189,98,.35)}
+.node.claim{border-color:rgba(255,143,122,.40)}
+.node.gray{border-color:rgba(255,255,255,.16)}
+.arrow{color:var(--muted2);padding:0 7px;font-size:20px;flex:0 0 auto}
+.flow-note{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  font-size:11px;border:1px solid var(--border);border-radius:999px;padding:5px 8px;color:var(--muted);
+}
+.pill b{color:var(--text)}
+.obs{border-color:rgba(69,230,181,.28);color:var(--green)}
+.doc{border-color:rgba(113,184,255,.28);color:var(--blue)}
+.unt{border-style:dashed;color:var(--muted2)}
+
+.pr-anatomy{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px;
+}
+.pr-part{
+  border:1px solid var(--border);border-radius:12px;background:var(--panel3);padding:12px;text-align:center;
+}
+.pr-part b{display:block;font-family:var(--mono);font-size:11px}
+.pr-part span{display:block;color:var(--muted2);font-size:10.5px;margin-top:5px;line-height:1.4}
+.pr-part small{display:block;color:var(--text);font-size:10.5px;margin-top:7px}
+
+.review-loop{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}
+.loop-node{border:1px solid var(--border2);border-radius:12px;background:var(--panel3);padding:14px;min-height:100px}
+.loop-node h3{margin:0 0 6px;font-family:var(--mono);font-size:12.5px}
+.loop-node p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.55}
+.loop-arrow{color:var(--coral);font-size:26px}
+.loop-back{
+  margin-top:12px;border:1px dashed rgba(255,143,122,.35);color:var(--muted);
+  border-radius:10px;padding:9px 11px;font-size:11.5px;text-align:center;
+}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{
+  appearance:none;border:1px solid var(--border);background:var(--panel3);color:var(--muted);
+  padding:7px 10px;border-radius:999px;cursor:pointer;font:inherit;font-size:11.5px;
+}
+.filter-btn.active{border-color:rgba(69,230,181,.45);color:var(--green);background:rgba(69,230,181,.06)}
+.skills-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.skill{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:16px}
+.skill[data-kind="setup"]{border-top:2px solid var(--purple)}
+.skill[data-kind="analysis"]{border-top:2px solid var(--blue)}
+.skill[data-kind="mutation"]{border-top:2px solid var(--green)}
+.skill[data-kind="review"]{border-top:2px solid var(--amber)}
+.skill[data-kind="merge"]{border-top:2px solid var(--coral)}
+.skill h3{margin:0;font-family:var(--mono);font-size:13px}
+.skill .role{color:var(--muted);font-size:11.5px;margin-top:5px;min-height:34px;line-height:1.5}
+.skill dl{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin:14px 0 0}
+.skill dt{color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;font-size:9.5px}
+.skill dd{margin:0;color:var(--text);font-size:11px;line-height:1.45}
+.status{
+  display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:999px;
+  padding:3px 7px;font-size:9.5px;margin-top:12px;
+}
+.status.observed{color:var(--green);border-color:rgba(69,230,181,.25)}
+.status.documented{color:var(--blue);border-color:rgba(113,184,255,.25)}
+
+.claim-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.claim-card{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:18px}
+.claim-card h3{margin:0 0 12px;font-size:15px}
+.claim-signals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.signal{
+  border:1px solid rgba(255,143,122,.24);background:rgba(255,143,122,.04);
+  border-radius:10px;padding:12px;text-align:center;
+}
+.signal b{display:block;font-family:var(--mono);font-size:11px}
+.signal span{display:block;color:var(--muted2);font-size:10px;margin-top:5px}
+.claim-note{margin-top:12px;color:var(--muted);font-size:11.5px;line-height:1.6}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:860px}
+th{
+  text-align:left;color:var(--muted2);font-size:9.5px;text-transform:uppercase;
+  letter-spacing:.08em;border-bottom:1px solid var(--border2);padding:9px 10px;
+}
+td{
+  border-bottom:1px solid var(--border);padding:10px;font-size:11.5px;color:var(--muted);
+  vertical-align:top;line-height:1.5;
+}
+td:first-child{color:var(--text);font-family:var(--mono)}
+tr:last-child td{border-bottom:0}
+
+.pattern{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pattern-step{
+  border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--panel3);position:relative;
+}
+.pattern-step::after{
+  content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:20px;
+}
+.pattern-step:last-child::after{display:none}
+.pattern-step b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px}
+.pattern-step span{color:var(--muted);font-size:11px;line-height:1.5}
+
+.next{
+  border:1px dashed rgba(113,184,255,.30);border-radius:14px;padding:18px;background:rgba(113,184,255,.035);
+}
+.next h3{margin:0 0 7px;font-size:15px}
+.next p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.next-chain{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.next-chain code{
+  font-family:var(--mono);font-size:10.5px;border:1px solid var(--border);border-radius:8px;
+  padding:6px 8px;color:var(--blue);background:var(--panel3);
+}
+.next-chain span{color:var(--muted2)}
+.note-dashed{
+  margin-top:14px;border:1px dashed rgba(255,255,255,.15);border-radius:10px;padding:11px 12px;
+  color:var(--muted);font-size:11.5px;line-height:1.6;
+}
+
+.footer{
+  margin-top:30px;border-top:1px solid var(--border);padding-top:18px;display:flex;justify-content:space-between;
+  gap:20px;color:var(--muted2);font-size:10.5px;line-height:1.6;
+}
+.hidden{display:none!important}
+
+@media(max-width:1180px){
+  .grid-3{grid-template-columns:1fr}
+  .config-flow{grid-template-columns:1fr}
+  .config-arrow{transform:rotate(90deg)}
+}
+@media(max-width:1000px){
+  .hero-grid,.grid-2,.claim-grid{grid-template-columns:1fr}
+  .skills-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review-loop{grid-template-columns:1fr}
+  .loop-arrow{transform:rotate(90deg);text-align:center}
+  .pr-anatomy{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .page{padding:24px 14px 44px}
+  .top{grid-template-columns:1fr}
+  .meta{text-align:left}
+  .skills-grid,.pr-anatomy,.pattern{grid-template-columns:1fr}
+  .pattern-step::after{content:"↓";right:auto;left:50%;top:auto;bottom:-22px}
+  .arch-row{grid-template-columns:1fr}
+  .arch-arrow{transform:rotate(90deg)}
+  .claim-signals{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div>
+    <div class="eyebrow">OM Skills Learning Lab · Visual memory map</div>
+    <h1>Open Mercato <span>Skills</span><br>Learning Map</h1>
+    <div class="subtitle">
+      Szybka mapa pamięci: jak repo, GitHub state i wyspecjalizowane skills składają się w agentic SDLC.
+      Ta wersja jest baseline po Lessons 1–4 i została poprawiona pod kątem większej zgodności z prawdziwym flow nauki.
+    </div>
+  </div>
+  <div class="meta">
+    Version: v4 · Lessons 1–4 baseline<br>
+    Focus: foundation · pipeline · state · skill roles<br>
+    Updated: Aug 2026
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#mindset">Mindset</a>
+  <a href="#foundation">Foundation</a>
+  <a href="#config">Config Model</a>
+  <a href="#big-picture">Big Picture</a>
+  <a href="#pipeline">Main Pipeline</a>
+  <a href="#entry">Entry Paths</a>
+  <a href="#review">Review Loop</a>
+  <a href="#skills">Skill Cards</a>
+  <a href="#claim">Claim / Lock</a>
+  <a href="#observed">Observed</a>
+  <a href="#pattern">Learning Pattern</a>
+</nav>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot observed"></span> ● observed in lab</div>
+  <div class="legend-item"><span class="dot documented"></span> ○ documented in SDLC / SKILL.md</div>
+  <div class="legend-item"><span class="dot untested"></span> ◌ not tested yet</div>
+  <div class="legend-item"><span class="swatch sw-purple"></span> repo/config</div>
+  <div class="legend-item"><span class="swatch sw-blue"></span> read / analysis</div>
+  <div class="legend-item"><span class="swatch sw-green"></span> mutation / publish</div>
+  <div class="legend-item"><span class="swatch sw-amber"></span> review / gate</div>
+  <div class="legend-item"><span class="swatch sw-coral"></span> claim / loop / merge edge</div>
+</div>
+
+<section class="section" id="mindset">
+  <div class="section-head">
+    <div>
+      <h2>00. Starting Point — mental model shift</h2>
+      <p>To nie jest numerowana Lesson repo-level, tylko punkt startowy nauki: zmiana z ręcznego prowadzenia workflow na projektowanie systemu engineeringowego.</p>
+    </div>
+    <div class="section-kicker">pre-lesson anchor</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="mini-flow">
+        <div class="mini-node"><code>10xDevs style</code><span>human operates the workflow step by step</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>agent</code><span>executes the next instructed step</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>checkpoint</code><span>human decides the next move</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>Open Mercato</code><span>human designs + governs the engineering system</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>skills pipeline</code><span>agents execute inside encoded SDLC rules</span></div>
+      </div>
+      <div class="callout">
+        <strong>Memory cue:</strong> Open Mercato Skills należą do <strong>Engineering Stack</strong>, nie Application Stack.
+        Są stack-agnostic wobec aplikacji, ale opiniated wobec procesu SDLC.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="foundation">
+  <div class="section-head">
+    <div>
+      <h2>0. Foundation — Lessons 1–3</h2>
+      <p>Teraz numeracja odpowiada właściwemu przebiegowi nauki: bootstrap repo, centralny config procesu, a potem AGENTS.md jako knowledge router.</p>
+    </div>
+    <div class="section-kicker">Lessons 1–3</div>
+  </div>
+  <div class="section-body grid-3">
+
+    <div class="card">
+      <h3>Lesson 1 — Bootstrap</h3>
+      <p>Repo jest najpierw przygotowywane jako środowisko działania agentów. Pierwszy skill to one-time configurator pipeline’u.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>fresh repo</code><span>.git + README</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-setup-agent-pipeline</code><span>first skill to run</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>.ai/ + docs</code><span>pipeline foundation created</span></div>
+      </div>
+      <div class="callout">
+        <strong>Output:</strong> <code>.ai/</code>, <code>AGENTS.md</code>, <code>SDLC.md</code>,
+        <code>CODE_REVIEW.md</code>, <code>BACKWARD_COMPATIBILITY.md</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lesson 2 — <code>agentic.config.json</code></h3>
+      <p>Centralna konfiguracja procesu engineeringowego. Skills czytają ten wspólny kontrakt, zamiast mieć wiedzę repo zakodowaną na stałe.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>.ai/agentic.config.json</code><span>shared process contract</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>validation / labels / tracker</code><span>pipeline behavior</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>descriptors chosen</code><span>config selects implementation</span></div>
+      </div>
+      <div class="callout">
+        <strong>Memory cue:</strong> to nie jest config aplikacji ani frameworka — to config procesu SDLC.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lesson 3 — <code>AGENTS.md</code></h3>
+      <p>Repo-level przewodnik dla agentów. Nie dubluje configu, tylko kieruje do właściwych dokumentów i reguł.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>Task</code><span>what kind of work?</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>AGENTS.md</code><span>task routing</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>Read first</code><span>authoritative docs before action</span></div>
+      </div>
+      <div class="callout">
+        <strong>Finding 003:</strong> <code>agentic.config.json</code> = configuration, <code>AGENTS.md</code> = navigation and behavior guidance.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="config">
+  <div class="section-head">
+    <div>
+      <h2>0a. Lesson 2 deep dive — how config selects behavior</h2>
+      <p>Wizualne utrwalenie najważniejszej myśli z Lesson 2: config wybiera, a deskryptory implementują.</p>
+    </div>
+    <div class="section-kicker">Finding 002</div>
+  </div>
+  <div class="section-body">
+    <div class="config-flow">
+      <div class="config-box">
+        <h4>.ai/agentic.config.json</h4>
+        <ul>
+          <li><code>tracker: github</code></li>
+          <li><code>browser: agent-browser</code></li>
+          <li><code>validation.commands</code></li>
+          <li><code>labels.pipeline</code></li>
+          <li><code>qaGate: false</code></li>
+        </ul>
+      </div>
+      <div class="config-arrow">→</div>
+      <div class="config-box">
+        <h4>Selects</h4>
+        <ul>
+          <li>which tracker implementation to use</li>
+          <li>which browser implementation to use</li>
+          <li>which labels and gates are active</li>
+          <li>how the repo pipeline behaves</li>
+        </ul>
+      </div>
+      <div class="config-arrow">→</div>
+      <div class="config-box">
+        <h4>Descriptors</h4>
+        <ul>
+          <li><code>.ai/trackers/github.md</code></li>
+          <li><code>.ai/browsers/*</code></li>
+          <li>tracker operations</li>
+          <li>browser operations</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Rule of thumb:</strong> deskryptor mówi <em>jak</em> wykonać daną klasę operacji, a <code>agentic.config.json</code> mówi <em>którego</em> deskryptora i <em>jakich zasad</em> używać w tym repo.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="big-picture">
+  <div class="section-head">
+    <div>
+      <h2>1. Big Picture — system, nie pojedynczy agent</h2>
+      <p>Skills działają na wspólnym stanie repozytorium i trackera. To on pozwala kolejnym etapom przejmować pracę.</p>
+    </div>
+    <div class="section-kicker">Findings 003–004</div>
+  </div>
+  <div class="section-body hero-grid">
+    <div class="arch-card">
+      <div class="arch-title">Architecture mental model</div>
+      <div class="arch-row">
+        <div class="arch-box">
+          <h3 style="color:var(--purple)">Repository knowledge</h3>
+          <ul>
+            <li>AGENTS.md — orientation + task routing</li>
+            <li>SDLC.md — delivery process</li>
+            <li>.ai/agentic.config.json — pipeline config</li>
+            <li>CODE_REVIEW.md / BACKWARD_COMPATIBILITY.md</li>
+            <li>.ai/trackers/github.md — tracker operations</li>
+          </ul>
+        </div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-box">
+          <h3 style="color:var(--green)">Runtime / GitHub state</h3>
+          <ul>
+            <li>Issues</li>
+            <li>Pull Requests</li>
+            <li>Labels</li>
+            <li>Assignees</li>
+            <li>Comments / review history</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Najważniejsza idea:</strong> pipeline nie musi być jednym długim promptem.
+        Kolejne skills mogą wejść w ten sam proces, ponieważ stan pracy jest zapisany poza nimi — w repo i trackerze.
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="arch-title">What lives where?</div>
+      <div class="state-list">
+        <div class="state-row"><div class="k">Config</div><div class="v">.ai/agentic.config.json</div></div>
+        <div class="state-row"><div class="k">Agent routing</div><div class="v">AGENTS.md</div></div>
+        <div class="state-row"><div class="k">Process model</div><div class="v">SDLC.md</div></div>
+        <div class="state-row"><div class="k">Tracker behavior</div><div class="v">.ai/trackers/github.md</div></div>
+        <div class="state-row"><div class="k">Workflow state</div><div class="v">GitHub labels + assignees + comments</div></div>
+        <div class="state-row"><div class="k">Installed skills</div><div class="v">.agents/skills/ + skills-lock.json</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="section-head">
+    <div>
+      <h2>2. Main Pipeline — issue to merge</h2>
+      <p>Pełny issue-driven chain jest udokumentowany, ale po Lesson 4 tylko część etapów została praktycznie uruchomiona.</p>
+    </div>
+    <div class="section-kicker">documented + partially observed</div>
+  </div>
+  <div class="section-body">
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="node"><div class="name">Issue / Task</div><div class="sub">entry</div></div>
+        <div class="arrow">→</div>
+        <div class="node read"><div class="name">VERIFY</div><div class="sub">om-verify-in-repo<br>◌ not tested</div></div>
+        <div class="arrow">→</div>
+        <div class="node claim"><div class="name">CLAIM</div><div class="sub">assignee + in-progress + comment<br>● issue claim observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node read"><div class="name">ROOT CAUSE</div><div class="sub">om-root-cause<br>◌ not tested</div></div>
+        <div class="arrow">→</div>
+        <div class="node mutate"><div class="name">FIX</div><div class="sub">om-fix<br>◌ not tested</div></div>
+        <div class="arrow">→</div>
+        <div class="node mutate"><div class="name">OPEN PR</div><div class="sub">om-open-pr<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node review"><div class="name">REVIEW</div><div class="sub">om-auto-review-pr<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node review"><div class="name">MERGE QUEUE</div><div class="sub">pipeline state<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node claim"><div class="name">MERGE</div><div class="sub">om-approve-merge-pr<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node gray"><div class="name">POST-MERGE</div><div class="sub">housekeeping<br>○ documented / partly observed</div></div>
+      </div>
+    </div>
+    <div class="flow-note">
+      <span class="pill doc"><b>○ documented:</b> verify → root-cause → fix, post-merge housekeeping</span>
+      <span class="pill obs"><b>● observed:</b> claim, open PR, review loop, merge queue, merge, cleanup</span>
+      <span class="pill unt"><b>◌ next:</b> autonomous handoff across the full issue chain</span>
+    </div>
+
+    <div class="pr-anatomy">
+      <div class="pr-part"><b>merge-queue</b><span>pipeline state</span><small>where the PR sits in flow</small></div>
+      <div class="pr-part"><b>documentation</b><span>category</span><small>what kind of change</small></div>
+      <div class="pr-part"><b>skip-qa</b><span>QA meta</span><small>no QA gate for this PR</small></div>
+      <div class="pr-part"><b>priority-low</b><span>urgency</span><small>how soon it matters</small></div>
+      <div class="pr-part"><b>risk-low</b><span>blast radius</span><small>how careful rollout must be</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="entry">
+  <div class="section-head">
+    <div>
+      <h2>3. Two Ways Into The Pipeline</h2>
+      <p>Lesson 4 pokazała, że Issue nie jest wymagane do każdego przebiegu. Open Mercato wspiera też pracę bezpośrednio z brancha / task briefu.</p>
+    </div>
+    <div class="section-kicker">observed</div>
+  </div>
+  <div class="section-body grid-2">
+
+    <div class="card">
+      <h3>Issue-driven</h3>
+      <p>Najpierw tracker state, potem praca. Pełny handoff między skills będzie celem Lesson 5.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>Issue</code><span>GitHub ticket</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>claim</code><span>● observed on Issue #2</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>implementation</code><span>Lesson 4: manual SDLC imitation</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-open-pr</code><span>documented issue handoff; not yet tested end-to-end</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>review → merge</code><span>● observed</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Direct / branch-driven</h3>
+      <p>To flow zostało wykonane praktycznie przy vendoringu skills i zamykaniu Lesson 4.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>local change</code><span>working tree</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-check-and-commit</code><span>validate → commit → push</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-open-pr</code><span>PR + labels → review</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-review-pr</code><span>review ↔ autofix</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-approve-merge-pr</code><span>gate check → squash merge</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>main</code><span>merged + cleanup</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="review">
+  <div class="section-head">
+    <div>
+      <h2>4. Review Loop — nie pojedynczy review</h2>
+      <p>Najbardziej widoczna pętla Lesson 4. Review może zmienić stan PR, naprawić findings i uruchomić kolejną recenzję.</p>
+    </div>
+    <div class="section-kicker">● observed on PR #3 / #4</div>
+  </div>
+  <div class="section-body">
+    <div class="review-loop">
+      <div class="loop-node">
+        <h3 style="color:var(--amber)">review</h3>
+        <p>PR zaczyna w stanie <code>review</code>. om-auto-review-pr uruchamia review engine.</p>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-node">
+        <h3 style="color:var(--coral)">changes-requested</h3>
+        <p>Blocker / Major oznacza request changes. Autofix może wejść do pętli.</p>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-node">
+        <h3 style="color:var(--green)">merge-queue</h3>
+        <p>Po czystym re-review PR trafia do routingu merge. To nie jest samo QA approval.</p>
+      </div>
+    </div>
+    <div class="loop-back">changes-requested → autofix → re-review → approve → merge-queue</div>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="section-head">
+    <div>
+      <h2>5. Skills We Actually Know</h2>
+      <p>Karty pokazują rolę skilla w systemie, a nie pełną dokumentację. Lista rośnie dopiero po realnym poznaniu danego skilla.</p>
+    </div>
+    <div class="section-kicker">6 installed + 2 documented next</div>
+  </div>
+  <div class="section-body">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all" type="button">All</button>
+      <button class="filter-btn" data-filter="setup" type="button">Setup</button>
+      <button class="filter-btn" data-filter="analysis" type="button">Analysis</button>
+      <button class="filter-btn" data-filter="mutation" type="button">Mutation</button>
+      <button class="filter-btn" data-filter="review" type="button">Review</button>
+      <button class="filter-btn" data-filter="merge" type="button">Merge</button>
+    </div>
+
+    <div class="skills-grid">
+      <article class="skill" data-kind="setup">
+        <h3>om-setup-agent-pipeline</h3>
+        <div class="role">Bootstrap repo-level agentic pipeline.</div>
+        <dl>
+          <dt>Input</dt><dd>new / existing repo</dd>
+          <dt>Does</dt><dd>creates .ai/, AGENTS.md, SDLC.md and policy docs</dd>
+          <dt>State</dt><dd>establishes pipeline foundation</dd>
+          <dt>Seen</dt><dd>Lesson 1</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="mutation">
+        <h3>om-check-and-commit</h3>
+        <div class="role">Validate current branch, then commit and push.</div>
+        <dl>
+          <dt>Input</dt><dd>working tree / current branch</dd>
+          <dt>Does</dt><dd>validation → minimal repair → commit → push</dd>
+          <dt>Claims</dt><dd>no tracker claim</dd>
+          <dt>Seen</dt><dd>skill vendoring + Lesson 4 notes</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="mutation">
+        <h3>om-open-pr</h3>
+        <div class="role">Shared PR publisher for branch- and issue-driven runs.</div>
+        <dl>
+          <dt>Input</dt><dd>current branch; optional issue id</dd>
+          <dt>Does</dt><dd>commit/push if needed, open/reuse PR, labels, summary</dd>
+          <dt>Claims</dt><dd>not every direct run; issue handoff documented</dd>
+          <dt>State</dt><dd>→ review</dd>
+          <dt>Seen</dt><dd>PR #4, PR #5</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="analysis">
+        <h3>om-code-review</h3>
+        <div class="role">Review engine: correctness, security, compatibility, quality.</div>
+        <dl>
+          <dt>Input</dt><dd>PR / branch / diff</dd>
+          <dt>Does</dt><dd>validation gate + checklists + severity-ranked findings</dd>
+          <dt>Output</dt><dd>approve / request changes</dd>
+          <dt>Used by</dt><dd>om-auto-review-pr</dd>
+          <dt>Seen</dt><dd>PR #4, PR #5</dd>
+        </dl>
+        <div class="status observed">● observed as review engine</div>
+      </article>
+
+      <article class="skill" data-kind="review">
+        <h3>om-auto-review-pr</h3>
+        <div class="role">PR review orchestrator with claim + autofix loop.</div>
+        <dl>
+          <dt>Input</dt><dd>PR #</dd>
+          <dt>Uses</dt><dd>om-code-review</dd>
+          <dt>Claims</dt><dd>yes — assignee + in-progress + comment</dd>
+          <dt>Can fix</dt><dd>yes, then re-review</dd>
+          <dt>State</dt><dd>review ↔ changes-requested → merge-queue</dd>
+          <dt>Seen</dt><dd>PR #3, #4, #5</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="merge">
+        <h3>om-approve-merge-pr</h3>
+        <div class="role">Merge enforcement point and squash-merge convenience skill.</div>
+        <dl>
+          <dt>Input</dt><dd>PR #</dd>
+          <dt>Does</dt><dd>check blocks + QA gate + approval attempt + squash merge</dd>
+          <dt>Edge</dt><dd>GitHub rejects self-approval on same account</dd>
+          <dt>Routes</dt><dd>fixable blockers may route to om-auto-fix-pr</dd>
+          <dt>Seen</dt><dd>PR #3, #4, #5</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="analysis">
+        <h3>om-verify-in-repo</h3>
+        <div class="role">Read-only triage for issue-driven runs.</div>
+        <dl>
+          <dt>Input</dt><dd>issue</dd>
+          <dt>Does</dt><dd>checks real / unfixed / unclaimed / not covered by open PR</dd>
+          <dt>Mutates</dt><dd>no — read-only triage</dd>
+          <dt>Next</dt><dd>Lesson 5 candidate</dd>
+        </dl>
+        <div class="status documented">○ documented · ◌ not tested</div>
+      </article>
+
+      <article class="skill" data-kind="review">
+        <h3>om-auto-fix-issue ?</h3>
+        <div class="role">Possible issue-driven orchestrator above the chain.</div>
+        <dl>
+          <dt>Status</dt><dd>referenced, not yet inspected</dd>
+          <dt>Interest</dt><dd>could drive verify → root-cause → fix → PR handoff</dd>
+          <dt>Next</dt><dd>Lesson 5 investigation candidate</dd>
+        </dl>
+        <div class="status documented">○ referenced · ◌ not tested</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="claim">
+  <div class="section-head">
+    <div>
+      <h2>6. Claim / Lock — koordynacja, nie ceremonia</h2>
+      <p>Najlepiej zrozumiane dopiero po zobaczeniu realnego claim comment na GitHubie.</p>
+    </div>
+    <div class="section-kicker">● observed</div>
+  </div>
+  <div class="section-body claim-grid">
+    <div class="claim-card">
+      <h3>Claim signals</h3>
+      <div class="claim-signals">
+        <div class="signal"><b>assignee</b><span>kto pracuje</span></div>
+        <div class="signal"><b>in-progress</b><span>aktywny lock</span></div>
+        <div class="signal"><b>claim comment</b><span>co robi agent</span></div>
+      </div>
+      <div class="claim-note">
+        W Lesson 4 om-auto-review-pr claimował PR podczas review. Po zakończeniu etapu lock został zwolniony.
+        Nie zaobserwowaliśmy realnej kolizji dwóch agentów — zaobserwowaliśmy sam mechanizm locka.
+      </div>
+    </div>
+
+    <div class="claim-card">
+      <h3>Claim is not uniform</h3>
+      <div class="state-list">
+        <div class="state-row"><div class="k">om-auto-review-pr</div><div class="v">● claims PR while reviewing</div></div>
+        <div class="state-row"><div class="k">om-open-pr</div><div class="v">● direct run observed without claim; issue handoff still untested</div></div>
+        <div class="state-row"><div class="k">om-approve-merge-pr</div><div class="v">● acted on PR without claiming</div></div>
+        <div class="state-row"><div class="k">Issue #2</div><div class="v">● manual SDLC claim observed</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="observed">
+  <div class="section-head">
+    <div>
+      <h2>7. What I Actually Observed</h2>
+      <p>Oddzielamy rzeczy praktycznie zobaczone od tych tylko opisanych w dokumentacji.</p>
+    </div>
+    <div class="section-kicker">Experiment 001 + Lessons 1–3</div>
+  </div>
+  <div class="section-body table-wrap">
+    <table>
+      <thead>
+        <tr><th>Mechanism</th><th>Status</th><th>Observed evidence</th><th>Memory cue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mental model shift</td><td style="color:var(--green)">● discussed</td><td>starting point</td><td>human operator → human governor of engineering system</td></tr>
+        <tr><td>Bootstrap skill</td><td style="color:var(--green)">● observed</td><td>om-setup-agent-pipeline</td><td>first skill creates the shared repo contract</td></tr>
+        <tr><td>Skill installation layout</td><td style="color:var(--green)">● observed</td><td>.agents/ + .claude/ + skills-lock.json</td><td>.agents is canonical; .claude is harness integration/symlink</td></tr>
+        <tr><td>Agentic config</td><td style="color:var(--green)">● observed</td><td>.ai/agentic.config.json</td><td>process config, not app stack config</td></tr>
+        <tr><td>AGENTS.md role</td><td style="color:var(--green)">● observed</td><td>Lesson 3 reading</td><td>knowledge router, not pipeline config</td></tr>
+        <tr><td>Task routing</td><td style="color:var(--green)">● observed</td><td>AGENTS.md</td><td>Task → Read first → authoritative docs → action</td></tr>
+        <tr><td>Issue claim</td><td style="color:var(--green)">● observed</td><td>Issue #2</td><td>assignee + in-progress + comment</td></tr>
+        <tr><td>PR labels</td><td style="color:var(--green)">● observed</td><td>PR #3 / #4 / #5</td><td>pipeline + category + QA + priority + risk</td></tr>
+        <tr><td>PR claim</td><td style="color:var(--green)">● observed</td><td>om-auto-review-pr</td><td>review skill locks while active</td></tr>
+        <tr><td>Review state transition</td><td style="color:var(--green)">● observed</td><td>PR #3 / #4</td><td>review → changes-requested → merge-queue</td></tr>
+        <tr><td>Autofix loop</td><td style="color:var(--green)">● observed</td><td>PR #3 / #4</td><td>finding → fix commit → re-review</td></tr>
+        <tr><td>Review engine separation</td><td style="color:var(--green)">● observed</td><td>om-auto-review-pr + om-code-review</td><td>orchestrator ≠ review engine</td></tr>
+        <tr><td>Isolated worktree</td><td style="color:var(--green)">● observed</td><td>review/pr-* branches</td><td>review/autofix can run outside main worktree</td></tr>
+        <tr><td>Self-approval limit</td><td style="color:var(--green)">● observed</td><td>PR #3 / #4 / #5</td><td>same GitHub account cannot approve its own PR</td></tr>
+        <tr><td>Merge gate enforcement</td><td style="color:var(--green)">● observed</td><td>om-approve-merge-pr</td><td>checks blockers and QA state before merge</td></tr>
+        <tr><td>Branch cleanup</td><td style="color:var(--green)">● observed</td><td>git branch -vv / worktree list / fetch --prune</td><td>worktree gone ≠ local branch ref gone</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" id="pattern">
+  <div class="section-head">
+    <div>
+      <h2>8. Learning Pattern — how we add new skills</h2>
+      <p>Nie instalujemy całej kolekcji na zapas. Każdy nowy skill wchodzi do mapy dopiero po świadomym poznaniu.</p>
+    </div>
+    <div class="section-kicker">lab rule</div>
+  </div>
+  <div class="section-body">
+    <div class="pattern">
+      <div class="pattern-step"><b>1 · install</b><span>Zainstaluj tylko skill potrzebny w bieżącym flow.</span></div>
+      <div class="pattern-step"><b>2 · inspect</b><span>Przeczytaj SKILL.md i sprawdź companion skills / dependencies.</span></div>
+      <div class="pattern-step"><b>3 · run</b><span>Uruchom go na realnym issue, branchu lub PR.</span></div>
+      <div class="pattern-step"><b>4 · observe</b><span>Patrz na GitHub, branch state, worktrees, labels i output.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div>
+      <h2>9. Next Expansion — Lesson 5</h2>
+      <p>Najbliższy brak w tej mapie: prawdziwy autonomous handoff przez pełny issue-driven chain.</p>
+    </div>
+    <div class="section-kicker">◌ not tested yet</div>
+  </div>
+  <div class="section-body">
+    <div class="next">
+      <h3>Target experiment</h3>
+      <p>
+        Utworzyć małe Issue i obserwować, czy kolejne skills potrafią przejąć pracę bez ręcznego sterowania każdym etapem:
+        kto claimuje Issue, kiedy lock przechodzi na PR, jaki context jest przekazywany i gdzie kończy się jeden skill, a zaczyna następny.
+      </p>
+      <div class="next-chain">
+        <code>om-verify-in-repo</code><span>→</span>
+        <code>om-root-cause</code><span>→</span>
+        <code>om-fix</code><span>→</span>
+        <code>om-open-pr</code><span>→</span>
+        <code>om-auto-review-pr</code><span>→</span>
+        <code>om-approve-merge-pr</code>
+      </div>
+      <div class="note-dashed">
+        <strong>Open question for Lesson 5:</strong> czy pełny chain będziemy wywoływać jako serię pojedynczych skills,
+        czy istnieje skill-orchestrator (np. <code>om-auto-fix-issue</code>) spinający większy fragment tego flow?
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div>
+    OM Skills Learning Lab · visual memory map<br>
+    Built from Lessons 1–4, Experiment 001 and observed repo / GitHub behavior.
+  </div>
+  <div style="text-align:right">
+    Keep this file alive: update after each practical lesson.<br>
+    Principle: mental model first, observed behavior second, documentation anchored to evidence.
+  </div>
+</footer>
+
+</div>
+
+<script>
+const buttons = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.skill');
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    cards.forEach(card => {
+      card.classList.toggle('hidden', filter !== 'all' && card.dataset.kind !== filter);
+    });
+  });
+});
+</script>
+</body>
+</html>
