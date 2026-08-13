@@ -82,3 +82,27 @@ The two files have different responsibilities.
 Open Mercato separates **configuration** from **repository guidance**.
 
 `agentic.config.json` defines **how the pipeline is configured**, while `AGENTS.md` acts as a **knowledge router**, directing agents to the correct documentation before making changes.
+
+---
+
+## Finding 004 — Lesson 4: Pipeline execution through skills
+
+### Question
+
+What does running a change through the pipeline reveal about how the skills relate to each other?
+
+### Evidence
+
+Issue #2 and PR #3 — the issue-driven run: the issue was assigned and claimed by comment before work started.
+
+PR #4 — the branch-driven run: label transitions from `review` to `changes-requested` to `merge-queue`, the claim and release around the review stage, the rejected same-account approval, and the merge.
+
+### Observation
+
+A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, and dedicated skills handled review, autofix, re-review, merge queue, and merge. Claiming is not uniform across the skills: `om-auto-review-pr` claimed the PR with an assignee, the `in-progress` label, and a claim comment, and released the claim when its stage finished, while `om-open-pr` and `om-approve-merge-pr` acted on the PR without taking the lock at all. The claim is the mechanism intended to keep concurrent agents off the same PR, although no contention actually occurred during these runs.
+
+### Conclusion
+
+The Open Mercato pipeline is not one monolithic agent workflow. It is composed of specialized skills that perform individual SDLC stages and coordinate through shared repository state, primarily GitHub issues, PRs, claims, and labels.
+
+This allows work to move between agents and skills while the repository and tracker remain the shared source of workflow state.
