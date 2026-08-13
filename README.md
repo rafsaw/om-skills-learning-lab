@@ -51,8 +51,8 @@ a harmless warning while silently leaving a pull request unlabeled.
 | `.claude/skills/<name>` | Symlink into `.agents/skills/`. Untracked, recreated per clone (see above). |
 | [`.ai/agentic.config.json`](.ai/agentic.config.json) | The pipeline config every `om-*` skill reads: base branch, tracker, label taxonomy, validation commands. |
 | [`.ai/trackers/github.md`](.ai/trackers/github.md) | Definitions of every tracker operation, implemented with `gh`. Skills name operations; this file says what they do. |
-| [`.ai/browsers/agent-browser.md`](.ai/browsers/agent-browser.md) | The same idea for browser operations, used by UI verification. |
-| `.ai/{runs,analysis,specs,scripts,qa}/` | Skill working directories. Generated per run — not source, and not authoritative. |
+| [`.ai/browsers/agent-browser.md`](.ai/browsers/agent-browser.md) | The same idea for browser operations, used by UI verification — whose skill is not installed here (see the coverage-gap table in [`AGENTS.md`](AGENTS.md)). |
+| `.ai/{runs,analysis,specs,scripts,qa}/` | Skill working directories, and protected surface #5 in [`BACKWARD_COMPATIBILITY.md`](BACKWARD_COMPATIBILITY.md). `.ai/runs`, `.ai/analysis`, and `.ai/qa/artifacts_*` are generated per run and are not source. `.ai/specs/` and `.ai/scripts/` are committed: specs are a handoff point between skills, and the launchers under `.ai/scripts/` are kept so the environment stays reproducible. |
 | [`skills-lock.json`](skills-lock.json) | The installed-skill manifest: `source`, `sourceType`, `skillPath`, and `computedHash` per skill. |
 | [`learning-map/`](learning-map) | Standalone HTML visual maps of the skill collection. |
 
@@ -71,8 +71,9 @@ a harmless warning while silently leaving a pull request unlabeled.
 
 [`learning-map/om-skills-learning-map-v5.html`](learning-map/om-skills-learning-map-v5.html)
 is the current revision and includes an operator runbook. Open it directly in a
-browser; it is self-contained and needs no server. The v4 file beside it is the
-earlier revision, kept for reference — start with v5.
+browser; it is self-contained and needs no server.
+[`om-skills-learning-map-v4.html`](learning-map/om-skills-learning-map-v4.html)
+beside it is the earlier revision, kept for reference — start with v5.
 
 ## What is installed
 
