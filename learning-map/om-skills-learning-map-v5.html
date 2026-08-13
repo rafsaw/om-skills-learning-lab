@@ -384,6 +384,14 @@ tr:last-child td{border-bottom:0}
 .gap-item b{display:block;font-size:12px;margin-bottom:4px}
 .gap-item span{color:var(--muted);font-size:11.5px;line-height:1.6}
 .gap-item em{color:var(--muted2);font-style:normal;font-family:var(--mono);font-size:10.5px}
+.gap-ev{
+  margin-top:10px;border-top:1px dashed rgba(255,255,255,.14);padding-top:9px;
+}
+.gap-ev .t{color:var(--muted2);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.gap-ev ol{margin:0;padding-left:18px;color:var(--muted);font-size:11px;line-height:1.65}
+.gap-ev li{margin-bottom:5px}
+.gap-ev .src{display:block;font-family:var(--mono);font-size:10px;color:var(--muted2);margin-top:2px}
+.gap-ev q{color:var(--text);font-style:italic}
 
 .corr{
   border:1px solid var(--border);border-radius:12px;background:var(--panel3);padding:15px;margin-bottom:10px;
@@ -1462,7 +1470,28 @@ tr:last-child td{border-bottom:0}
   </div>
   <div class="section-body">
 
-    <div class="gap-item"><b>1 · Nikt nie tworzy brancha <em>⚠ luka SDLC</em></b><span>W przebiegu branch-driven żaden etap nie mówi, kiedy i jak powstaje feature branch. <code>om-check-and-commit</code> commituje „bieżący branch" i <strong>nie ma guardu</strong> — stojąc na <code>main</code>, scommituje na <code>main</code>. Propozycja: krok 0 „utwórz branch" jako jawny element procesu.</span></div>
+    <div class="gap-item"><b>1 · Nikt nie tworzy brancha <em>⚠ luka SDLC</em></b><span>W przebiegu branch-driven żaden etap nie mówi, kiedy i jak powstaje feature branch. <code>om-check-and-commit</code> commituje „bieżący branch" i <strong>nie ma guardu</strong> — stojąc na <code>main</code>, scommituje na <code>main</code>. Propozycja: krok 0 „utwórz branch" jako jawny element procesu.</span>
+      <div class="gap-ev">
+        <div class="t">Dowody — grep po zainstalowanych plikach</div>
+        <ol>
+          <li>W całym <code>.agents/skills/</code> istnieje <strong>jedno</strong> tworzenie gałęzi — i to nie ta gałąź: <code>git switch -c "review/pr-{prNumber}"</code>, czyli branch <em>recenzyjny</em> w izolowanym worktree.
+            <span class="src">om-auto-review-pr/references/worktree-setup.md:27</span></li>
+          <li><code>om-open-pr</code> gałąź wyłącznie <strong>odczytuje</strong>, nigdy nie zakłada: <code>git push -u origin "$(git branch --show-current)"</code>.
+            <span class="src">om-open-pr/SKILL.md:70</span></li>
+          <li>Mówi to zresztą wprost: <q>Use whatever branch name the caller prepared. Do not rename the branch.</q> — zakłada, że ktoś wyżej już ją przygotował.
+            <span class="src">om-open-pr/SKILL.md:73</span></li>
+          <li>Tym „callerem" jest łańcuch <code>om-verify-in-repo → om-root-cause → <strong>om-fix</strong> → om-open-pr</code>. Branch tworzy <code>om-fix</code> — <strong>niezainstalowany</strong> (patrz <a class="ev" href="#coverage">Coverage gaps</a>).
+            <span class="src">om-open-pr/SKILL.md:8</span></li>
+          <li><code>SDLC.md</code> zna tę lukę i zostawia furtkę — etap Claim: <q>om-fix / om-auto-create-pr, <strong>or a human</strong></q>. W tym repo została wyłącznie ta ostatnia opcja.
+            <span class="src">SDLC.md:21</span></li>
+        </ol>
+        <div class="claim-note" style="margin-top:9px">
+          W tym grepie <code>om-check-and-commit</code> <strong>nie pojawia się ani razu</strong> — nigdy nie dotyka gałęzi,
+          co potwierdza brak guardu. Wniosek projektowy: branch powstaje tam, gdzie powstaje praca, czyli w <code>om-fix</code>.
+          <code>om-open-pr</code> jest współdzielony przez wiele ścieżek wejścia i celowo nie zgaduje, jak nazwać gałąź ani od czego ją odgałęzić.
+        </div>
+      </div>
+    </div>
 
     <div class="gap-item"><b>2 · Brak preflightu <em>⚠ luka SDLC</em></b><span>Nic nie sprawdza, czy branch wychodzi z aktualnego <code>main</code>, zanim zaczniesz pracę. Przy dłuższej lekcji łatwo pracować na nieaktualnej bazie i dowiedzieć się o tym dopiero przy konflikcie.</span></div>
 
