@@ -34,3 +34,27 @@ _What actually happened while running it — commands, output, surprises._
 
 _What the experiment settled: confirmed, refuted, or inconclusive._
 ```
+---
+
+## Experiment 001
+
+### Goal
+
+Run a real repository change through the Open Mercato PR pipeline and observe the pipeline states, claims, review loop, and merge behavior.
+
+### Observations
+
+- A real GitHub issue was claimed before work started.
+- Opening the PR applied the expected pipeline, category, QA, priority, and risk labels.
+- `om-auto-review-pr` claimed the PR while working on it.
+- Review moved the PR from `review` to `changes-requested`, applied autofixes, re-reviewed it, and moved it to `merge-queue`.
+- `om-code-review` acted as the review engine used by `om-auto-review-pr`.
+- GitHub rejected formal approval because the PR author and reviewer were the same account.
+- `om-approve-merge-pr` detected that limitation and asked before merging without formal approval.
+- Review/autofix used isolated worktrees and left local `review/pr-*` branch refs that required cleanup afterwards.
+
+### Result
+
+Confirmed that the Open Mercato pipeline is a stateful workflow coordinated through GitHub claims and labels. Skills perform specific stages of the workflow and can hand work from one stage to the next, including review, autofix, re-review, merge queue, and merge.
+
+---

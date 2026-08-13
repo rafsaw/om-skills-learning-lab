@@ -82,3 +82,17 @@ The two files have different responsibilities.
 Open Mercato separates **configuration** from **repository guidance**.
 
 `agentic.config.json` defines **how the pipeline is configured**, while `AGENTS.md` acts as a **knowledge router**, directing agents to the correct documentation before making changes.
+
+---
+
+## Finding 004 — Lesson 4: Pipeline execution through skills
+
+### Observation
+
+A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, claims prevented concurrent agents from working on the same PR, and dedicated skills handled review, autofix, re-review, merge queue, and merge.
+
+### Conclusion
+
+The Open Mercato pipeline is not one monolithic agent workflow. It is composed of specialized skills that perform individual SDLC stages and coordinate through shared repository state, primarily GitHub issues, PRs, claims, and labels.
+
+This allows work to move between agents and skills while the repository and tracker remain the shared source of workflow state.
