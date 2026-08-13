@@ -20,6 +20,37 @@ skills-lock.json                 installed-skill manifest: source + computedHash
 SDLC.md CODE_REVIEW.md BACKWARD_COMPATIBILITY.md   process docs
 ```
 
+Discovery entries are not committed: `.claude/` is gitignored, so after a fresh clone the skills exist under `.agents/skills/` but nothing can dispatch to them until the symlinks are recreated (Windows needs Developer Mode or an elevated shell):
+
+```bash
+mkdir -p .claude/skills
+for s in .agents/skills/*/; do
+  ln -sfn "$PWD/${s%/}" ".claude/skills/$(basename "$s")"
+done
+```
+
+## Installed skills and known coverage gaps
+
+`skills-lock.json` is the authoritative list of what is installed; this section records what is *not*, because the installed skills reference absent ones by name and an agent that follows those references finds nothing. Nothing is fetched at run time, so a named-but-absent skill is a dead end, not a lazy install.
+
+Installed: `om-setup-agent-pipeline`, `om-code-review`, `om-auto-review-pr`, `om-open-pr`, `om-approve-merge-pr`, `om-check-and-commit`. Together these cover the SDLC stages from *PR* through *Review loop* to *Merge* — a branch can be committed, opened as a labeled PR, reviewed, and merged without leaving the local install.
+
+Not installed, but referenced by the skills above:
+
+| Referenced skill | Named by | What is unavailable here |
+|---|---|---|
+| `om-auto-fix-pr` | `om-approve-merge-pr` (conflicts, red CI, `changes-requested`) | The blocker-recovery route. A conflicted or CI-red PR must be fixed by hand or through `om-auto-review-pr --autofix`, which fixes findings but is not the `--ci-only` path. |
+| `om-followup-issue-from-pr` | `om-approve-merge-pr` | Filing a follow-up issue from a PR or comment link; open the issue manually. |
+| `om-auto-fix-issue`, `om-verify-in-repo`, `om-root-cause`, `om-fix` | `om-open-pr` (the autofix chain in its opening paragraph), `SDLC.md` | The issue-driven chain that produces the branch `om-open-pr` expects to already exist. |
+| `om-auto-create-pr`, `om-auto-continue-pr` | `om-open-pr`, `om-code-review`, `SDLC.md` | Alternative PR-opening callers. No loss: `om-open-pr` is the shared implementation they delegate to and works standalone. |
+| `om-auto-qa-pr` | `om-open-pr` (`references/pr-finalize.md`) | The manual-QA pass and the self-QA `qa-approved` exception. The QA gate is off (`qaGate: false`), so this blocks nothing today. |
+| `om-review-prs` | `om-code-review`, `SDLC.md` | Batch review across open PRs; review them one at a time with `om-auto-review-pr` instead. |
+| `om-merge-buddy`, `om-close-fixed-issues` | `SDLC.md` | The read-only "which PRs can merge now" report, and post-merge issue housekeeping. |
+| `om-auto-write-spec`, `om-auto-implement-spec` | `om-open-pr` | The spec-driven run that hands `om-open-pr` a spec-only design PR. |
+| `om-spec-writing`, `om-prepare-issue`, `om-brainstorm` | `BACKWARD_COMPATIBILITY.md` §5, `om-auto-review-pr` (`references/spec-review.md`) | The `paths.specs` handoff chain that produces the specs a spec-only PR reviews. |
+
+Add one with `npx skills add` (never by hand-copying — the lockfile hash comes from the tool) and delete its row here in the same PR.
+
 ## Task routing
 
 | When the task involves… | Read first | Key rules |
