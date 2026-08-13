@@ -99,7 +99,7 @@ PR #4 — the branch-driven run: label transitions from `review` to `changes-req
 
 ### Observation
 
-A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, and dedicated skills handled review, autofix, re-review, merge queue, and merge. Each skill claimed the PR with an assignee, the `in-progress` label, and a claim comment, then released the claim when its stage finished — the mechanism intended to keep concurrent agents off the same PR, although no contention actually occurred during these runs.
+A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, and dedicated skills handled review, autofix, re-review, merge queue, and merge. Claiming is not uniform across the skills: `om-auto-review-pr` claimed the PR with an assignee, the `in-progress` label, and a claim comment, and released the claim when its stage finished, while `om-open-pr` and `om-approve-merge-pr` acted on the PR without taking the lock at all. The claim is the mechanism intended to keep concurrent agents off the same PR, although no contention actually occurred during these runs.
 
 ### Conclusion
 
