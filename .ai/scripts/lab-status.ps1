@@ -324,7 +324,7 @@ function Get-EntryLinkInfo {
     $target = ''
     if ($isLink) {
         $raw = Get-PropertyOrNull -InputObject $Item -Name 'Target'
-        $first = @($raw) | Where-Object { $_ -ne $null -and [string]$_ -ne '' } | Select-Object -First 1
+        $first = @($raw) | Where-Object { $null -ne $_ -and [string]$_ -ne '' } | Select-Object -First 1
         if ($null -ne $first) {
             $targetText = [string]$first
             # A symbolic link may record a relative target; resolve it against
@@ -348,7 +348,11 @@ function Read-LockfileSkillNames {
 
     try {
         if (-not (Test-Path -LiteralPath $LockPath -PathType Leaf)) { throw 'not found' }
-        $raw = Get-Content -LiteralPath $LockPath -Raw -ErrorAction Stop
+        # -Encoding UTF8 explicitly: Windows PowerShell 5.1 otherwise decodes with
+        # the host's ANSI code page, and the repository's files are UTF-8 without
+        # a BOM, so the default is only correct on a host whose code page happens
+        # to be 65001.
+        $raw = Get-Content -LiteralPath $LockPath -Raw -Encoding UTF8 -ErrorAction Stop
         if ([string]::IsNullOrWhiteSpace($raw)) { throw 'empty' }
         $json = ConvertFrom-Json -InputObject $raw -ErrorAction Stop
         $skills = Get-PropertyOrNull -InputObject $json -Name 'skills'
@@ -497,7 +501,13 @@ function Get-LatestLogEntry {
 
     $lines = $null
     try {
-        $lines = @(Get-Content -LiteralPath $Path -ErrorAction Stop)
+        # -Encoding UTF8 is load-bearing, not decoration. Windows PowerShell 5.1
+        # decodes with the host's ANSI code page when no encoding is given, and
+        # these documents are UTF-8 without a BOM: on a cp1252 host the em dash
+        # in a heading such as '## Finding 005 - ...' would arrive as three
+        # mojibake characters, survive the separator trim below, and print as
+        # '?' substitutions in front of the title.
+        $lines = @(Get-Content -LiteralPath $Path -Encoding UTF8 -ErrorAction Stop)
     } catch {
         $result.Reason = 'could not be read'
         return $result
