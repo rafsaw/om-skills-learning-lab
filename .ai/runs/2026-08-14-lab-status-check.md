@@ -113,12 +113,14 @@ reports on the fixture, never on the real checkout.
 
 ## Progress
 
+PR: #10
+
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
 
 ### Phase 1: the minimal status report
 
-- [ ] 1.1 Script skeleton and anchor check
-- [ ] 1.2 Repository section
-- [ ] 1.3 Skills section
-- [ ] 1.4 Learning log section
-- [ ] 1.5 Verdict and documentation pointers
+- [x] 1.1 Script skeleton and anchor check — ef6114b
+- [x] 1.2 Repository section — c346238
+- [x] 1.3 Skills section — 6af942f
+- [x] 1.4 Learning log section — f697ca6
+- [x] 1.5 Verdict and documentation pointers — a347cc6
