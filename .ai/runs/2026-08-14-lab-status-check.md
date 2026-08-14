@@ -124,3 +124,4 @@ PR: #10
 - [x] 1.3 Skills section — 6af942f
 - [x] 1.4 Learning log section — f697ca6
 - [x] 1.5 Verdict and documentation pointers — a347cc6
+- [x] 1.6 Review autofix: read repository text as UTF-8 regardless of host code page — 4a2e036
