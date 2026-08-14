@@ -7,11 +7,23 @@
       "skillPath": "skills/om-approve-merge-pr/SKILL.md",
       "computedHash": "649fe546c90f224a715896c657b815bb4070d4c30f2a9fb0c0fefd3d75e700d4"
     },
+    "om-auto-create-pr": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-create-pr/SKILL.md",
+      "computedHash": "25a120bcc333ac5c7931d6b2ae19d4b1bca84b43fe0870db87d49fea9db9b010"
+    },
     "om-auto-fix-issue": {
       "source": "open-mercato/skills",
       "sourceType": "github",
       "skillPath": "skills/om-auto-fix-issue/SKILL.md",
       "computedHash": "b3c283e880e111aae1186d4d259ecf8c0545b9d94e7ad5fcbe031583adcc1833"
+    },
+    "om-auto-implement-spec": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-implement-spec/SKILL.md",
+      "computedHash": "aec5641d038bf9003f4ec306a68753fcd89df37a9007adbabaa94c51eefaafb4"
     },
     "om-auto-review-pr": {
       "source": "open-mercato/skills",
