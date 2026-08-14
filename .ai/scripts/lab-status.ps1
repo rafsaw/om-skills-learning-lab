@@ -467,10 +467,106 @@ function Show-SkillsSection {
         ' vendored only), so the next reproducible install would be wrong.')
 }
 
+# Scan a learning-log document for its highest-numbered entry heading.
+#
+# Fence-awareness is structural, not incidental: EXPERIMENTS.md carries an entry
+# template inside a fenced block whose heading is '## Experiment NNN'. A
+# digit-anchored pattern skips that one only because the placeholder is literally
+# NNN - anyone filling it in with digits, or pasting a fenced sample of a real
+# entry, would otherwise create a phantom 'latest' entry.
+#
+# Highest-numbered rather than last-in-file is also deliberate: it is stable
+# under an out-of-order append, and both files number sequentially by convention.
+function Get-LatestLogEntry {
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][string] $Kind
+    )
+
+    $result = [pscustomobject]@{
+        Found  = $false
+        Reason = ''
+        Number = ''
+        Title  = ''
+    }
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        $result.Reason = 'is missing'
+        return $result
+    }
+
+    $lines = $null
+    try {
+        $lines = @(Get-Content -LiteralPath $Path -ErrorAction Stop)
+    } catch {
+        $result.Reason = 'could not be read'
+        return $result
+    }
+
+    $pattern = '^##\s+' + $Kind + '\s+(\d{3})\b(.*)$'
+    $inFence = $false
+    $bestNumber = -1
+    $bestTitle = ''
+
+    foreach ($line in $lines) {
+        $text = [string]$line
+        if ($text.TrimStart().StartsWith('```')) {
+            $inFence = -not $inFence
+            continue
+        }
+        if ($inFence) { continue }
+
+        $match = [regex]::Match($text, $pattern)
+        if (-not $match.Success) { continue }
+
+        $number = [int]$match.Groups[1].Value
+        if ($number -le $bestNumber) { continue }
+
+        $bestNumber = $number
+        # Heading suffixes are not uniform - an em dash, a hyphen, a colon, a
+        # parenthesis, or nothing at all all occur - so the title is whatever
+        # follows the number once the separators are trimmed off.
+        $bestTitle = ($match.Groups[2].Value -replace '^[\s:\-\u2012\u2013\u2014]+', '').Trim()
+    }
+
+    if ($bestNumber -lt 0) {
+        $result.Reason = "has no `"## $Kind NNN`" heading outside a code fence"
+        return $result
+    }
+
+    $title = ConvertTo-AsciiText $bestTitle
+    if ($title.Length -gt $script:TitleMaxLength) {
+        $title = $title.Substring(0, $script:TitleMaxLength - 3) + '...'
+    }
+
+    $result.Found = $true
+    $result.Number = '{0:d3}' -f $bestNumber
+    $result.Title = $title
+    return $result
+}
+
 function Show-LearningLogSection {
     param([Parameter(Mandatory = $true)][string] $RepoRoot)
 
     Write-Section 'Learning log'
+
+    $documents = @(
+        [pscustomobject]@{ Label = 'Latest experiment'; File = 'EXPERIMENTS.md'; Kind = 'Experiment'; Noun = 'experiment' },
+        [pscustomobject]@{ Label = 'Latest finding';    File = 'FINDINGS.md';    Kind = 'Finding';    Noun = 'finding' }
+    )
+
+    foreach ($document in $documents) {
+        $entry = Get-LatestLogEntry -Path (Join-Path $RepoRoot $document.File) -Kind $document.Kind
+        if (-not $entry.Found) {
+            Write-Row $document.Label 'none recorded'
+            Add-Warning ($document.File + ' ' + $entry.Reason + ', so the latest recorded ' + $document.Noun + ' could not be reported. A lab with no log is unusual but not broken.')
+            continue
+        }
+
+        $value = $entry.Number
+        if ($entry.Title -ne '') { $value = $value + ' - ' + $entry.Title }
+        Write-Row $document.Label $value
+    }
 }
 
 function Show-Verdict {
