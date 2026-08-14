@@ -118,3 +118,101 @@ This creates a layered model:
 `flow runner → specialized skills → repo/tracker state`
 
 The orchestration layer coordinates the workflow while individual skills retain narrow responsibilities and remain independently runnable.
+
+---
+
+## Finding 006 — Feature design is a separate autonomous lifecycle
+
+### Question
+
+After autonomous issue orchestration, does Open Mercato treat feature design as just another implementation step, or as its own lifecycle?
+
+### Evidence
+
+Lesson 6 used `om-auto-write-spec` with a plain feature brief for a Learning Lab Status capability.
+
+The skill created an isolated `spec/lab-status-check` branch, wrote `.ai/specs/2026-08-13-lab-status-check.md`, and opened PR #9 as a design-only PR. No feature code was implemented in that PR.
+
+`om-spec-writing` produced the specification in autonomous mode, including resolved assumptions, architecture, edge cases, phasing, and an implementation plan.
+
+### Observation
+
+The feature moved through a complete design lifecycle before implementation began:
+
+`feature brief → autonomous spec → spec PR → review → human decisions → spec amendment → approved spec on main`
+
+The spec PR remained explicitly design-only, and the implementation was left for a separate follow-on lifecycle.
+
+### Conclusion
+
+Open Mercato treats feature specification as a first-class, independently reviewable engineering artifact rather than as hidden reasoning inside an implementation run.
+
+The lifecycle separates **design state** from **implementation state**, allowing the design to be reviewed, amended, merged, and referenced before any code is written.
+
+---
+
+## Finding 007 — Autonomous design is reversible and human-overridable
+
+### Question
+
+What happens when an autonomous spec is technically valid but the human disagrees with its product or implementation decisions?
+
+### Evidence
+
+The first autonomous version of the Lab Status spec selected a POSIX shell script and a broader diagnostic scope.
+
+An architectural review found several correctness issues, but it did not reject those product decisions.
+
+Human review then explicitly changed two decisions:
+
+- use Windows PowerShell 5.1 instead of POSIX `sh`,
+- reduce Phase 1 to the smallest useful Learning Lab Status capability.
+
+`om-spec-writing` amended the existing spec in place and regenerated the affected architecture, contracts, risks, phasing, and implementation plan.
+
+### Observation
+
+Autonomous defaults were not treated as final authority.
+
+The design could be narrowed and redirected after review without discarding the spec lifecycle or starting over. The revised spec preserved an audit trail of the original autonomous decisions and the later human overrides.
+
+### Conclusion
+
+Open Mercato autonomy is designed around **documented, reversible assumptions**, not irreversible agent decisions.
+
+A useful mental model is:
+
+`autonomous proposal → explicit assumptions → review → human override → amended durable artifact`
+
+Human judgement remains a first-class control point, especially for scope and environment-specific decisions that architectural review alone may not identify.
+
+---
+
+## Finding 008 — Runtime repository state can correct documented assumptions
+
+### Question
+
+When repository documentation and the actual checkout disagree, which one should drive the design?
+
+### Evidence
+
+During the Lab Status spec amendment, repository probing showed that the 13 discovery entries under `.claude/skills/` were NTFS `Junction` entries in the Windows checkout, even though the repository documentation consistently described them as symlinks.
+
+A design that accepted only `SymbolicLink` would therefore have reported a healthy lab as broken.
+
+The final spec was changed to accept both `SymbolicLink` and `Junction` and to verify that each discovery entry resolves to the matching `.agents/skills/<name>` directory in the current repository.
+
+### Observation
+
+The spec-writing/review process used actual repository state to challenge a documented assumption and changed the design accordingly.
+
+### Conclusion
+
+Repository documentation is an important source of architectural intent, but runtime and filesystem observations remain authoritative for actual behavior.
+
+For feature design, Open Mercato's process can be understood as:
+
+`repo rules + repo state + observed runtime behavior → design`
+
+rather than treating documentation alone as unquestionable truth.
+

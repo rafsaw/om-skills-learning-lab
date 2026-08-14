@@ -106,3 +106,69 @@ The chain used explicit contracts rather than relying only on shared conversatio
 * Worktree isolation keeps the user's primary checkout untouched.
 * GitHub prevents formal self-approval when the same account authors and reviews the PR.
 * `om-fix` requires regression tests, but this documentation-only repository has no test runner. The configured `git diff --check` gate and manual documentation checks were used instead.
+
+---
+
+## Experiment 003 — Autonomous feature specification lifecycle
+
+### Goal
+
+Start from a small real feature brief and observe how Open Mercato turns feature intent into an approved specification without implementing the feature.
+
+The chosen feature was **Learning Lab Status**: a lightweight way to check whether the Open Mercato Skills Learning Lab is ready for the next learning session.
+
+### Input
+
+The run started from a plain feature brief:
+
+> Add a simple way to check the current status of the Open Mercato Skills Learning Lab.
+>
+> I want to quickly see whether the repository is ready for the next learning session, including basic repository state, installed Open Mercato skills, and the latest recorded experiment and finding.
+>
+> Keep the feature lightweight and appropriate for this learning-lab repository.
+
+No Issue or implementation branch was created manually.
+
+### What happened
+
+1. `om-auto-write-spec` accepted the plain brief and ran the feature-design flow autonomously.
+2. It created an isolated spec worktree and branch `spec/lab-status-check`.
+3. `om-spec-writing --autonomous` produced `.ai/specs/2026-08-13-lab-status-check.md`.
+4. The autonomous run resolved seven Open Questions using reversible defaults and surfaced those decisions in the spec and PR.
+5. `om-open-pr` published PR #9 as a design-only spec PR. No feature code was implemented.
+6. The first autonomous design chose a POSIX `.ai/scripts/lab-status.sh` implementation and included a broader set of readiness checks.
+7. `om-spec-writing` was run again in architectural-review mode without modifying the spec. It found no Critical issues, but identified four High findings and several Medium/Low findings affecting correctness and testability.
+8. Human review overrode two important design decisions:
+   - use Windows PowerShell 5.1 and `.ai/scripts/lab-status.ps1`,
+   - reduce Phase 1 to the smallest useful status capability.
+9. `om-spec-writing` amended the existing specification in place instead of creating a new spec.
+10. During the amendment, repository probing discovered that the current `.claude/skills/` discovery entries are NTFS junctions rather than symbolic links. The design was updated to accept both link types and verify their resolved targets.
+11. Two additional small contract amendments corrected PowerShell unsupported-parameter behavior so the spec does not promise an exit code the script cannot control.
+12. The amended spec was committed and pushed to the existing spec branch.
+13. `om-open-pr` detected and reused existing PR #9, refreshing its body and labels instead of opening a duplicate PR.
+14. `om-approve-merge-pr` attempted formal approval. GitHub rejected self-approval because the same account authored the PR.
+15. After explicit confirmation, PR #9 was squash-merged into `main` and the remote spec branch was deleted.
+16. The final merged PR remained design-only: the approved specification landed on `main`, while feature implementation was deliberately deferred to a later lesson.
+
+### Observations
+
+- `om-auto-write-spec` is a high-level feature-design orchestrator, not merely a Markdown generator.
+- `om-spec-writing` has distinct autonomous writing and architectural-review behaviors.
+- Autonomous Open Questions can be resolved with reversible defaults instead of blocking an unattended run.
+- Human decisions can override autonomous defaults and trigger an in-place spec amendment.
+- An architectural review can find technical correctness issues without necessarily catching product/context choices such as the preferred implementation language or desired scope.
+- The spec lifecycle is isolated from feature implementation: PR #9 contained only the specification.
+- Runtime repository probing can invalidate documentation assumptions; the Windows checkout used NTFS junctions where the docs said symlinks.
+- `om-open-pr` can reuse an existing PR and refresh stale PR metadata after the underlying spec changes.
+- GitHub still prevents same-account formal approval; `om-approve-merge-pr` surfaced the limitation and asked before proceeding.
+
+### Result
+
+Confirmed that Open Mercato provides a complete autonomous **feature specification lifecycle** before implementation:
+
+`brief → autonomous spec → review → human override → amendment → spec PR → merge`
+
+The experiment also confirmed that autonomous design is not treated as final authority. The specification remains a durable, reviewable artifact that can be corrected by architectural review, runtime evidence, and human product judgement before implementation starts.
+
+`om-auto-implement-spec` was not installed or run in this lesson and remains untested for the next lesson.
+
