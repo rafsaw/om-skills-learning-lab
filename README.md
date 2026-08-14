@@ -36,6 +36,18 @@ that then drift apart. This snippet is mirrored from the "Repository layout"
 section of [`AGENTS.md`](AGENTS.md), which is the canonical copy — change it
 there and here together.
 
+The fastest way to confirm that step actually worked is
+[`.ai/scripts/lab-status.ps1`](.ai/scripts/lab-status.ps1), which checks that
+every entry under `.claude/skills/` resolves into *this* checkout rather than
+merely existing:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .ai\scripts\lab-status.ps1
+```
+
+It is read-only and exits `0` when the repository is ready, `1` when something
+would stop a session. Run it with `-Help` for the full check list.
+
 You also need the [`gh` CLI](https://cli.github.com/), authenticated
 (`gh auth status`) and at **version 2.82.1 or newer**, plus `jq`. Every tracker
 action a skill takes runs through [`.ai/trackers/github.md`](.ai/trackers/github.md),
@@ -53,6 +65,7 @@ a harmless warning while silently leaving a pull request unlabeled.
 | [`.ai/trackers/github.md`](.ai/trackers/github.md) | Definitions of every tracker operation, implemented with `gh`. Skills name operations; this file says what they do. |
 | [`.ai/browsers/agent-browser.md`](.ai/browsers/agent-browser.md) | The same idea for browser operations, used by UI verification — whose skill is not installed here (see the coverage-gap table in [`AGENTS.md`](AGENTS.md)). |
 | `.ai/{runs,analysis,specs,scripts,qa}/` | Skill working directories, and protected surface #5 in [`BACKWARD_COMPATIBILITY.md`](BACKWARD_COMPATIBILITY.md). `.ai/runs`, `.ai/analysis`, and `.ai/qa/artifacts_*` are generated per run and are not source. `.ai/specs/` and `.ai/scripts/` are committed: specs are a handoff point between skills, and the launchers under `.ai/scripts/` are kept so the environment stays reproducible. |
+| [`.ai/scripts/lab-status.ps1`](.ai/scripts/lab-status.ps1) | The session-readiness check described under "Start here". Unlike the rest of `.ai/scripts/`, it is hand-maintained rather than generated, so `om-setup-agent-pipeline` neither creates nor regenerates it. |
 | [`skills-lock.json`](skills-lock.json) | The installed-skill manifest: `source`, `sourceType`, `skillPath`, and `computedHash` per skill. |
 | [`learning-map/`](learning-map) | Standalone HTML visual maps of the skill collection. |
 
