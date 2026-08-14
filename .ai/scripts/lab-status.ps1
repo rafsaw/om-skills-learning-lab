@@ -206,10 +206,70 @@ function Show-Usage {
 # Sections.
 # ---------------------------------------------------------------------------
 
+# Run git against the anchored root rather than the caller's directory, and hand
+# back success plus output instead of letting a non-zero exit escape as an error.
+function Invoke-Git {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string[]] $GitArgs
+    )
+
+    $global:LASTEXITCODE = 0
+    $output = & git '-C' $RepoRoot @GitArgs 2>$null
+    return [pscustomobject]@{
+        Ok    = ($global:LASTEXITCODE -eq 0)
+        Lines = @($output | Where-Object { $null -ne $_ })
+    }
+}
+
 function Show-RepositorySection {
     param([Parameter(Mandatory = $true)][string] $RepoRoot)
 
     Write-Section 'Repository'
+
+    if (-not (Get-Command 'git' -CommandType Application -ErrorAction SilentlyContinue)) {
+        Write-Row 'Branch' 'unavailable'
+        Write-Row 'Working tree' 'unavailable'
+        Add-Warning 'git is not on PATH, so the branch and working-tree state could not be read. Skill discovery is unaffected.'
+        return
+    }
+
+    $inside = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('rev-parse', '--is-inside-work-tree')
+    if (-not $inside.Ok -or ($inside.Lines -join '') -ne 'true') {
+        Write-Row 'Branch' 'unavailable'
+        Write-Row 'Working tree' 'unavailable'
+        Add-Warning 'The repository root is not a git work tree, so the branch and working-tree state could not be read. Skill discovery is unaffected.'
+        return
+    }
+
+    # symbolic-ref answers on a branch, including an unborn one; it fails on a
+    # detached HEAD, which is what the short-sha fallback is for.
+    $branch = 'unknown'
+    $symbolic = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('symbolic-ref', '--quiet', '--short', 'HEAD')
+    if ($symbolic.Ok -and $symbolic.Lines.Count -gt 0) {
+        $branch = [string]$symbolic.Lines[0]
+    } else {
+        $head = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('rev-parse', '--short', 'HEAD')
+        if ($head.Ok -and $head.Lines.Count -gt 0) {
+            $branch = '(detached at ' + [string]$head.Lines[0] + ')'
+        }
+    }
+    Write-Row 'Branch' (ConvertTo-AsciiText $branch)
+
+    $status = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('status', '--porcelain')
+    if (-not $status.Ok) {
+        Write-Row 'Working tree' 'unavailable'
+        Add-Warning 'git status failed, so the working-tree state could not be read. Skill discovery is unaffected.'
+        return
+    }
+
+    $entries = @($status.Lines | Where-Object { $_.ToString().Trim() -ne '' })
+    if ($entries.Count -eq 0) {
+        Write-Row 'Working tree' 'clean'
+    } else {
+        Write-Row 'Working tree' ('dirty (' + (Format-Count $entries.Count 'entry' 'entries') + ')')
+        Add-Warning ('Working tree is dirty (' + (Format-Count $entries.Count 'entry' 'entries') + '). A pull request opened from here may carry work nobody meant to ship.')
+    }
 }
 
 function Show-SkillsSection {
