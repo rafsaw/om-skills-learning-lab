@@ -3,61 +3,74 @@
 ## 📝 TLDR
 
 `om-skills-learning-lab` has no build system, so there is no `npm start` that
-fails loudly when the repository is not usable. The things that actually break a
-learning session — missing skill-discovery symlinks, an unclean or diverged
-working tree, a `gh` client too old for the tracker descriptor — all fail
-quietly, at the moment a skill is dispatched rather than at the moment the
-repository is opened. This spec proposes `.ai/scripts/lab-status.sh`: one
-read-only POSIX shell script that answers "is this repo ready for the next
-learning session?" in a few seconds, printing repository state, installed-skill
-discovery health, toolchain versions, and the latest recorded experiment and
-finding, then a `READY` / `NOT READY` verdict backed by its exit code.
+fails loudly when the repository is not usable. The one thing that genuinely
+stops a learning session — a `.claude/skills/` discovery entry that is missing,
+broken, or resolving to something other than this repository's
+`.agents/skills/<name>` — fails quietly, at the moment a skill is dispatched
+rather than at the moment the repository is opened. This spec proposes
+`.ai/scripts/lab-status.ps1`: one read-only Windows PowerShell script that
+answers "is this repo ready for the next learning session?" in a couple of
+seconds, printing the branch and working-tree state, skill-discovery health, and
+the latest recorded experiment and finding, then a `READY` / `NOT READY` verdict
+backed by its exit code.
 
-## 📝 Resolved assumptions (autonomous defaults)
+## 📝 Revision history
 
-This spec was written by `om-auto-write-spec` in autonomous mode. The Open
-Questions raised by the skeleton were resolved with the most reversible,
-smallest-scope answer available, and every one of them is listed here so a human
-can override it before the spec is implemented.
+- **2026-08-13, initial draft** — written by `om-auto-write-spec` in autonomous
+  mode; Open Questions Q1–Q7 resolved by autonomous default.
+- **2026-08-13, amendment (this revision)** — rewritten after an architectural
+  review and a human decision pass. Two things changed: the implementation
+  language is now Windows PowerShell rather than POSIX `sh`, and Phase 1 is cut
+  down to the smallest useful status report. The review findings that survive
+  the reduction are folded in; the ones that only applied to deferred checks are
+  gone with them (see **Resolved decisions**).
 
-| # | Question | Applied default | Why | Confirm? |
-|---|----------|-----------------|-----|----------|
-| Q1 | Should this ship as a shell script under `.ai/scripts/`, as a new `om-*` skill under `.agents/skills/`, or both? | A single POSIX shell script, `.ai/scripts/lab-status.sh`. | Smallest new surface and the only option that adds no name to a protected surface: `.ai/scripts/` is already the committed home for reproducible launchers (protected surface #5), while a new skill would add a skill name (#1), reference paths (#2), and a `skills-lock.json` question (#7) for a report a script already produces. A skill can wrap the script later without changing it. | ok |
-| Q2 | Does "ready" include remote/tracker state — open PRs, issue claims, `gh auth status` — or only local state? | Local state only; no network call in the whole script. | Keeps the script fast, offline-capable, and free of authentication failure modes, and the brief names only repository state, installed skills, and the learning log. Tracker readiness is already visible through the skills that own it. Adding a `--remote` section later is purely additive. | ok |
-| Q3 | Should the output be human-readable text only, or also a machine-readable `--json` mode? | Human-readable text only. | The consumer named in the brief is a human about to start a session. A JSON mode is a data contract that other tooling would then depend on; deferring it costs nothing and avoids freezing a schema before anything consumes it. | ok |
-| Q4 | Should the exit code carry the verdict, or should the script always exit 0? | `0` when ready, `1` when at least one blocker was found, `2` on script misuse. | A verdict a human reads is strictly less useful than one a future wrapper can branch on, and the exit code is the cheapest possible machine surface — no format, no parsing. Reversible: widening the meaning of a non-zero exit later breaks nothing that treats `0` as ready. | ok |
-| Q5 | Should the script verify vendored-skill integrity by recomputing the `computedHash` values in `skills-lock.json`? | No — compare only the *set* of skill names in the lockfile against the directories under `.agents/skills/`. | Recomputing the hash means reimplementing the `skills` CLI's algorithm in shell and keeping it in sync forever; getting it subtly wrong produces false drift warnings on every run, which is worse than not checking. Local edits to vendored skills are expected in a learning lab anyway, so hash drift is weak evidence. Presence mismatch, by contrast, is unambiguous and trivial to check. | ok |
-| Q6 | Should the script fix what it finds — recreate missing symlinks, stash changes? | No. It is strictly read-only and prints the exact command that fixes each problem. | A status check that mutates the repository cannot be run casually, which defeats its purpose; and the one repair it would plausibly perform (recreating `.claude/skills/` symlinks) already exists as a documented snippet in `README.md` and `AGENTS.md`. | ok |
-| Q7 | Does the brief bundle more than one independently deployable capability? | No — it is one report, shipped as one script, in one phase. | Repository state, skill discovery, and the learning log are three sections of a single output; none of them ships or is useful without the surrounding report. | ok |
+## 📝 Resolved decisions
+
+The autonomous defaults from the first draft are superseded by the human
+decisions below. Every prior question is listed so the audit trail survives the
+rewrite.
+
+| # | Question | Decision | Status vs. first draft |
+|---|----------|----------|------------------------|
+| D1 | Shell or skill? | A single script, `.ai/scripts/lab-status.ps1`. No new skill. | Unchanged. `.ai/scripts/` is the committed script home (protected surface #5); a skill would add a name (#1), reference paths (#2), and a lockfile question (#7) for a deterministic report. |
+| D2 | Which language? | **Windows PowerShell 5.1**, not POSIX `sh`. | **Changed by decision.** The primary workflow for this lab is Windows + PowerShell; `pwsh` is not installed on the development machine, so the script targets 5.1 and avoids PowerShell 7 syntax. |
+| D3 | Local or remote state? | Local state only. No network call, no tracker read. | Unchanged, and now stronger: with the toolchain checks deferred there is nothing in Phase 1 that touches `gh` at all. |
+| D4 | Output format? | Human-readable text only. `--json` deferred. | Unchanged. |
+| D5 | Exit code semantics? | `0` ready, `1` at least one blocker, `2` misuse or wrong context. | Unchanged. |
+| D6 | Verify vendored-skill integrity by recomputing `computedHash`? | No. Compare only the *set* of skill names in `skills-lock.json` against the directories under `.agents/skills/`. | Unchanged. Reimplementing the `skills` CLI hash in PowerShell would produce false drift on every local edit, which a learning lab expects to have. |
+| D7 | Should the script repair what it finds? | No. Strictly read-only. It names the problem and points at `README.md` § Start here for the recreation snippet. | Unchanged, with the remediation text simplified: per-finding fix commands are deferred (D9). |
+| D8 | One capability, or several? | One report, one script, one phase. | Unchanged. |
+| D9 | How much belongs in Phase 1? | Only the checks that genuinely stop the next session: branch and working-tree state, skill discovery (count, per-entry resolution, lockfile set), and the latest experiment and finding. | **Changed by decision.** The first draft also specified `gh` and `jq` version checks, upstream ahead/behind, a `git diff --check` validation gate, active-worktree diagnostics, and per-finding remediation commands. All are deferred to Phase 2. |
 
 ## 📝 Problem Statement
 
 This repository is Markdown that an agent executes, with no compiler, linter, or
 test runner (`AGENTS.md` § Validation). That has a specific consequence: **every
 readiness problem here fails silently and late.** The failure surfaces as a skill
-that does not dispatch, or an agent that reads a stale file, rather than as a
-build error.
+that does not dispatch, or an agent that reads a file from somewhere other than
+this checkout, rather than as a build error.
 
-The concrete failure modes, all already documented in this repo as things that
-have bitten someone:
+The failure modes this repository already documents, narrowed to the ones Phase 1
+answers:
 
 - **Skill discovery is missing after a clone.** `.claude/` is gitignored, so a
   fresh clone contains `.agents/skills/` but nothing that dispatches to it
   (`README.md` § Start here). The symptom is "the skill doesn't exist", with no
-  error pointing at the symlinks.
-- **A discovery entry has become a real directory instead of a symlink.** On
-  Windows without Developer Mode this happens by accident, and it forks a skill
-  into two copies that drift apart — protected surface #6 in
-  `BACKWARD_COMPATIBILITY.md`. Nothing reports it; the two copies simply stop
-  agreeing.
-- **The `gh` client is too old.** Below 2.82.1 every label and assignee edit
-  aborts on the retired Projects (classic) API, printing what looks like a
-  deprecation warning while leaving the PR unlabeled
-  (`.ai/trackers/github.md` § Prerequisites). This is the single most confusing
-  failure in the whole pipeline because it looks like it worked.
-- **The working tree is dirty or diverged from `origin/main`.** A session that
-  starts on someone else's half-finished branch, or on top of uncommitted skill
-  edits, produces a PR that contains work nobody meant to ship.
+  error pointing at the discovery entries.
+- **A discovery entry exists but does not lead to this repository's skill.** It
+  may be a real directory instead of a link — a Windows accident when the
+  recreation snippet runs without the privilege to create links — or a link
+  whose target resolves into a *different* checkout. Both are protected surface
+  #6 in `BACKWARD_COMPATIBILITY.md`: the skill has forked into two sources that
+  then drift. Nothing reports it; the agent simply executes instructions that
+  are not the ones in this working tree. **This is the single check the script
+  exists for**, and the one an "does `.claude/skills/om-fix` exist?" test misses.
+- **The vendored set and the lockfile disagree.** A skill added or removed
+  without the `skills` CLI leaves `skills-lock.json` describing an install that
+  no longer matches the tree, so the next reproducible install is wrong.
+- **The working tree is dirty.** A session that starts on top of uncommitted
+  edits produces a PR containing work nobody meant to ship.
 - **Nobody remembers where the learning log left off.** `EXPERIMENTS.md` and
   `FINDINGS.md` are the record of what this lab has established, and the next
   session normally continues from the last entry — which currently means opening
@@ -68,44 +81,36 @@ second. What is missing is a single place that asks all of them at once.
 
 ## 📝 Proposed Solution
 
-Add one executable POSIX shell script, `.ai/scripts/lab-status.sh`, run from the
-repository root:
+Add one read-only Windows PowerShell script, `.ai/scripts/lab-status.ps1`:
 
 ```console
-$ .ai/scripts/lab-status.sh
+PS> .\.ai\scripts\lab-status.ps1
 ```
 
-It performs four groups of read-only checks, prints one section per group, and
-ends with a verdict. It never writes to the repository, never makes a network
-call, and depends on nothing beyond `git`, `sh`, and the standard text utilities
-already required to use this repo.
+It performs three groups of checks, prints one section per group, and ends with a
+verdict. It never writes to the repository, never makes a network call, and needs
+nothing beyond Windows PowerShell 5.1 and `git` on `PATH` — and it degrades
+rather than failing when `git` is absent.
 
 ### Sample output
 
 ```text
-om-skills-learning-lab — status
+om-skills-learning-lab - status
 
 Repository
-  Branch            main (up to date with origin/main)
+  Branch            spec/lab-status-check
   Working tree      clean
-  Validation gate   git diff --check ... ok
-  Last commit       448960b docs(readme): explain the lab's purpose ...
 
 Skills
   Vendored          13 under .agents/skills/
-  Discoverable      13 of 13 linked into .claude/skills/
-  Lockfile          13 entries in skills-lock.json, matching
+  Discovery         13 of 13 resolve into this repository
+  Lockfile          13 entries, matching
 
 Learning log
-  Latest experiment 002 — Autonomous issue orchestration from a plain brief
-  Latest finding    005 — Issue orchestration is explicit and resumable
+  Latest experiment 002 - Autonomous issue orchestration from a plain brief
+  Latest finding    005 - Issue orchestration is explicit and resumable
 
-Toolchain
-  git               2.51.0
-  gh                2.92.0 (>= 2.82.1 required)
-  jq                1.8.1
-
-READY — no blockers found.
+READY - no blockers found.
 ```
 
 And a failing run, which is the case the script exists for:
@@ -113,22 +118,23 @@ And a failing run, which is the case the script exists for:
 ```text
 Skills
   Vendored          13 under .agents/skills/
-  Discoverable      11 of 13 linked into .claude/skills/
-                    missing: om-fix, om-root-cause
-  Lockfile          13 entries in skills-lock.json, matching
+  Discovery         11 of 13 resolve into this repository
+                    missing:  om-fix
+                    foreign:  om-root-cause -> C:\old-clone\.agents\skills\om-root-cause
+  Lockfile          13 entries, matching
 
-...
+Learning log
+  Latest experiment 002 - Autonomous issue orchestration from a plain brief
+  Latest finding    005 - Issue orchestration is explicit and resumable
 
-NOT READY — 1 blocker, 1 warning.
+NOT READY - 2 blockers, 1 warning.
 
-  [blocker] 2 skills have no .claude/skills/ entry and cannot be dispatched.
-            Recreate the discovery symlinks:
-              mkdir -p .claude/skills
-              for s in .agents/skills/*/; do
-                ln -sfn "$PWD/${s%/}" ".claude/skills/$(basename "$s")"
-              done
-  [warning] Working tree has 3 uncommitted changes; a PR opened now may
-            include work you did not intend to ship. Review: git status --short
+  [blocker] om-fix has no .claude\skills entry and cannot be dispatched.
+  [blocker] om-root-cause resolves outside this repository, so dispatching it
+            executes a different checkout's copy of the skill.
+  [warning] Working tree is dirty (3 entries).
+
+  Discovery entries are recreated by the snippet in README.md, "Start here".
 ```
 
 ### Alternatives considered
@@ -138,78 +144,132 @@ NOT READY — 1 blocker, 1 warning.
   surfaces #1, #2, #7) to deliver a report that is deterministic and needs no
   model reasoning. A skill that shells out to this script remains available
   later, and is strictly easier to add once the script exists.
+- **A POSIX `sh` script run under Git Bash.** Rejected by decision D2: the
+  primary workflow here is Windows and PowerShell, and PowerShell reads the two
+  things the script most needs — a link's `LinkType` and `Target`, and
+  `skills-lock.json` via `ConvertFrom-Json` — natively, where the shell version
+  needed `readlink` plus `jq`.
 - **Extending `om-setup-agent-pipeline` with a `--check` mode.** Rejected: that
   skill is the setup *authority* and is expected to write files; folding a
   read-only check into it blurs a boundary this repo deliberately keeps sharp,
   and it is a vendored skill, so editing it in place drifts its lockfile hash.
-- **A `Makefile` / `npm` script.** Rejected: this repo has no toolchain, and
-  adding one to host a five-second check inverts the cost.
 
 ## 📝 Architecture
 
-One file. `.ai/scripts/lab-status.sh`, executable, `#!/bin/sh`, no sourcing of
-anything else in the repo.
+One file. `.ai/scripts/lab-status.ps1`, `#Requires -Version 5.1`, sourcing
+nothing else in the repo.
 
 ```text
-lab-status.sh
-├── resolve repo root ......... git rev-parse --show-toplevel; abort if not a repo
-├── section: Repository ....... git-only checks
-├── section: Skills ........... filesystem + skills-lock.json checks
-├── section: Learning log ..... EXPERIMENTS.md / FINDINGS.md heading scan
-├── section: Toolchain ........ version probes for git, gh, jq
-└── verdict ................... collected blockers/warnings → text + exit code
+lab-status.ps1
+├── anchor ...................... repo root from $PSScriptRoot; verify it is this lab
+├── section: Repository ......... branch + working-tree state (git)
+├── section: Skills ............. vendored / discovery resolution / lockfile set
+├── section: Learning log ....... EXPERIMENTS.md + FINDINGS.md heading scan
+└── verdict ..................... collected blockers/warnings -> text + exit code
 ```
 
-**Boundaries.** The script reads the repository and the `PATH`; it writes only to
-stdout and stderr. It does not read `.ai/agentic.config.json` for behavior — the
-config drives *skills*, and a status script that also parsed it would be a second
-consumer of a protected schema (surface #3) for no benefit. The one exception is
-the validation gate: the command the script runs (`git diff --check`) is the same
-command `.ai/agentic.config.json` names in `validation.commands`, and the spec
-records that as a deliberate duplication of a one-line constant rather than a
-config dependency. If this repo ever grows a real validation command list, the
-script's gate check should be revisited — noted in Risks.
+**Anchoring — the script locates the repository, not the caller.** The root is
+derived from the script's own location (`$PSScriptRoot` is `<root>\.ai\scripts`,
+so the root is two levels up), never from the current directory and never from
+`git rev-parse --show-toplevel` against the caller's `cwd`. Running the script by
+absolute path from inside an unrelated repository must not produce a confident
+report about that repository. The script then confirms the anchored root is this
+lab by requiring both `.agents\skills\` and `.ai\agentic.config.json` to exist;
+if either is missing it writes a diagnostic to stderr and exits `2` without
+printing a report.
 
-**Collection model.** Each check appends to two accumulators, `BLOCKERS` and
-`WARNINGS` (newline-separated strings; no arrays, to stay POSIX). A check never
-exits early — a repo with three problems reports three problems in one run, which
-is the whole point of a status command.
+**Boundaries.** The script reads the repository and invokes `git` for two facts
+(current branch, working-tree status). It writes only to stdout and stderr. It
+does not read `.ai/agentic.config.json` for behavior — only for existence, as
+the anchor check above — so it is not a consumer of that protected schema
+(surface #3). It never writes `skills-lock.json` (surface #7) and never repairs a
+discovery entry (surface #6), because the repair is the thing
+`BACKWARD_COMPATIBILITY.md` says a human should do deliberately.
 
-**Blocker vs. warning.** The distinction is: *would a learning session started
-right now silently produce wrong results?*
+**The discovery check is the core of the design.** For each directory under
+`.agents\skills\`, the script asks a single question: **does
+`.claude\skills\<name>` resolve to this repository's
+`.agents\skills\<name>`?** Existence is not sufficient. Concretely, per entry:
+
+1. Missing from `.claude\skills\` at all → blocker.
+2. Present but not a link (a real directory) → blocker. It dispatches, but the
+   content is a fork, not this checkout's skill.
+3. A link whose target does not exist → blocker.
+4. A link whose target resolves anywhere other than this repository's
+   `.agents\skills\<name>` → blocker, reported as `foreign:` with the resolved
+   target, because the reader needs to know to delete rather than create.
+5. Resolves correctly → counted as healthy.
+
+Two Windows details make this correct rather than merely plausible, and both are
+verified facts about this checkout rather than assumptions:
+
+- **The entries here are NTFS junctions, not symbolic links.** Every repo
+  document (`AGENTS.md`, `README.md`, `BACKWARD_COMPATIBILITY.md` #6) calls them
+  symlinks, and the recreation snippet uses `ln -sfn`, but Git Bash on Windows
+  without the privilege to create symlinks produces directory junctions —
+  `Get-Item` reports `LinkType: Junction` for all 13 entries in this working
+  tree. The script must therefore accept **both** `SymbolicLink` and `Junction`
+  as valid link types. A check that demands `SymbolicLink` would report a
+  perfectly healthy lab as 13 blockers.
+- **Targets are absolute and must be compared normalized.** The recreation
+  snippet writes absolute targets (`ln -sfn "$PWD/..."`), so a repository that is
+  copied or cloned to a second location keeps entries that still resolve — to
+  the *old* checkout. Comparison uses `[System.IO.Path]::GetFullPath()` on both
+  sides and a case-insensitive match, so drive-letter casing, trailing
+  separators, and `.`/`..` segments cannot produce a false `foreign:`.
+
+**Lockfile comparison.** `skills-lock.json` is read with `ConvertFrom-Json`; the
+skill names are the property names of its `skills` object. The script compares
+that set against the directory names under `.agents\skills\` and reports the
+symmetric difference. Any read or parse failure degrades the line to `unreadable`
+with a warning — the lockfile is never allowed to abort the report.
+
+**Collection model.** Each check appends to two lists, `$blockers` and
+`$warnings`, each entry already formatted as its one- or two-line message. No
+check exits early: a repo with three problems reports three problems in one run,
+which is the whole point of a status command.
+
+**Blocker vs. warning.** The rule is narrow by decision D9: *would a learning
+session started right now fail to dispatch a skill, or dispatch the wrong copy
+of one?* Only the discovery failures meet it.
 
 | Condition | Class | Reasoning |
 |---|---|---|
-| A vendored skill has no `.claude/skills/` entry | blocker | The skill cannot be dispatched at all; the session hits a dead end. |
-| A `.claude/skills/` entry exists but is not a symlink | warning | Dispatch still works, so the session runs — but the copy has forked from `.agents/` and will drift (protected surface #6). |
-| `gh` missing, or older than 2.82.1 | blocker | Every tracker label and assignee edit fails while appearing to succeed. |
-| `jq` missing | blocker | The tracker descriptor's label guards parse JSON with it. |
-| `git diff --check` fails | blocker | The repo's entire validation gate is red; nothing should be committed. |
+| A vendored skill has no `.claude\skills\` entry | blocker | The skill cannot be dispatched; the session hits a dead end. |
+| An entry exists but is a real directory, not a link | blocker | Dispatches a forked copy that is not this checkout's source (surface #6). |
+| An entry is a link whose target does not exist | blocker | Dispatch fails, and the fix is deletion rather than creation. |
+| An entry resolves outside this repository's `.agents\skills\<name>` | blocker | Dispatches another checkout's skill while looking healthy — the failure this script exists to catch. |
+| `.claude\skills\` contains an entry with no vendored counterpart | warning | Stale leftover; nothing in this repo dispatches it. |
+| A directory under `.agents\skills\` has no `SKILL.md` | warning | Not a dispatchable skill, but nothing else breaks. |
+| `skills-lock.json` and `.agents\skills\` disagree on the set | warning | Real drift worth knowing about; nothing breaks until a reinstall. |
+| `skills-lock.json` missing or unparseable | warning | Only the lockfile line degrades. |
 | Working tree not clean | warning | Legitimate mid-session state, but a PR opened now may carry unintended work. |
-| Branch diverged from its upstream | warning | Same: normal during work, dangerous at the start of a session. |
-| `skills-lock.json` and `.agents/skills/` disagree on the skill set | warning | Real drift worth knowing about, but nothing breaks until that skill is invoked. |
-| `EXPERIMENTS.md` / `FINDINGS.md` has no parseable entry | warning | Only the report degrades, printing `none recorded`. |
+| `git` unavailable, or the root is not a git work tree | warning | The Repository section degrades to `unavailable`; skills still dispatch. |
+| `EXPERIMENTS.md` / `FINDINGS.md` missing or with no parseable entry | warning | Only the report degrades, printing `none recorded`. |
 
 **Degradation.** Every check is individually optional. A missing file, an absent
-binary, or a `git` command that fails prints `unavailable` (or `none recorded`)
-for that line and continues. The script must never abort mid-report; the only
-fatal condition is not being inside a git repository, which exits `2`.
+`git`, or a command that fails prints `unavailable` (or `none recorded`) for that
+line and continues. The script must never abort mid-report; the only fatal
+condition is failing the anchor check, which exits `2` before any section prints.
 
 ## 📝 Data Model
 
 No persistent state: no cache, no history file, no writes. The script's only data
-structures are shell variables:
+structures are in-memory variables:
 
 | Name | Shape | Purpose |
 |---|---|---|
-| `REPO_ROOT` | path | Anchor for every relative path; the script `cd`s here first so it can be run from anywhere. |
-| `BLOCKERS`, `WARNINGS` | newline-separated text | Accumulated findings, each already formatted with its remediation line. |
-| `BLOCKER_COUNT`, `WARNING_COUNT` | integer | Verdict line arithmetic. |
+| `$RepoRoot` | path | Anchor for every relative path, derived from `$PSScriptRoot`. |
+| `$Vendored` | string[] | Directory names under `.agents\skills\`. |
+| `$Discovery` | hashtable name → status | One of `ok`, `missing`, `not-a-link`, `broken`, `foreign` (with the resolved target), `orphan`. |
+| `$LockNames` | string[] or `$null` | Skill names from `skills-lock.json`; `$null` when unreadable. |
+| `$blockers`, `$warnings` | string[] | Accumulated findings, each already formatted for display. |
 
-There is no sensitive data in scope. The script prints branch names, commit
-subjects, tool versions, and document headings — nothing that could carry a
-credential. It must not print environment variables, `gh auth token` output, or
-the contents of any file outside the three it parses.
+There is no sensitive data in scope. The script prints a branch name, counts,
+resolved paths under the repository (and, for a `foreign:` entry, the path it
+actually resolves to), and two document headings. It must not print environment
+variables, credentials, or the contents of any file other than the three it
+parses.
 
 ## 📝 API Contracts
 
@@ -219,108 +279,161 @@ section headings.
 **Invocation.**
 
 ```text
-.ai/scripts/lab-status.sh [--help]
+.ai\scripts\lab-status.ps1 [-Help]
 ```
 
-No other flags in Phase 1. An unrecognized argument prints usage to stderr and
-exits `2` rather than being ignored, so a future `--json` or `--remote` cannot be
-silently swallowed by an older copy of the script.
+No other parameters in Phase 1. An unsupported parameter such as `-Nope` is
+rejected by PowerShell's own parameter binding, which fails **before the script
+body runs**, so a future `-Json` or `-Remote` cannot be silently swallowed by an
+older copy. What the caller observes depends on *how* the script was invoked, and
+the two forms must not be conflated:
+
+- **Direct invocation in the current session** —
+  `.\.ai\scripts\lab-status.ps1 -Nope`. Parameter binding fails inside the
+  calling session and raises a binding error there; the script body never runs
+  and nothing is written to stdout. This is not a process exit, so
+  `$LASTEXITCODE` says nothing about it — it keeps whatever value the previous
+  native command left behind. A caller detecting this form of failure reads the
+  error (`$?`, `$Error[0]`, or a `try`/`catch`), never `$LASTEXITCODE`.
+- **Child-process invocation** —
+  `powershell -NoProfile -File .\.ai\scripts\lab-status.ps1 -Nope`. Parameter
+  binding fails in the child PowerShell process, which exits non-zero, and the
+  caller can observe that through `$LASTEXITCODE`. The value is **not** promised
+  to be any particular number, and in particular is not `2`: nothing in the
+  script has executed by then, so the code comes from the PowerShell host rather
+  than from this contract.
+
+`-Help` prints usage to stdout and exits `0` in both forms.
+
+Because the repository ships no execution-policy configuration, a caller on a
+restricted machine invokes it as
+`powershell -NoProfile -ExecutionPolicy Bypass -File .ai\scripts\lab-status.ps1`.
+This form is what the documentation pointer in Step 5 shows, since a script that
+cannot start is indistinguishable from a script that is missing.
 
 **Exit codes.**
 
 | Code | Meaning |
 |---|---|
-| `0` | Ready — no blockers. Warnings may still have been printed. |
-| `1` | Not ready — at least one blocker. |
-| `2` | Misuse or wrong context: unknown flag, or not run inside a git repository. |
+| `0` | Ready — no blockers. Warnings may still have been printed. Also the successful `-Help` exit. |
+| `1` | Not ready — at least one blocker was found. |
+| `2` | Misuse or wrong context **detected by the script itself** — in Phase 1, the anchored root is not this lab. Reserved for conditions the script body can observe and report. |
+| non-zero, unspecified | An unsupported parameter, rejected by PowerShell parameter binding before the script body runs. Observable as an exit code only under child-process invocation; not `2`, and not promised to be any particular value. |
 
-**Output shape.** Human-readable text on stdout, diagnostics on stderr. Section
-headings (`Repository`, `Skills`, `Learning log`, `Toolchain`) and the verdict
+Those three codes are the whole script-controlled contract, and the script sets
+each of them with an explicit `exit`, so `$LASTEXITCODE` carries the verdict for
+a future wrapper — under direct invocation and under `powershell -File` alike.
+Everything outside the table comes from the PowerShell host, not from this
+script. A caller that wants to distinguish "not ready" from "could not run" tests
+for `1` specifically and treats any other non-zero code as a failure to produce a
+report; it must not treat `2` as the only such code, and it must not read
+`$LASTEXITCODE` at all when the failure was a binding error raised in its own
+session.
+
+**Output shape.** Human-readable ASCII text on stdout, diagnostics on stderr.
+Section headings (`Repository`, `Skills`, `Learning log`) and the verdict
 prefixes (`READY`, `NOT READY`) are stable enough to grep for, and this spec
-declares them the informal contract — changing them is a rename another script
+declares them an informal contract — changing them is a rename another script
 could be resolving, which by `BACKWARD_COMPATIBILITY.md` § "Deciding whether a
 change is breaking" means calling it out in the PR body. It is deliberately *not*
 promoted to a protected surface: nothing consumes it yet, and adding a ninth
 surface for a convenience script would cheapen the list.
 
-**Parsing contract for the learning log.** The script scans for headings matching
-`^## (Experiment|Finding) ([0-9]{3})` and reports the highest-numbered match,
-along with the remainder of that heading line as its title. Two details make this
-correct rather than merely plausible, and both must be covered by tests:
+**Parsing contract for the learning log.** The script reads each file line by
+line, tracking whether it is inside a fenced code block (a line whose trimmed
+form starts with three backticks toggles the state), and considers only headings
+found **outside** a fence. Outside a fence it matches
+`^##\s+(Experiment|Finding)\s+(\d{3})\b` and reports the highest-numbered match,
+with the remainder of that heading line as the title.
 
-- `EXPERIMENTS.md` contains an **entry template inside a fenced code block**
-  whose heading is `## Experiment NNN`. The `[0-9]{3}` anchor excludes it, which
-  is why the pattern requires digits rather than accepting any suffix.
-- Heading suffixes are **not uniform**: `## Finding 001  (Lesson 1-2)`,
-  `## Finding 005 — Issue orchestration is explicit and resumable`, and
-  `## Experiment 001` with no suffix at all all occur today. The title is
-  whatever follows the number, trimmed of leading separators (`—`, `-`, `:`,
-  whitespace) and truncated for display; an empty remainder is fine and prints
-  the number alone.
+Fence-awareness is structural, not incidental. `EXPERIMENTS.md` contains an entry
+template inside a ```` ```markdown ```` block whose heading is
+`## Experiment NNN`; a digit-anchored pattern happens to skip it today, but only
+because the placeholder is literally `NNN`. Anyone filling that example in with
+digits, or adding a fenced sample of a real entry, would otherwise create a
+phantom "latest" entry. Skipping fenced regions removes the coincidence.
 
-Highest-numbered, not last-in-file, is the deliberate choice: it is stable under
-an out-of-order append, and both files number sequentially by convention.
+`EXPERIMENTS.md` is scanned for `Experiment` headings and `FINDINGS.md` for
+`Finding` headings; a heading of the wrong kind in either file is ignored.
+Heading suffixes are not uniform — `## Finding 001  (Lesson 1-2)`,
+`## Finding 005 — Issue orchestration is explicit and resumable`, and
+`## Experiment 001` with no suffix all occur today — so the title is whatever
+follows the number, trimmed of leading separators (em dash, hyphen, colon,
+whitespace) and truncated for display; an empty remainder prints the number
+alone. Highest-numbered rather than last-in-file is deliberate: it is stable
+under an out-of-order append, and both files number sequentially by convention.
 
 ## 📝 UI/UX
 
 The interface is the terminal output shown under Proposed Solution. Four
 constraints govern it:
 
-- **One screen.** The full report is ~16 lines on a healthy repo. If it grows
+- **One screen.** The full report is ~14 lines on a healthy repo. If it grows
   past a screen, sections get shorter, not the report longer — the whole value
   is being read at a glance before a session starts.
 - **Aligned two-column body.** A fixed label column (18 characters) with values
   left-aligned after it, so the eye scans values vertically. Detail lines (such
-  as `missing: om-fix, om-root-cause`) indent into the value column.
-- **Every blocker carries its fix.** No finding is printed without the exact
-  command that resolves it, copy-pasteable. A status check that reports a problem
-  and leaves the reader to search the docs has done half a job.
-- **No color, no Unicode box-drawing, no spinner.** Plain ASCII survives every
-  terminal, log capture, CI pane, and agent transcript this repo's output ends up
-  in. Emoji and color are what the *skills* use in their reports; a script that
-  might be piped should not.
-
-Accessibility: because the output is plain text with a stable label column, it
-reads correctly in a screen reader and never encodes meaning in color alone —
-severity is carried by the words `[blocker]` and `[warning]`.
+  as `missing:  om-fix`) indent into the value column.
+- **Findings state the problem, not a script.** Per-finding remediation commands
+  are deferred (D9). Each finding names the affected skill and what is wrong with
+  it, and the block ends with a single pointer at `README.md` § Start here, which
+  already holds the canonical recreation snippet. Reproducing that snippet in the
+  script's output would create a fourth copy of it to keep in sync.
+- **Plain ASCII only — no color, no Unicode box drawing, no emoji.** The Windows
+  console's default code page mangles non-ASCII, and the output ends up in log
+  captures and agent transcripts. Severity is carried by the words `[blocker]`
+  and `[warning]`, never by color, which also keeps the report correct in a
+  screen reader.
 
 No mockups or screenshots accompany this spec: the feature has no graphical
-surface, `om-prepare-test-env` is not installed in this repository, and this
-repository has no application to screenshot. The sample output blocks above are
-the visual specification.
+surface and this repository has no application to screenshot. The sample output
+blocks above are the visual specification.
 
 ## 📝 Edge Cases & Failure Scenarios
 
 | Scenario | Behavior |
 |---|---|
-| Run from a subdirectory, or from another repo's checkout | `git rev-parse --show-toplevel` anchors it; run outside any repository, it prints a usage error to stderr and exits `2`. |
-| Run inside one of this repo's temporary worktrees under `.ai/tmp/` | Reports honestly on *that* worktree — its branch, its tree, its `.claude/` absence. The `.claude/` symlinks live only in the primary checkout, so the Skills section will report every skill as undiscoverable. The script detects a linked worktree (`git rev-parse --git-dir` differs from `--git-common-dir`) and downgrades the discovery blocker to a warning that names the cause, rather than reporting a broken repo. |
-| No upstream configured for the current branch | Prints `no upstream` and raises no finding — a local-only branch is normal. |
-| Ahead/behind counts computed without a fetch | Deliberate: no network. The line says `vs origin/main (as of last fetch)` so a stale comparison cannot be mistaken for a fresh one. |
-| `.claude/skills/` missing entirely (fresh clone) | Single blocker naming all skills as undiscoverable, with the symlink-recreation snippet — the exact first-run experience `README.md` warns about. |
-| A `.claude/skills/` entry pointing at a path that no longer exists (broken symlink) | Counted as missing (blocker), and named separately as `broken: <name>` so the reader knows to delete rather than create. |
-| `skills-lock.json` absent or malformed | Lockfile line prints `unreadable`, one warning. The script must not `jq`-parse it fatally; skill names are extracted defensively and a parse failure degrades to `unreadable`. |
-| `jq` absent while `skills-lock.json` is present | Blocker for `jq` itself (the tracker guards need it); the lockfile line degrades to `unreadable — jq not installed`, not a second finding. |
+| Run from a subdirectory, or with `cwd` inside an unrelated repository | Unaffected: the root comes from `$PSScriptRoot`, never from `cwd`. The report always describes the repository the script lives in. |
+| A copy of the script placed outside this lab | The anchor check finds no `.agents\skills\` or no `.ai\agentic.config.json` two levels up, writes a diagnostic to stderr, and exits `2` without printing a report. |
+| `.claude\skills\` missing entirely (fresh clone) | Every vendored skill reports `missing`; one blocker per skill, plus the `README.md` pointer — the exact first-run experience `README.md` warns about. |
+| A discovery entry is a junction rather than a symbolic link | Healthy. Both link types are accepted; this is the normal state of this checkout. |
+| A discovery entry is a real directory | Blocker (`not-a-link`): it dispatches a forked copy rather than this checkout's skill. |
+| A discovery entry's target no longer exists | Blocker (`broken`), named separately so the reader knows to delete rather than create. |
+| The repository was copied or re-cloned elsewhere, so entries still resolve to the previous checkout | Blocker (`foreign`), printing the resolved target. This is the case that looks healthiest and is the reason existence alone is not the test. |
+| Target differs only by drive-letter case, trailing separator, or `..` segments | Healthy: both sides are normalized with `GetFullPath()` and compared case-insensitively before any `foreign` verdict. |
+| `.claude\skills\` holds an entry with no vendored counterpart | Warning (`orphan`), named in the Skills section; nothing in this repo dispatches it. |
+| A directory under `.agents\skills\` has no `SKILL.md` | Counted as vendored, plus one warning — a directory with no `SKILL.md` is not a dispatchable skill. |
+| `skills-lock.json` absent, unreadable, or malformed | Lockfile line prints `unreadable`; one warning. `ConvertFrom-Json` failure is caught, never fatal. |
+| `git` absent, or the anchored root is not a git work tree | Repository section prints `unavailable` for both lines; one warning. Discovery and learning-log sections still run. |
+| An automation worktree exists under `.ai\tmp\` | `.ai/tmp/` is not gitignored, so `git status --porcelain` counts it and the working tree reports dirty. Accepted for Phase 1 and documented here: the tree-dirty finding is a warning, never a blocker, so it cannot flip the verdict. Distinguishing automation worktrees is deferred (D9). |
 | `EXPERIMENTS.md` or `FINDINGS.md` missing, empty, or containing only the template | Prints `none recorded`; one warning, since a lab with no log is unusual but not broken. |
-| A skill directory exists under `.agents/skills/` without a `SKILL.md` | Counted as vendored but flagged in a warning — a directory with no `SKILL.md` is not a dispatchable skill. |
+| A fenced code block contains a heading such as `## Experiment 003` | Ignored. Fence tracking excludes it, so a documentation example cannot become the reported latest entry. |
 | Terminal narrower than the label column | Lines wrap; nothing is truncated to fit. Legibility loses to completeness. |
 | Script run twice concurrently | Safe by construction — read-only, no temp files, no locks. |
 
 ## 📝 Risks & Impact Review
 
-**Blast radius: near zero.** The change adds one new file under `.ai/scripts/`,
-touches no skill, no descriptor, and no configuration. Nothing in the pipeline
-dispatches to it, so a bug in it cannot fail a PR, a review, or a merge — the
-worst outcome is a wrong report on a terminal.
+**Blast radius: near zero.** The change adds one new file under `.ai/scripts/`
+and a short pointer in two documents. It touches no skill, no descriptor, and no
+configuration. Nothing in the pipeline dispatches to it, so a bug in it cannot
+fail a PR, a review, or a merge — the worst outcome is a wrong report on a
+terminal.
 
 **Protected surfaces** (`BACKWARD_COMPATIBILITY.md`):
 
 - **#5, directory contract under `.ai/`** — respected: the script lands in
-  `paths.scripts`, which the repo already commits and describes as the home for
-  launchers kept "so the environment stays reproducible". No path moves.
+  `paths.scripts`, which the repo already commits. No path moves. Note for the
+  Step 5 documentation edit: `README.md` currently describes `.ai/scripts/` as
+  holding *generated* launchers, so the row should acknowledge that this one is
+  hand-maintained and is not regenerated by `om-setup-agent-pipeline`.
+- **#3, `.ai/agentic.config.json` schema** — untouched. The reduced scope drops
+  the validation-gate check entirely, so the script neither reads
+  `validation.commands` nor duplicates its value; it only tests the file's
+  existence as part of the anchor check. The first draft's risk of a third,
+  drifting copy of the gate command no longer exists.
 - **#1 skill names, #2 reference paths, #7 `skills-lock.json`** — untouched. The
   script *reads* the lockfile and must never write it.
-- **#6 discovery symlinks** — the script reports on them and must never repair
+- **#6 discovery entries** — the script reports on them and must never repair
   them, precisely because the repair is the thing the doc says a human should do
   deliberately.
 - No new protected surface is created. The section headings and exit codes are
@@ -328,103 +441,158 @@ worst outcome is a wrong report on a terminal.
 
 **Risks:**
 
-1. *The validation-gate check duplicates a config value.* The script hardcodes
-   `git diff --check` while `.ai/agentic.config.json` names it in
-   `validation.commands`. If the repo grows a real toolchain, the two drift and
-   the script under-reports. Mitigated by a comment at that line pointing at the
-   config, and by the fact that adding a validation command is already a change
-   that `SDLC.md` § Validation gate requires touching multiple files for.
+1. *The repository's documentation and its reality disagree about link type.*
+   Every doc says "symlink"; the actual entries are junctions. The script accepts
+   both, so it is correct either way, but a future reader may find the mismatch
+   confusing. Fixing the documentation is out of scope here — the script must not
+   depend on the docs being corrected, which is why the accepted link types are
+   stated in Architecture rather than inferred from `BACKWARD_COMPATIBILITY.md`.
 2. *False confidence.* `READY` means "the checks this script knows about passed",
-   not "nothing is wrong". Mitigated by the verdict line naming the counts rather
-   than making an absolute claim, and by keeping the check list short enough that
-   a reader knows what it covers.
-3. *Windows shell portability.* The script is POSIX `sh` run under Git Bash on
-   the primary development machine. `sh -n` linting is not part of any gate here,
-   so a syntax error ships unnoticed until someone runs it. Mitigated by the
-   manual verification steps in the implementation plan, which run the script in
-   both healthy and broken states before the PR opens.
+   not "nothing is wrong" — and Phase 1 knows about fewer checks than the first
+   draft proposed. Mitigated by the verdict line naming counts rather than making
+   an absolute claim, and by keeping the check list short enough that a reader
+   knows what it covers.
+3. *No linting for PowerShell in this repo.* The validation gate is
+   `git diff --check`; a syntax error would ship unnoticed until someone ran the
+   script. Mitigated by the verification fixture in the implementation plan,
+   which runs the script in healthy and broken states before the PR opens, and by
+   parsing the script with
+   `[System.Management.Automation.PSParser]::Tokenize()` as an explicit check in
+   Step 1.
+4. *PowerShell 5.1 only.* `pwsh` is not installed on the development machine, so
+   the script targets Windows PowerShell 5.1 and must avoid PowerShell 7 syntax
+   (`??`, ternaries, `ConvertFrom-Json -AsHashtable`). `#Requires -Version 5.1`
+   states the floor; a 7.x host runs it unchanged.
 
-**Rollback:** delete the file. There is no migration, no state, and no consumer —
-a revert is complete by construction.
+**Rollback:** delete `.ai/scripts/lab-status.ps1` and revert the two
+documentation pointers added in Step 5. There is no migration, no state, and no
+programmatic consumer, so a revert is complete by construction.
 
 ## 📋 Phasing
 
-**Phase 1 — the script and its documentation.** Everything in this spec: the
-four sections, the verdict, the exit codes, and the doc pointers that make it
-discoverable. Independently shippable and complete on its own; this is the only
-phase required to satisfy the brief.
+**Phase 1 — the minimal status report.** Everything in this spec: the three
+sections, the verdict, the exit codes, and the doc pointers that make it
+discoverable. Independently shippable and complete on its own.
 
-**Phase 2 (deferred, not part of this spec) — the deliberately excluded
-extensions**, listed so a later reader knows they were considered and why they
-are absent: a `--json` mode (Q3), a `--remote` section covering open PRs and
-issue claims (Q2), lockfile hash verification (Q5), and an `om-lab-status` skill
-wrapping the script (Q1). None is started until something concretely needs it.
+**Phase 2 (deferred, not part of this spec) — the deliberately excluded checks**,
+listed so a later reader knows they were considered and why they are absent:
+`gh` and `jq` presence and version checks, upstream ahead/behind reporting, a
+validation-gate (`git diff --check`) check, active-worktree diagnostics, remote
+and tracker state, per-finding remediation commands, `-Json`, `-Remote`, and
+lockfile hash verification. None is started until something concretely needs it.
+Two carry design notes worth keeping: a validation-gate check must not duplicate
+`validation.commands` from `.ai/agentic.config.json` without registering the new
+copy in the "change these together" instructions in `AGENTS.md` § Validation and
+`SDLC.md` § Validation gate; and `git diff --check` compares the working tree to
+the index, so on the clean checkout a session starts from it always passes and
+certifies nothing.
 
 ## 📋 Implementation Plan
 
 Each step leaves the repository in a working state — trivially true here, since
-until Step 6 the script is a new file nothing references.
+until Step 5 the script is a new file nothing references.
+
+### Verification fixture
+
+Steps 2–4 need broken repositories to test against, and no step may touch the
+developer's real `.claude\skills\` entries: on a machine without the privilege to
+create links, a mis-restored entry cannot simply be recreated. Every negative
+test therefore runs against a **scratch clone** outside the repository, built
+once and reused:
+
+```powershell
+$fixture = Join-Path $env:TEMP "lab-status-fixture"
+git clone --no-hardlinks . $fixture
+New-Item -ItemType Directory -Path "$fixture\.claude\skills" | Out-Null
+Get-ChildItem "$fixture\.agents\skills" -Directory | ForEach-Object {
+  New-Item -ItemType Junction -Path "$fixture\.claude\skills\$($_.Name)" -Target $_.FullName | Out-Null
+}
+Copy-Item .\.ai\scripts\lab-status.ps1 "$fixture\.ai\scripts\lab-status.ps1"
+```
+
+Junctions need no elevation or Developer Mode, so the fixture reproduces this
+checkout's real discovery shape. Because the script anchors on `$PSScriptRoot`,
+the copy inside the fixture reports on the fixture. Delete the fixture when the
+step is done; it lives under `$env:TEMP`, never inside the repository.
 
 ### Phase 1
 
-1. **Create the script skeleton.** Add `.ai/scripts/lab-status.sh` with the
-   shebang, `set -u`, `--help`/usage handling with exit `2` on an unknown flag,
-   repo-root resolution with exit `2` outside a repository, the two finding
-   accumulators, and a `main` that prints the four (still empty) section headings
-   and the verdict. Mark it executable (`git update-index --chmod=+x`).
-   *Verify:* `.ai/scripts/lab-status.sh` prints four headings and `READY`, exits
-   `0`; `.ai/scripts/lab-status.sh --nope` prints usage to stderr and exits `2`;
-   running it from `/tmp` exits `2`.
-2. **Implement the Repository section.** Branch name, upstream comparison
-   (ahead/behind from existing refs, no fetch, `no upstream` when unset),
-   working-tree cleanliness from `git status --porcelain`, the `git diff --check`
-   gate, and the last commit's short SHA and subject. Wire the clean-tree,
-   divergence, and gate findings into the accumulators at the classes named in
-   Architecture.
-   *Verify:* clean checkout reports `clean` and exits `0`; after touching a file,
-   the warning appears and the exit code stays `0`; a file with trailing
-   whitespace makes the gate fail and the exit code becomes `1`.
-3. **Implement the Skills section.** Count directories under `.agents/skills/`,
-   resolve each against `.claude/skills/`, and classify per the blocker/warning
-   table: missing, broken symlink, present-but-not-a-symlink, and vendored
-   directories lacking a `SKILL.md`. Add the linked-worktree detection that
-   downgrades the discovery blocker. Extract the lockfile's skill set defensively
-   and compare, degrading to `unreadable` on any parse failure or missing `jq`.
-   *Verify:* healthy checkout reports `13 of 13`; after `mv .claude/skills/om-fix
-   /tmp/`, the blocker names `om-fix` and prints the recreation snippet, exit `1`;
-   restoring it returns to `READY`; running the script inside a `.ai/tmp/`
-   worktree yields the downgraded warning, not a blocker.
-4. **Implement the Learning log and Toolchain sections.** Scan `EXPERIMENTS.md`
-   and `FINDINGS.md` for `^## (Experiment|Finding) ([0-9]{3})`, take the
-   highest number, trim the title separators, and print `none recorded` when
-   nothing matches. Probe `git`, `gh`, and `jq` versions; apply the 2.82.1
-   comparison for `gh` (sorted-version comparison, with an inspection fallback
-   where `sort -V` is unavailable, mirroring `.ai/trackers/github.md`
-   § auth-check).
-   *Verify:* the log section reports experiment `002` and finding `005` with
-   their titles, and does **not** report the `## Experiment NNN` template inside
-   the fenced block; `PATH` without `jq` produces the `jq` blocker and the
-   `unreadable — jq not installed` lockfile line; a stubbed `gh` reporting 2.72.0
-   produces the version blocker.
-5. **Finalize the verdict and remediation text.** Render the accumulated findings
-   under the verdict with `[blocker]` / `[warning]` prefixes, each followed by its
-   indented fix command; set the exit code from the blocker count; confirm the
-   whole report fits the alignment rules from UI/UX.
-   *Verify:* a deliberately broken checkout (missing symlink + dirty tree)
-   produces exactly the two-finding output shown in Proposed Solution and exits
-   `1`; a healthy one exits `0`.
-6. **Make it discoverable in the docs.** Add the script to the repository map in
-   `README.md` and to the routing table in `AGENTS.md` (a "checking whether the
-   repo is session-ready" row), and mention in `README.md` § Start here that
-   running it is the fastest way to confirm the symlink step worked. Keep both
-   edits to a few lines — the script's `--help` is the reference, the docs are
-   the pointer.
-   *Verify:* `git diff --check` passes; the README snippet and the script's
-   actual behavior agree.
+1. **Create the script skeleton.** Add `.ai/scripts/lab-status.ps1` with
+   `#Requires -Version 5.1`, `Set-StrictMode -Version Latest`, a `[switch]$Help`
+   parameter with usage text, `$ErrorActionPreference` handling that keeps the
+   report going, root resolution from `$PSScriptRoot` with the
+   `.agents\skills\` + `.ai\agentic.config.json` anchor check and exit `2`, the
+   two finding lists, and a `main` that prints the three (still empty) section
+   headings and the verdict.
+   *Verify:* the script prints three headings and `READY` and exits `0`;
+   `-Help` prints usage and exits `0`. The unsupported-parameter case is checked
+   in both invocation forms, and each asserts only what that form guarantees:
+   `.\.ai\scripts\lab-status.ps1 -Nope` raises a binding error in the current
+   session and prints no report — assert the error (`$?` false, or a
+   `try`/`catch`), and do **not** assert `$LASTEXITCODE`, which the binding
+   failure never sets; `powershell -NoProfile -File .\.ai\scripts\lab-status.ps1
+   -Nope` leaves a **non-zero** `$LASTEXITCODE` — assert non-zero only, not a
+   specific value. A copy placed in a directory outside the lab exits exactly `2`
+   with a stderr diagnostic and no report;
+   `[System.Management.Automation.PSParser]::Tokenize()` over the file returns no
+   parse errors.
+2. **Implement the Repository section.** Current branch and working-tree
+   cleanliness from `git status --porcelain`, run with `-C $RepoRoot` so the
+   caller's directory is irrelevant. Wire the dirty-tree warning. Degrade both
+   lines to `unavailable` with one warning when `git` is missing or the root is
+   not a work tree.
+   *Verify:* a clean checkout reports the branch and `clean` and exits `0`; after
+   creating a scratch file in the fixture, the warning appears and the exit code
+   stays `0`; with `git` removed from `PATH` for one invocation, both lines print
+   `unavailable`, the section does not abort, and the exit code stays `0`.
+3. **Implement the Skills section.** Enumerate directories under
+   `.agents\skills\`, then classify each against `.claude\skills\` per the five
+   cases in Architecture: `ok`, `missing`, `not-a-link`, `broken`, `foreign`.
+   Accept `LinkType` of both `SymbolicLink` and `Junction`. Compare targets with
+   `[System.IO.Path]::GetFullPath()` on both sides, case-insensitively. Add the
+   `orphan` warning for unmatched `.claude\skills\` entries and the warning for
+   vendored directories lacking a `SKILL.md`. Read `skills-lock.json` with
+   `ConvertFrom-Json` inside a `try`, take the property names of its `skills`
+   object, report the set difference, and degrade to `unreadable` on any failure.
+   *Verify (all in the fixture, never in the real checkout):* the untouched
+   fixture reports `13 of 13`; deleting one junction produces the `missing`
+   blocker and exit `1`; replacing one with a real directory produces the
+   `not-a-link` blocker; repointing one at a junction into a second copy of the
+   repository produces the `foreign` blocker with the resolved target printed;
+   deleting a junction's target produces `broken`; adding
+   `.claude\skills\om-ghost` produces the `orphan` warning with exit `0`;
+   truncating `skills-lock.json` to invalid JSON produces `unreadable` with a
+   warning and no crash.
+4. **Implement the Learning log section.** Read `EXPERIMENTS.md` and
+   `FINDINGS.md` line by line with fence tracking, match
+   `^##\s+(Experiment|Finding)\s+(\d{3})\b` outside fences only, take the highest
+   number per file, trim the title separators, truncate for display, and print
+   `none recorded` with a warning when nothing matches or the file is absent.
+   *Verify:* the section reports experiment `002` and finding `005` with their
+   titles; the `## Experiment NNN` template inside the fenced block is not
+   reported; adding `## Experiment 999` **inside** a fenced block in the fixture
+   does not change the reported latest, while adding the same heading outside a
+   fence does; deleting `FINDINGS.md` in the fixture prints `none recorded` with
+   a warning and exit `0`.
+5. **Finalize the verdict, then make it discoverable.** Render the accumulated
+   findings under the verdict with `[blocker]` / `[warning]` prefixes and the
+   single `README.md` pointer line; set the exit code from the blocker count;
+   confirm the report matches the alignment rules in UI/UX. Then add the script
+   to the repository map in `README.md` (noting it is hand-maintained, not a
+   generated launcher) and to the routing table in `AGENTS.md` as a "checking
+   whether the repo is session-ready" row, and mention in `README.md` § Start
+   here that running it is the fastest way to confirm the discovery step worked.
+   Keep both edits to a few lines — the script's `-Help` is the reference, the
+   docs are the pointer.
+   *Verify:* a fixture broken in two ways (one deleted junction plus a dirty
+   tree) produces exactly the two-finding shape shown in Proposed Solution and
+   exits `1`; the real checkout exits `0`; `git diff --check` passes; the command
+   shown in `README.md` runs as written, including on a restricted execution
+   policy; the fixture is deleted.
 
 ### Out of scope for this plan
 
-No changes to any file under `.agents/skills/`, `.ai/trackers/`,
-`.ai/browsers/`, or `.ai/agentic.config.json`. If implementing this appears to
-require one, that is a signal the design drifted and the spec should be amended
-first.
+No changes to any file under `.agents/skills/`, `.ai/trackers/`, `.ai/browsers/`,
+or `.ai/agentic.config.json`, and no changes to the `.claude/skills/` entries of
+the working checkout. If implementing this appears to require one, that is a
+signal the design drifted and the spec should be amended first.
