@@ -98,19 +98,29 @@ function Write-Row {
 }
 
 # A detail line hangs under the row it belongs to, starting in the value column.
+# The caller passes one width for the whole group so the values line up with each
+# other; the default keeps the two-space gap after the common short kinds.
 function Write-Detail {
     param(
         [Parameter(Mandatory = $true)][string] $Kind,
-        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value,
+        [int] $Width = 0
     )
-    $label = "${Kind}:"
-    if ($label.Length -lt $script:DetailWidth) {
-        $label = $label.PadRight($script:DetailWidth)
-    } else {
-        $label = $label + ' '
-    }
+    if ($Width -le 0) { $Width = $script:DetailWidth }
     $pad = ' ' * ($script:BodyIndent.Length + $script:LabelWidth)
-    Write-Output ($pad + $label + $Value)
+    Write-Output ($pad + "${Kind}:".PadRight($Width) + $Value)
+}
+
+# The width a group of detail lines shares: the spec's two-space gap after the
+# short kinds, widened only when a longer kind would otherwise collide.
+function Get-DetailWidth {
+    param([Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $Kinds)
+    $width = $script:DetailWidth
+    foreach ($kind in $Kinds) {
+        $needed = $kind.Length + 2
+        if ($needed -gt $width) { $width = $needed }
+    }
+    return $width
 }
 
 # The Windows console default code page mangles non-ASCII, and this output ends
@@ -272,10 +282,189 @@ function Show-RepositorySection {
     }
 }
 
+# Strict mode turns a reference to an absent property into an error, and the
+# properties this script reads are provider-supplied rather than guaranteed, so
+# every one of them goes through here.
+function Get-PropertyOrNull {
+    param(
+        [Parameter(Mandatory = $true)][AllowNull()] $InputObject,
+        [Parameter(Mandatory = $true)][string] $Name
+    )
+    if ($null -eq $InputObject) { return $null }
+    if ($InputObject.PSObject.Properties.Match($Name).Count -eq 0) { return $null }
+    return $InputObject.PSObject.Properties[$Name].Value
+}
+
+# Drive-letter casing, a trailing separator, and '.'/'..' segments must not be
+# able to produce a false 'foreign' verdict, so both sides of every comparison
+# are normalized through here first.
+function Get-NormalizedPath {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) { return '' }
+    try {
+        return [System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/')
+    } catch {
+        return $Path.TrimEnd('\', '/')
+    }
+}
+
+# The entries in this checkout are NTFS junctions, not symbolic links: Git Bash
+# on Windows without the privilege to create symlinks produces junctions, and
+# every one of them here reports LinkType 'Junction'. Both types are accepted -
+# demanding SymbolicLink would report a perfectly healthy lab as all blockers.
+function Get-EntryLinkInfo {
+    param(
+        [Parameter(Mandatory = $true)] $Item,
+        [Parameter(Mandatory = $true)][string] $ParentDir
+    )
+
+    $linkType = [string](Get-PropertyOrNull -InputObject $Item -Name 'LinkType')
+    $isLink = ($linkType -eq 'Junction' -or $linkType -eq 'SymbolicLink')
+
+    $target = ''
+    if ($isLink) {
+        $raw = Get-PropertyOrNull -InputObject $Item -Name 'Target'
+        $first = @($raw) | Where-Object { $_ -ne $null -and [string]$_ -ne '' } | Select-Object -First 1
+        if ($null -ne $first) {
+            $targetText = [string]$first
+            # A symbolic link may record a relative target; resolve it against
+            # the directory the link itself lives in, never the caller's cwd.
+            if (-not [System.IO.Path]::IsPathRooted($targetText)) {
+                $targetText = Join-Path $ParentDir $targetText
+            }
+            $target = Get-NormalizedPath $targetText
+        }
+    }
+
+    return [pscustomobject]@{
+        IsLink   = $isLink
+        LinkType = $linkType
+        Target   = $target
+    }
+}
+
+function Read-LockfileSkillNames {
+    param([Parameter(Mandatory = $true)][string] $LockPath)
+
+    try {
+        if (-not (Test-Path -LiteralPath $LockPath -PathType Leaf)) { throw 'not found' }
+        $raw = Get-Content -LiteralPath $LockPath -Raw -ErrorAction Stop
+        if ([string]::IsNullOrWhiteSpace($raw)) { throw 'empty' }
+        $json = ConvertFrom-Json -InputObject $raw -ErrorAction Stop
+        $skills = Get-PropertyOrNull -InputObject $json -Name 'skills'
+        if ($null -eq $skills) { throw 'no skills object' }
+        return @($skills.PSObject.Properties | ForEach-Object { $_.Name })
+    } catch {
+        # The lockfile is never allowed to abort the report.
+        return $null
+    }
+}
+
 function Show-SkillsSection {
     param([Parameter(Mandatory = $true)][string] $RepoRoot)
 
     Write-Section 'Skills'
+
+    $vendoredRoot  = Join-Path $RepoRoot '.agents\skills'
+    $discoveryRoot = Join-Path $RepoRoot '.claude\skills'
+
+    $vendored = @(Get-ChildItem -LiteralPath $vendoredRoot -Directory -Force -ErrorAction SilentlyContinue |
+        Sort-Object Name)
+    Write-Row 'Vendored' ('' + $vendored.Count + ' under .agents/skills/')
+
+    # Enumerate the discovery directory once. A listing includes a link whose
+    # target no longer exists, which a Test-Path probe on the entry would not.
+    $entries = @{}
+    if (Test-Path -LiteralPath $discoveryRoot -PathType Container) {
+        foreach ($entry in @(Get-ChildItem -LiteralPath $discoveryRoot -Force -ErrorAction SilentlyContinue)) {
+            $entries[$entry.Name] = $entry
+        }
+    }
+
+    $matched  = @{}
+    $details  = @()
+    $okCount  = 0
+
+    foreach ($skill in $vendored) {
+        $name = $skill.Name
+        $expected = Get-NormalizedPath (Join-Path $vendoredRoot $name)
+
+        if (-not (Test-Path -LiteralPath (Join-Path $skill.FullName 'SKILL.md') -PathType Leaf)) {
+            Add-Warning ".agents\skills\$name has no SKILL.md, so it is not a dispatchable skill even though it is counted as vendored."
+        }
+
+        if (-not $entries.ContainsKey($name)) {
+            $details += [pscustomobject]@{ Kind = 'missing'; Value = $name }
+            Add-Blocker -Discovery "$name has no .claude\skills entry and cannot be dispatched."
+            continue
+        }
+
+        $item = $entries[$name]
+        $matched[$item.Name] = $true
+        $link = Get-EntryLinkInfo -Item $item -ParentDir $discoveryRoot
+
+        if (-not $link.IsLink) {
+            $details += [pscustomobject]@{ Kind = 'not-a-link'; Value = $name }
+            Add-Blocker -Discovery "$name is a real directory rather than a link, so dispatching it executes a forked copy instead of this checkout's skill."
+            continue
+        }
+
+        if ($link.Target -eq '' -or -not (Test-Path -LiteralPath $link.Target)) {
+            $details += [pscustomobject]@{ Kind = 'broken'; Value = $name }
+            Add-Blocker -Discovery "$name is a link whose target no longer exists, so dispatching it fails; the entry has to be deleted before it can be recreated."
+            continue
+        }
+
+        if ($link.Target -ne $expected) {
+            $details += [pscustomobject]@{ Kind = 'foreign'; Value = ($name + ' -> ' + $link.Target) }
+            Add-Blocker -Discovery "$name resolves outside this repository, so dispatching it executes a different checkout's copy of the skill."
+            continue
+        }
+
+        $okCount++
+    }
+
+    foreach ($entryName in @($entries.Keys | Sort-Object)) {
+        if (-not $matched.ContainsKey($entryName)) {
+            $details += [pscustomobject]@{ Kind = 'orphan'; Value = $entryName }
+            Add-Warning -Discovery ".claude\skills\$entryName has no counterpart under .agents\skills\, so nothing in this repository dispatches it."
+        }
+    }
+
+    Write-Row 'Discovery' ('' + $okCount + ' of ' + $vendored.Count + ' resolve into this repository')
+    $detailWidth = Get-DetailWidth @($details | ForEach-Object { $_.Kind } | Select-Object -Unique)
+    foreach ($kind in @('missing', 'not-a-link', 'broken', 'foreign', 'orphan')) {
+        foreach ($detail in @($details | Where-Object { $_.Kind -eq $kind })) {
+            Write-Detail -Kind $kind -Value (ConvertTo-AsciiText $detail.Value) -Width $detailWidth
+        }
+    }
+
+    # Compare only the set of names. Recomputing the skills CLI's content hash
+    # would report drift on every local edit, which a learning lab expects.
+    $lockNames = Read-LockfileSkillNames -LockPath (Join-Path $RepoRoot 'skills-lock.json')
+    if ($null -eq $lockNames) {
+        Write-Row 'Lockfile' 'unreadable'
+        Add-Warning 'skills-lock.json is missing or could not be parsed, so the installed set could not be compared against .agents\skills\.'
+        return
+    }
+
+    $vendoredNames = @($vendored | ForEach-Object { $_.Name })
+    $onlyInLock   = @($lockNames | Where-Object { $vendoredNames -notcontains $_ } | Sort-Object)
+    $onlyVendored = @($vendoredNames | Where-Object { $lockNames -notcontains $_ } | Sort-Object)
+
+    if ($onlyInLock.Count -eq 0 -and $onlyVendored.Count -eq 0) {
+        Write-Row 'Lockfile' ('' + $lockNames.Count + ' entries, matching')
+        return
+    }
+
+    Write-Row 'Lockfile' ('' + $lockNames.Count + ' entries, differs from .agents/skills/')
+    $lockDetailWidth = Get-DetailWidth @('not vendored', 'not in lock')
+    foreach ($name in $onlyInLock)   { Write-Detail -Kind 'not vendored' -Value $name -Width $lockDetailWidth }
+    foreach ($name in $onlyVendored) { Write-Detail -Kind 'not in lock'  -Value $name -Width $lockDetailWidth }
+    Add-Warning ('skills-lock.json and .agents\skills\ disagree on the installed set (' +
+        (Format-Count $onlyInLock.Count 'entry' 'entries') + ' in the lockfile only, ' +
+        (Format-Count $onlyVendored.Count 'entry' 'entries') +
+        ' vendored only), so the next reproducible install would be wrong.')
 }
 
 function Show-LearningLogSection {
