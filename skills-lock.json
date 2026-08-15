@@ -19,6 +19,12 @@
       "skillPath": "skills/om-auto-create-pr/SKILL.md",
       "computedHash": "25a120bcc333ac5c7931d6b2ae19d4b1bca84b43fe0870db87d49fea9db9b010"
     },
+    "om-auto-create-pr-loop": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-create-pr-loop/SKILL.md",
+      "computedHash": "42606a74b7f466fae93071ea0bba63319cc4ce7805edd911d0dae08fa5b2c60a"
+    },
     "om-auto-fix-issue": {
       "source": "open-mercato/skills",
       "sourceType": "github",
