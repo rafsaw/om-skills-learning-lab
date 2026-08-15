@@ -789,3 +789,196 @@ This makes `om-pr-autopilot` best understood as a **state-driven dispatcher/orch
 It exhibits state-machine-like behavior because execution repeatedly transitions between observed PR states, but describing it formally as a state machine remains an architectural interpretation rather than terminology established by the inspected skill documentation.
 
 This finding is **documented and inspected in Lesson 9 but has not been runtime-tested in the Learning Lab**.
+
+---
+
+## Finding 017 — Fresh implementation engine selection is deterministic and separate from loop run-mode classification
+
+**Evidence:** Lesson 10 — documented inspection of `om-auto-implement-spec`, `om-auto-create-pr`, `references/engine-selection.md`, and `om-auto-create-pr-loop`
+
+For a fresh spec implementation, `om-auto-implement-spec` delegates to `om-auto-create-pr`.
+
+`om-auto-create-pr` owns the flat-vs-loop engine decision.
+
+The documented routing rule is deterministic:
+
+```text
+--loop
+OR
+drafted plan Steps > engine.loopStepThreshold
+        ↓
+om-auto-create-pr-loop
+```
+
+The default threshold is:
+
+```text
+engine.loopStepThreshold = 20
+```
+
+The count is based on Steps, not Phases.
+
+Nothing else selects the loop engine. UI work, subjective complexity, or the possibility that a run may not finish in one pass are not routing signals.
+
+When the Step threshold triggers the handoff, the plain engine's drafted Progress-format plan is discarded before it is written or committed. The loop engine receives the original brief/spec and creates its own run-folder plan format.
+
+This means engine selection happens before durable execution artifacts are committed.
+
+Inside `om-auto-create-pr-loop`, a separate classification then chooses between:
+
+```text
+Simple run
+```
+
+and:
+
+```text
+Spec-implementation run
+```
+
+These are two different decisions:
+
+```text
+LEVEL 1
+flat engine vs loop engine
+
+LEVEL 2
+inside loop:
+Simple vs Spec-implementation contract
+```
+
+### Conclusion
+
+Open Mercato separates **engine routing** from **execution-contract classification**.
+
+A useful model is:
+
+```text
+fresh implementation
+        ↓
+om-auto-create-pr
+        ↓
+engine routing
+        ↓
+plain OR loop
+              ↓
+      if loop selected:
+              ↓
+      run-mode classification
+              ↓
+      Simple / Spec-implementation
+```
+
+This routing behavior is **documented**. Lesson 10 runtime-tested only the explicit `--loop` path, not automatic threshold routing.
+
+---
+
+## Finding 018 — Loop execution uses a different durable state model from the plain implementation engine
+
+**Evidence:** Experiment 005 — Loop implementation engine and durable execution protocol
+
+The plain implementation engine observed in Lesson 7 persisted resumable execution state primarily through:
+
+```text
+single execution-plan file
+## Progress checklist
+commit SHAs
+remote branch
+implementation PR
+```
+
+In Lesson 10, the loop engine used a richer durable state model:
+
+```text
+run folder/
+    ├── PLAN.md
+    ├── HANDOFF.md
+    ├── NOTIFY.md
+    ├── checkpoint state
+    └── final-gate state
+```
+
+`PLAN.md` carries the authoritative Tasks state.
+
+Implementation Steps were committed individually, and checkpoint activity created additional durable execution-state commits.
+
+A checkpoint fired during the six-Step Lab Report implementation, proving that checkpoint-based verification is part of the runtime execution model rather than only a documented design.
+
+### Conclusion
+
+`om-auto-create-pr-loop` is not simply a larger version of `om-auto-create-pr`.
+
+It uses a different **durable execution protocol** intended to make long-running implementation progress explicit and reconstructable:
+
+```text
+execution plan
+    +
+Step state
+    +
+Git history
+    +
+handoff snapshot
+    +
+event log
+    +
+checkpoint evidence
+        ↓
+durable loop execution state
+```
+
+The key architectural difference is therefore not only how much work is performed, but **how execution state is represented and persisted**.
+
+This behavior is **runtime observed in Lesson 10**.
+
+---
+
+## Finding 019 — Loop checkpoints batch verification and execution-state updates
+
+**Evidence:** Experiment 005 and Lesson 10 inspection of `references/checkpoint-pass.md`
+
+The Lab Report loop run contained six implementation Steps and produced a real checkpoint during execution.
+
+The loop contract does not create a verification artifact for every Step.
+
+Instead, normal implementation progress is kept lean:
+
+```text
+Step
+    ↓
+implementation
+    ↓
+one commit
+    ↓
+Tasks state update
+```
+
+and periodically batches verification and handoff state into a checkpoint:
+
+```text
+multiple Steps
+    ↓
+checkpoint
+    ↓
+targeted verification
+HANDOFF rewrite
+NOTIFY entry
+checkpoint evidence
+checkpoint commit
+```
+
+This reduces per-Step ceremony while still creating durable recovery points.
+
+### Conclusion
+
+The loop engine combines **fine-grained implementation commits** with **coarser-grained verification checkpoints**.
+
+A useful mental model is:
+
+```text
+Step-level execution granularity
+        +
+checkpoint-level verification granularity
+```
+
+The existence of checkpoint execution is **runtime observed in Lesson 10**. The full set of checkpoint trigger rules remains documented rather than exhaustively runtime-tested.
+

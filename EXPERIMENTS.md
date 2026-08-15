@@ -474,3 +474,196 @@ Not tested:
 ◌ claim-conflict behavior
 ◌ implementation from an unmerged spec PR
 ```
+
+---
+
+## Experiment 005 — Loop implementation engine and durable execution protocol
+
+### Goal
+
+Observe the runtime behavior of `om-auto-create-pr-loop` during a real feature implementation and verify whether it uses a meaningfully different execution model from the plain `om-auto-create-pr` engine.
+
+The experiment deliberately focused on the loop concept itself. Interruption/resume, stale locks, and `om-auto-continue-pr-loop` were left out of scope.
+
+### Starting point
+
+A new Learning Lab feature was first described as a normal feature brief and passed through the already-known design path:
+
+```text
+feature brief
+    ↓
+om-auto-write-spec
+    ↓
+design-only spec PR #11
+```
+
+The resulting specification was:
+
+```text
+.ai/specs/2026-08-15-lab-report.md
+```
+
+It designed a read-only Windows PowerShell 5.1 script:
+
+```text
+.ai/scripts/lab-report.ps1
+```
+
+The spec PR remained open and design-only.
+
+### Run
+
+The implementation was started through the normal spec implementation entry point, but with loop execution explicitly forced for the experiment:
+
+```text
+om-auto-implement-spec .ai/specs/2026-08-15-lab-report.md --loop
+```
+
+`om-auto-implement-spec` resolved the specification from the supplied path.
+
+Because the spec was not yet on `main`, it was materialized into the implementation worktree from spec PR #11 for reference only and was not committed to the implementation branch.
+
+The fresh implementation route delegated to `om-auto-create-pr`, and the forwarded `--loop` flag caused an immediate handoff to:
+
+```text
+om-auto-create-pr-loop
+```
+
+The engine report was:
+
+```text
+Engine: om-auto-create-pr-loop (steps: n/a, --loop: yes)
+```
+
+The Step count is `n/a` because `--loop` forced the handoff before the plain engine drafted and counted a plan.
+
+The loop engine then produced a six-Step implementation plan. Without `--loop`, this feature would have remained under the configured threshold of 20 Steps and would have used the plain engine.
+
+### Observed loop execution model
+
+The run used the branch:
+
+```text
+feat/lab-report
+```
+
+The implementation used the loop engine's durable run-folder contract rather than the plain single-plan-file contract.
+
+Observed execution included:
+
+```text
+run folder
+    ↓
+PLAN.md with authoritative Tasks state
+HANDOFF.md
+NOTIFY.md
+checkpoint state
+final-gate state
+```
+
+Implementation proceeded Step-by-Step, with one commit per implementation Step.
+
+The run contained six planned Steps and produced eleven commits in total, because durable execution-state commits were added alongside the implementation commits, including the run-folder, checkpoint, and close-out commits.
+
+A checkpoint fired during the run after the first group of Steps, exercising the checkpoint-based verification model rather than only end-of-run validation.
+
+The final gate completed successfully.
+
+### Validation and review
+
+The repository-configured gate:
+
+```text
+git diff --check
+```
+
+passed.
+
+Additional verification included PowerShell parsing and a manual verification fixture covering 28 cases across the implementation Steps using scratch repositories under `$env:TEMP`.
+
+The verification found real implementation defects before the affected commits landed, including a version that exited successfully while producing no output.
+
+The authoritative review path ran through:
+
+```text
+om-auto-review-pr
+    ↓
+om-code-review
+```
+
+The final review verdict was approve.
+
+One major finding about the absence of a test file was waived because the Learning Lab repository has no test runner or CI. Two minor findings were fixed in a follow-up commit.
+
+### Implementation PR
+
+The implementation was published as:
+
+```text
+PR #12
+```
+
+The spec PR and implementation PR remained separate:
+
+```text
+PR #11 = design-only specification
+PR #12 = feature implementation
+```
+
+PR #12 was left ready for review.
+
+### Result
+
+Confirmed that `om-auto-create-pr-loop` is not merely the plain implementation engine running for more iterations.
+
+The loop engine uses a different durable execution contract:
+
+```text
+PLAN / Tasks
+    +
+HANDOFF
+    +
+NOTIFY
+    +
+Step-level commits
+    +
+checkpoint verification
+    +
+final gate
+        ↓
+durable loop execution state
+```
+
+The experiment also confirmed that forcing `--loop` is useful for studying the execution model independently of the Step-count routing threshold.
+
+Observed in this experiment:
+
+```text
+● --loop forcing handoff to om-auto-create-pr-loop
+● loop execution on a real spec implementation
+● run-folder durable state
+● PLAN.md Tasks-based execution state
+● one implementation Step per commit
+● checkpoint execution during the run
+● final-gate execution
+● separate spec and implementation PRs
+● ready implementation PR
+```
+
+Documented but not exercised:
+
+```text
+○ automatic loop routing when Step count exceeds engine.loopStepThreshold
+○ executor subagent dispatch
+○ Simple → Spec-implementation promotion
+```
+
+Not tested:
+
+```text
+◌ interruption and resume
+◌ om-auto-continue-pr-loop runtime behavior
+◌ multi-session handoff
+◌ stale-lock recovery
+```
+
