@@ -172,3 +172,305 @@ The experiment also confirmed that autonomous design is not treated as final aut
 
 `om-auto-implement-spec` was not installed or run in this lesson and remains untested for the next lesson.
 
+---
+
+## Experiment 004 — Autonomous spec implementation lifecycle
+
+### Goal
+
+Observe how Open Mercato takes an approved specification already merged to `main` and turns it into a controlled implementation run.
+
+The experiment focused on the fresh implementation path:
+
+```text
+approved spec
+→ om-auto-implement-spec
+→ om-auto-create-pr
+→ implementation PR
+```
+
+Resume behavior through `om-auto-continue-pr` was intentionally left for a separate experiment.
+
+### Starting state
+
+The repository was on a clean `main` branch, up to date with `origin/main`.
+
+The approved specification already existed on `main`:
+
+```text
+.ai/specs/2026-08-13-lab-status-check.md
+```
+
+The specification came from the design-only PR:
+
+```text
+#9 — docs(specs): lab status check
+```
+
+The implementation skills had been installed before the experiment:
+
+```text
+om-auto-implement-spec
+om-auto-create-pr
+```
+
+No implementation branch, worktree, execution plan, Issue, or implementation PR was created manually.
+
+### Run
+
+The approved specification was passed directly to:
+
+```text
+om-auto-implement-spec .ai/specs/2026-08-13-lab-status-check.md
+```
+
+`om-auto-implement-spec` resolved the specification by its exact repository-relative path.
+
+The spec PR was already merged, so the specification was available on `main` and did not need to be materialized from a separate spec branch.
+
+No existing implementation PR referencing the specification was found, so the orchestrator selected the fresh implementation path:
+
+```text
+om-auto-implement-spec
+→ om-auto-create-pr
+```
+
+### Engine selection
+
+`om-auto-create-pr` generated an execution plan from the specification's `Implementation Plan`.
+
+The resulting plan contained:
+
+```text
+5 Steps
+```
+
+The configured threshold was:
+
+```text
+engine.loopStepThreshold = 20
+```
+
+`--loop` was not supplied.
+
+The selected engine was therefore:
+
+```text
+Engine: om-auto-create-pr (steps: 5, --loop: no)
+```
+
+`om-auto-create-pr-loop` was not exercised.
+
+### Branch and isolated worktree
+
+The implementation used the branch:
+
+```text
+feat/lab-status-check
+```
+
+An isolated implementation worktree was created under:
+
+```text
+.ai/tmp/om-auto-create-pr/
+```
+
+The primary checkout remained on `main`.
+
+The temporary implementation worktree was removed at the end of the run. A later:
+
+```text
+git worktree list --porcelain
+```
+
+showed only the primary repository worktree.
+
+### Durable execution plan
+
+The first commit on the implementation branch was:
+
+```text
+7c22dd7 docs(runs): add execution plan for lab-status-check
+```
+
+This confirmed that the execution plan became a durable repository artifact before feature implementation commits were created.
+
+The plan tracked implementation progress and was updated as work completed.
+
+### Incremental implementation
+
+The implementation proceeded through incremental commits:
+
+```text
+ef6114b feat(scripts): add lab-status.ps1 skeleton with anchor check and verdict
+c346238 feat(scripts): report branch and working-tree state in lab-status
+6af942f feat(scripts): check skill discovery resolution and lockfile drift
+f697ca6 feat(scripts): report the latest recorded experiment and finding
+a347cc6 docs(readme,agents): point at lab-status.ps1 as the session-readiness check
+```
+
+After the implementation phase completed, Progress was recorded separately:
+
+```text
+eda21c4 docs(runs): mark lab-status-check Phase 1 complete
+```
+
+This provided a durable relationship between the execution plan, completed implementation work, and Git history.
+
+### Validation
+
+The repository-configured validation gate was:
+
+```text
+git diff --check
+```
+
+It passed.
+
+The run additionally performed specification-specific verification, including PowerShell parsing and execution against multiple repository-state scenarios.
+
+### Review/autofix
+
+The implementation then entered the already-known downstream review subsystem:
+
+```text
+om-auto-review-pr --autofix
+```
+
+The first review requested changes.
+
+A real Windows PowerShell 5.1 compatibility issue was identified: repository Markdown files encoded as UTF-8 without BOM were being read using the host's default encoding.
+
+The fix was committed as:
+
+```text
+4a2e036 fix(scripts): read repository text as UTF-8 regardless of the host code page
+```
+
+The execution plan was updated again to record the review autofix:
+
+```text
+fdf642b docs(runs): record the review autofix commit
+```
+
+The subsequent review passed.
+
+GitHub did not allow the automation account to formally approve its own PR. The review verdict was therefore represented through PR conversation comments and pipeline state rather than a native approving review.
+
+### Implementation PR
+
+The implementation was published separately from the design PR:
+
+```text
+#10
+```
+
+on:
+
+```text
+feat/lab-status-check
+```
+
+The implementation PR referenced the approved specification, while spec PR `#9` remained design-only.
+
+`om-auto-implement-spec` also posted an implementation cross-link on spec PR `#9`.
+
+The final implementation PR was left ready for human review/merge.
+
+### UI verification
+
+UI verification was not run.
+
+The implementation consisted of a PowerShell terminal script and documentation pointers and did not modify an application UI.
+
+The run therefore reported:
+
+```text
+UI: n/a
+```
+
+and used `skip-qa`.
+
+### Observed flow
+
+```text
+approved spec on main
+        ↓
+om-auto-implement-spec
+        ↓
+resolve spec
+        ↓
+search for existing implementation
+        ↓
+no implementation PR
+        ↓
+om-auto-create-pr
+        ↓
+execution plan from spec
+        ↓
+5 Steps
+        ↓
+flat engine selected
+        ↓
+isolated worktree
+        ↓
+feat/lab-status-check
+        ↓
+execution-plan commit
+        ↓
+draft implementation PR
+        ↓
+incremental implementation commits
+        ↓
+Progress update
+        ↓
+validation
+        ↓
+review / autofix
+        ↓
+Progress update
+        ↓
+ready implementation PR
+        ↓
+temporary worktree cleanup
+```
+
+### Evidence status
+
+Observed in this experiment:
+
+```text
+● om-auto-implement-spec resolving an approved spec from main
+● fresh-run routing to om-auto-create-pr
+● execution-plan generation from the spec
+● Step counting and flat-engine selection
+● isolated implementation worktree
+● separate feat/ implementation branch
+● execution plan committed before implementation code
+● incremental implementation commits
+● durable Progress tracking
+● validation before completion
+● downstream review/autofix
+● separate design and implementation PRs
+● ready implementation PR
+● temporary worktree cleanup
+```
+
+Documented but not exercised:
+
+```text
+○ om-auto-create-pr-loop
+○ automatic routing for plans above the Step threshold
+○ --loop
+○ --force
+```
+
+Not tested:
+
+```text
+◌ om-auto-continue-pr resume path
+◌ om-auto-continue-pr-loop
+◌ interruption and resume behavior
+◌ claim-conflict behavior
+◌ implementation from an unmerged spec PR
+```

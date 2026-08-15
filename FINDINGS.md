@@ -216,3 +216,221 @@ For feature design, Open Mercato's process can be understood as:
 
 rather than treating documentation alone as unquestionable truth.
 
+---
+
+## Finding 009 — Spec implementation uses a thin router and a separate execution engine
+
+**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+
+`om-auto-implement-spec` did not directly perform the feature implementation.
+
+It resolved the approved specification, checked whether an implementation already existed, and selected the appropriate downstream engine.
+
+For a fresh implementation the observed handoff was:
+
+```text
+approved spec
+    ↓
+om-auto-implement-spec
+    ↓
+resolve spec
+    ↓
+detect existing implementation
+    ↓
+none found
+    ↓
+om-auto-create-pr
+```
+
+`om-auto-create-pr` then owned the implementation machinery: execution planning, worktree isolation, incremental implementation, validation, Progress tracking, PR lifecycle, and downstream review.
+
+This establishes a separation between:
+
+```text
+spec resolution / routing
+```
+
+and:
+
+```text
+implementation execution
+```
+
+The orchestration layer does not need to duplicate the execution machinery it routes into.
+
+---
+
+## Finding 010 — Approved design is translated into a durable execution artifact before code
+
+**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+
+The approved specification was not consumed only as prompt context.
+
+`om-auto-create-pr` used the specification's `Implementation Plan` to generate a five-Step execution plan.
+
+Before implementation code was committed, the plan itself became the first durable commit on the implementation branch:
+
+```text
+7c22dd7 docs(runs): add execution plan for lab-status-check
+```
+
+The observed transition was therefore:
+
+```text
+approved specification
+        ↓
+Implementation Plan
+        ↓
+execution Phases / Steps
+        ↓
+durable execution plan
+        ↓
+implementation
+```
+
+This creates an explicit boundary between **design intent** and **execution state**.
+
+The specification describes what should be built and the approved design constraints. The execution plan represents how that approved design is being carried out in a particular implementation run.
+
+---
+
+## Finding 011 — Resumability is built from durable execution state, not only agent memory
+
+**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+
+The fresh implementation run continuously persisted execution state outside the active agent invocation.
+
+Observed durable state included:
+
+```text
+implementation branch
+execution-plan commit
+incremental implementation commits
+Progress checklist
+commit SHAs associated with completed work
+remote pushes
+implementation PR
+```
+
+Implementation work was committed incrementally, and completion of the implementation phase was separately recorded:
+
+```text
+eda21c4 docs(runs): mark lab-status-check Phase 1 complete
+```
+
+After review produced an additional fix, Progress was updated again:
+
+```text
+fdf642b docs(runs): record the review autofix commit
+```
+
+The resulting model is:
+
+```text
+execution plan
+    +
+Progress state
+    +
+Git history
+    +
+remote branch
+    +
+implementation PR
+        ↓
+durable implementation state
+```
+
+This provides the architectural foundation for a resumable implementation lifecycle without relying solely on the context of one running agent.
+
+The actual resume path through `om-auto-continue-pr` was **not tested in Experiment 004**, so this finding does not claim that resume execution itself has been observed.
+
+---
+
+## Finding 012 — Design and implementation are separate but linked lifecycles
+
+**Evidence:** Experiments 003 and 004
+
+Lesson 6 produced the approved design on a design-only PR:
+
+```text
+feature intent
+    ↓
+autonomous specification
+    ↓
+architectural review
+    ↓
+human decisions
+    ↓
+approved spec
+    ↓
+spec PR #9
+    ↓
+main
+```
+
+Lesson 7 consumed that approved artifact and created a separate implementation lifecycle:
+
+```text
+approved spec on main
+    ↓
+om-auto-implement-spec
+    ↓
+om-auto-create-pr
+    ↓
+feat/lab-status-check
+    ↓
+implementation PR #10
+```
+
+The implementation did not reuse or mutate the spec PR branch.
+
+Instead:
+
+```text
+PR #9 = design artifact
+PR #10 = implementation artifact
+```
+
+The two lifecycles remained linked through the specification path and PR cross-references.
+
+The combined observed lifecycle is therefore:
+
+```text
+FEATURE INTENT
+      ↓
+────────────────────────
+DESIGN LIFECYCLE
+────────────────────────
+      ↓
+specification
+      ↓
+review / human override
+      ↓
+approved design
+      ↓
+spec PR
+      ↓
+main
+      ↓
+────────────────────────
+IMPLEMENTATION LIFECYCLE
+────────────────────────
+      ↓
+spec resolution
+      ↓
+execution plan
+      ↓
+isolated implementation
+      ↓
+incremental commits
+      ↓
+Progress tracking
+      ↓
+validation
+      ↓
+review
+      ↓
+implementation PR
+```
+
+Open Mercato therefore treats approved design and implementation as **separate autonomous lifecycles connected by durable handoff artifacts**, rather than as one continuous opaque agent run.
