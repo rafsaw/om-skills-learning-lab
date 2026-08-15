@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open Mercato Skills — Learning Map</title>
+<style>
+:root{
+  --bg:#0b0f16;
+  --panel:#111824;
+  --panel2:#151f2d;
+  --panel3:#0f1722;
+  --text:#edf2f7;
+  --muted:#9aa8b8;
+  --muted2:#8494a6;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);
+  --purple:#b59cff;
+  --blue:#71b8ff;
+  --green:#45e6b5;
+  --amber:#f4bd62;
+  --coral:#ff8f7a;
+  --shadow:0 18px 48px rgba(0,0,0,.22);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 20% -10%,rgba(181,156,255,.10),transparent 30%),
+    radial-gradient(circle at 100% 0,rgba(69,230,181,.08),transparent 28%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+code{font-family:var(--mono)}
+.page{max-width:1460px;margin:0 auto;padding:40px 32px 64px}
+.top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:24px;
+  align-items:end;
+  padding-bottom:26px;
+  border-bottom:1px solid var(--border2);
+}
+.eyebrow{
+  color:var(--green);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+h1{
+  margin:0;
+  font-size:clamp(34px,5vw,58px);
+  line-height:.98;
+  letter-spacing:-.045em;
+}
+h1 span{color:var(--green)}
+.subtitle{
+  color:var(--muted);
+  max-width:820px;
+  line-height:1.65;
+  margin-top:16px;
+  font-size:15px;
+}
+.meta{
+  text-align:right;
+  color:var(--muted2);
+  font-size:12px;
+  line-height:1.7;
+}
+.nav{
+  display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 28px;
+}
+.nav a{
+  text-decoration:none;
+  font-size:12px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--muted);
+  background:rgba(255,255,255,.02);
+}
+.nav a:hover{border-color:var(--border2);color:var(--text)}
+.legend{
+  display:flex; flex-wrap:wrap; gap:14px 22px;
+  margin-bottom:28px; color:var(--muted); font-size:12px;
+}
+.legend-item{display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.observed{background:var(--green)}
+.dot.documented{background:var(--blue)}
+.dot.untested{background:transparent;border:1px solid var(--muted2)}
+.dot.discussed{background:var(--purple)}
+.swatch.sw-gray{background:rgba(255,255,255,.28)}
+.swatch{width:18px;height:3px;border-radius:3px}
+.sw-purple{background:var(--purple)}
+.sw-blue{background:var(--blue)}
+.sw-green{background:var(--green)}
+.sw-amber{background:var(--amber)}
+.sw-coral{background:var(--coral)}
+
+.section{
+  margin-top:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006)),var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.section-head{
+  padding:20px 24px 17px;
+  display:flex; justify-content:space-between; gap:20px; align-items:flex-start;
+  border-bottom:1px solid var(--border);
+}
+.section-head h2{margin:0;font-size:19px;letter-spacing:-.015em}
+.section-head p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.55}
+.section-kicker{font-family:var(--mono);color:var(--muted2);font-size:11px;white-space:nowrap}
+.section-body{padding:24px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{
+  background:var(--panel3);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+.card h3{margin:0 0 8px;font-size:15px}
+.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.arch-title{
+  font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px
+}
+.arch-row{
+  display:grid;grid-template-columns:1fr 54px 1fr;gap:8px;align-items:center;
+}
+.arch-box{
+  border:1px solid var(--border2);border-radius:12px;padding:14px;min-height:118px;
+}
+.arch-box h3{margin:0 0 8px;font-size:14px}
+.arch-box ul{margin:0;padding-left:17px;color:var(--muted);font-size:12px;line-height:1.65}
+.arch-arrow{text-align:center;color:var(--muted2);font-size:24px}
+.callout{
+  margin-top:14px;border-left:3px solid var(--green);background:rgba(69,230,181,.055);
+  border-radius:10px;padding:12px 14px;color:var(--muted);font-size:12.5px;line-height:1.65;
+}
+.callout strong{color:var(--text)}
+
+.mini-flow{display:flex;flex-direction:column;align-items:stretch;max-width:520px;margin:0 auto}
+.mini-node{
+  border:1px solid var(--border2);
+  border-radius:10px;padding:9px 11px;background:rgba(255,255,255,.018);
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+}
+.mini-node code{font-family:var(--mono);font-size:11.5px}
+.mini-node span{color:var(--muted2);font-size:10.5px;text-align:right}
+.v-arrow{text-align:center;color:var(--muted2);font-size:16px;line-height:19px}
+
+.config-flow{
+  display:grid;
+  grid-template-columns:1fr auto 1fr auto 1fr;
+  gap:10px; align-items:center;
+}
+.config-box{
+  border:1px solid var(--border2);border-radius:12px;padding:14px;background:rgba(255,255,255,.018);min-height:100px;
+}
+.config-box h4{margin:0 0 7px;font-family:var(--mono);font-size:12px}
+.config-box ul{margin:0;padding-left:17px;color:var(--muted);font-size:11px;line-height:1.55}
+.config-arrow{color:var(--blue);font-size:23px;text-align:center}
+
+.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+.state-card,.arch-card{background:var(--panel3);border:1px solid var(--border);border-radius:14px;padding:18px}
+.state-list{display:grid;gap:10px}
+.state-row{
+  display:grid;grid-template-columns:128px 1fr;gap:12px;border-bottom:1px solid var(--border);padding-bottom:9px;
+}
+.state-row:last-child{border-bottom:0;padding-bottom:0}
+.state-row .k{color:var(--muted2);font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.state-row .v{color:var(--text);font-family:var(--mono);font-size:11.5px;line-height:1.55}
+
+.flow-wrap{overflow-x:auto;padding-bottom:3px}
+.flow{min-width:1260px;display:flex;align-items:center;gap:0}
+.node{
+  flex:0 0 auto; min-width:120px; max-width:150px; padding:11px 12px;
+  border:1px solid var(--border2); border-radius:12px; background:var(--panel3); text-align:center;
+}
+.node .name{font-family:var(--mono);font-size:11.5px;font-weight:700}
+.node .sub{color:var(--muted2);font-size:10.5px;margin-top:5px;line-height:1.35}
+.node.read{border-color:rgba(113,184,255,.35)}
+.node.mutate{border-color:rgba(69,230,181,.35)}
+.node.review{border-color:rgba(244,189,98,.35)}
+.node.claim{border-color:rgba(255,143,122,.40)}
+.node.gray{border-color:rgba(255,255,255,.16)}
+.arrow{color:var(--muted2);padding:0 7px;font-size:20px;flex:0 0 auto}
+.flow-note{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  font-size:11px;border:1px solid var(--border);border-radius:999px;padding:5px 8px;color:var(--muted);
+}
+.pill b{color:var(--text)}
+.obs{border-color:rgba(69,230,181,.28);color:var(--green)}
+.doc{border-color:rgba(113,184,255,.28);color:var(--blue)}
+.unt{border-style:dashed;color:var(--muted2)}
+
+.pr-anatomy{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px;
+}
+.pr-part{
+  border:1px solid var(--border);border-radius:12px;background:var(--panel3);padding:12px;text-align:center;
+}
+.pr-part b{display:block;font-family:var(--mono);font-size:11px}
+.pr-part span{display:block;color:var(--muted2);font-size:10.5px;margin-top:5px;line-height:1.4}
+.pr-part small{display:block;color:var(--text);font-size:10.5px;margin-top:7px}
+
+.review-loop{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}
+.loop-node{border:1px solid var(--border2);border-radius:12px;background:var(--panel3);padding:14px;min-height:100px}
+.loop-node h3{margin:0 0 6px;font-family:var(--mono);font-size:12.5px}
+.loop-node p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.55}
+.loop-arrow{color:var(--coral);font-size:26px}
+.loop-back{
+  margin-top:12px;border:1px dashed rgba(255,143,122,.35);color:var(--muted);
+  border-radius:10px;padding:9px 11px;font-size:11.5px;text-align:center;
+}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{
+  appearance:none;border:1px solid var(--border);background:var(--panel3);color:var(--muted);
+  padding:7px 10px;border-radius:999px;cursor:pointer;font:inherit;font-size:11.5px;
+}
+.filter-btn.active{border-color:rgba(69,230,181,.45);color:var(--green);background:rgba(69,230,181,.06)}
+.skills-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.skill{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:16px}
+.skill[data-kind="setup"]{border-top:2px solid var(--purple)}
+.skill[data-kind="analysis"]{border-top:2px solid var(--blue)}
+.skill[data-kind="mutation"]{border-top:2px solid var(--green)}
+.skill[data-kind="review"]{border-top:2px solid var(--amber)}
+.skill[data-kind="merge"]{border-top:2px solid var(--coral)}
+.skill h3{margin:0;font-family:var(--mono);font-size:13px}
+.skill .role{color:var(--muted);font-size:11.5px;margin-top:5px;min-height:34px;line-height:1.5}
+.skill dl{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin:14px 0 0}
+.skill dt{color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;font-size:9.5px}
+.skill dd{margin:0;color:var(--text);font-size:11px;line-height:1.45}
+.status{
+  display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:999px;
+  padding:3px 7px;font-size:9.5px;margin-top:12px;
+}
+.status.observed{color:var(--green);border-color:rgba(69,230,181,.25)}
+.status.documented{color:var(--blue);border-color:rgba(113,184,255,.25)}
+
+.claim-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.claim-card{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:18px}
+.claim-card h3{margin:0 0 12px;font-size:15px}
+.claim-signals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.signal{
+  border:1px solid rgba(255,143,122,.24);background:rgba(255,143,122,.04);
+  border-radius:10px;padding:12px;text-align:center;
+}
+.signal b{display:block;font-family:var(--mono);font-size:11px}
+.signal span{display:block;color:var(--muted2);font-size:10px;margin-top:5px}
+.claim-note{margin-top:12px;color:var(--muted);font-size:11.5px;line-height:1.6}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:860px}
+th{
+  text-align:left;color:var(--muted2);font-size:9.5px;text-transform:uppercase;
+  letter-spacing:.08em;border-bottom:1px solid var(--border2);padding:9px 10px;
+}
+td{
+  border-bottom:1px solid var(--border);padding:10px;font-size:11.5px;color:var(--muted);
+  vertical-align:top;line-height:1.5;
+}
+td:first-child{color:var(--text);font-family:var(--mono)}
+tr:last-child td{border-bottom:0}
+
+.pattern{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pattern-step{
+  border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--panel3);position:relative;
+}
+.pattern-step::after{
+  content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:20px;
+}
+.pattern-step:last-child::after{display:none}
+.pattern-step b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:5px}
+.pattern-step span{color:var(--muted);font-size:11px;line-height:1.5}
+
+.next{
+  border:1px dashed rgba(113,184,255,.30);border-radius:14px;padding:18px;background:rgba(113,184,255,.035);
+}
+.next h3{margin:0 0 7px;font-size:15px}
+.next p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.next-chain{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.next-chain code{
+  font-family:var(--mono);font-size:10.5px;border:1px solid var(--border);border-radius:8px;
+  padding:6px 8px;color:var(--blue);background:var(--panel3);
+}
+.next-chain span{color:var(--muted2)}
+.note-dashed{
+  margin-top:14px;border:1px dashed rgba(255,255,255,.15);border-radius:10px;padding:11px 12px;
+  color:var(--muted);font-size:11.5px;line-height:1.6;
+}
+
+.footer{
+  margin-top:30px;border-top:1px solid var(--border);padding-top:18px;display:flex;justify-content:space-between;
+  gap:20px;color:var(--muted2);font-size:10.5px;line-height:1.6;
+}
+.hidden{display:none!important}
+
+/* --- v5 additions --- */
+.banner{
+  margin:18px 0 4px;border:1px solid rgba(244,189,98,.34);background:rgba(244,189,98,.055);
+  border-radius:12px;padding:13px 15px;color:var(--muted);font-size:12.5px;line-height:1.65;
+}
+.banner strong{color:var(--amber)}
+
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filter-label{color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.09em;min-width:58px}
+
+.decision{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.decision-card{
+  border:1px solid var(--border2);border-radius:12px;background:var(--panel3);padding:14px;
+}
+.decision-card b{display:block;font-size:12.5px;margin-bottom:6px}
+.decision-card .q{color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.decision-card code{
+  display:block;font-size:11px;color:var(--green);background:rgba(69,230,181,.06);
+  border:1px solid rgba(69,230,181,.22);border-radius:8px;padding:7px 8px;margin-top:8px;word-break:break-word;
+}
+.decision-card p{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
+
+.runbook-step{
+  border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:16px;margin-bottom:12px;
+}
+.runbook-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.runbook-num{
+  font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--green);
+  border-radius:6px;padding:2px 7px;font-weight:700;
+}
+.runbook-head h3{margin:0;font-size:14px}
+.runbook-head .who{color:var(--muted2);font-size:10.5px;margin-left:auto}
+.cmd{
+  font-family:var(--mono);font-size:11.5px;color:var(--green);background:rgba(69,230,181,.06);
+  border:1px solid rgba(69,230,181,.22);border-radius:8px;padding:8px 10px;margin-bottom:10px;word-break:break-word;
+}
+.cmd .alt{display:block;color:var(--muted2);font-size:10.5px;margin-top:5px}
+.runbook-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.rb-cell .k{
+  color:var(--muted2);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;
+}
+.rb-cell .v{color:var(--muted);font-size:11px;line-height:1.5}
+.rb-cell .v code{font-size:10.5px;color:var(--text)}
+.pause{
+  margin-top:10px;border:1px solid rgba(255,143,122,.34);background:rgba(255,143,122,.05);
+  border-radius:10px;padding:9px 11px;color:var(--muted);font-size:11.5px;line-height:1.6;
+}
+.pause b{color:var(--coral)}
+
+.gate-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.gate{
+  border:1px solid var(--border);border-radius:12px;background:var(--panel3);padding:15px;
+}
+.gate h3{margin:0 0 4px;font-size:13px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.gate .state{font-family:var(--mono);font-size:10px}
+.gate .on{color:var(--green)}
+.gate .off{color:var(--coral)}
+.gate p{margin:7px 0 0;color:var(--muted);font-size:11.5px;line-height:1.6}
+
+.chk{display:grid;gap:9px}
+.chk-row{
+  display:grid;grid-template-columns:200px 1fr;gap:12px;border-bottom:1px solid var(--border);padding-bottom:8px;
+}
+.chk-row:last-child{border-bottom:0;padding-bottom:0}
+.chk-row .w{font-family:var(--mono);font-size:11px;color:var(--coral)}
+.chk-row .d{color:var(--muted);font-size:11.5px;line-height:1.55}
+
+.gap-item{
+  border-left:3px solid var(--amber);background:rgba(244,189,98,.045);border-radius:0 10px 10px 0;
+  padding:11px 13px;margin-bottom:9px;
+}
+.gap-item b{display:block;font-size:12px;margin-bottom:4px}
+.gap-item span{color:var(--muted);font-size:11.5px;line-height:1.6}
+.gap-item em{color:var(--muted2);font-style:normal;font-family:var(--mono);font-size:10.5px}
+.gap-ev{
+  margin-top:10px;border-top:1px dashed rgba(255,255,255,.14);padding-top:9px;
+}
+.gap-ev .t{color:var(--muted2);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.gap-ev ol{margin:0;padding-left:18px;color:var(--muted);font-size:11px;line-height:1.65}
+.gap-ev li{margin-bottom:5px}
+.gap-ev .src{display:block;font-family:var(--mono);font-size:10px;color:var(--muted2);margin-top:2px}
+.gap-ev q{color:var(--text);font-style:italic}
+
+.corr{
+  border:1px solid var(--border);border-radius:12px;background:var(--panel3);padding:15px;margin-bottom:10px;
+}
+.corr h3{margin:0 0 8px;font-size:12.5px}
+.corr .was,.corr .now{font-size:11.5px;line-height:1.6;padding:8px 10px;border-radius:8px;margin-bottom:6px}
+.corr .was{background:rgba(255,143,122,.06);border-left:2px solid var(--coral);color:var(--muted)}
+.corr .now{background:rgba(69,230,181,.05);border-left:2px solid var(--green);color:var(--muted)}
+.corr .why{color:var(--muted2);font-size:11px;line-height:1.6;margin-top:8px}
+
+.ev{color:var(--blue);text-decoration:none;border-bottom:1px dotted rgba(113,184,255,.45)}
+.ev:hover{border-bottom-style:solid}
+
+@media print{
+  body{background:#fff;color:#111}
+  .page{max-width:none;padding:0}
+  .nav,.filters,.filter-row{display:none}
+  .section{break-inside:avoid;box-shadow:none;background:#fff;border-color:#bbb}
+  .card,.skill,.runbook-step,.gate,.decision-card,.corr,.state-card,.arch-card{background:#fff;border-color:#ccc}
+  .section-head h2,h1,.card h3,.skill h3{color:#000}
+  .subtitle,.card p,td,.rb-cell .v,.gate p{color:#333}
+  .flow-wrap,.table-wrap{overflow:visible}
+  .flow{min-width:0;flex-wrap:wrap}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:9px;color:#555}
+}
+
+@media(max-width:1180px){
+  .grid-3{grid-template-columns:1fr}
+  .config-flow{grid-template-columns:1fr}
+  .config-arrow{transform:rotate(90deg)}
+  .decision{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .runbook-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1000px){
+  .hero-grid,.grid-2,.claim-grid{grid-template-columns:1fr}
+  .skills-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review-loop{grid-template-columns:1fr}
+  .loop-arrow{transform:rotate(90deg);text-align:center}
+  .pr-anatomy{grid-template-columns:repeat(2,1fr)}
+  .gate-grid{grid-template-columns:1fr}
+  .chk-row{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .page{padding:24px 14px 44px}
+  .top{grid-template-columns:1fr}
+  .meta{text-align:left}
+  .skills-grid,.pr-anatomy,.pattern{grid-template-columns:1fr}
+  .pattern-step::after{content:"↓";right:auto;left:50%;top:auto;bottom:-22px}
+  .arch-row{grid-template-columns:1fr}
+  .arch-arrow{transform:rotate(90deg)}
+  .claim-signals{grid-template-columns:1fr}
+  .decision,.runbook-grid{grid-template-columns:1fr}
+  .runbook-head .who{margin-left:0}
+}
+
+/* --- v6 quick/full information architecture --- */
+.mode-switch{display:flex;gap:8px;align-items:center;margin:18px 0 6px;padding:6px;width:max-content;max-width:100%;border:1px solid var(--border);border-radius:12px;background:var(--panel3)}
+.mode-btn{appearance:none;border:1px solid transparent;border-radius:8px;padding:8px 12px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.mode-btn.active{color:var(--green);border-color:rgba(69,230,181,.28);background:rgba(69,230,181,.07)}
+.mode-help{color:var(--muted2);font-size:10.5px;margin-left:4px}
+body:not(.full-reference) .nav{display:none}
+body:not(.full-reference) #deep-reference{display:none}
+body:not(.full-reference) .full-divider{display:none}
+body.full-reference #deep-reference{display:block}
+.quick-shell{margin-top:20px;border:1px solid rgba(69,230,181,.24);border-radius:18px;background:radial-gradient(circle at 10% 0%,rgba(69,230,181,.06),transparent 28%),radial-gradient(circle at 90% 0%,rgba(181,156,255,.06),transparent 28%),var(--panel);overflow:hidden;box-shadow:var(--shadow)}
+.quick-head{padding:18px 22px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.quick-head h2{margin:0;font-size:20px}.quick-head p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.quick-badge{font-family:var(--mono);color:var(--green);border:1px solid rgba(69,230,181,.25);background:rgba(69,230,181,.06);border-radius:999px;padding:5px 9px;font-size:10px;white-space:nowrap}
+.quick-body{padding:20px}
+.quick-foundation{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;margin-bottom:18px}
+.qnode{border:1px solid var(--border2);border-radius:12px;background:var(--panel3);padding:12px 13px;text-align:center}
+.qnode strong{display:block;font-family:var(--mono);font-size:11.5px;margin-bottom:5px}.qnode span{display:block;color:var(--muted2);font-size:10.5px;line-height:1.4}.qarrow{color:var(--muted2);font-size:20px;text-align:center}
+.quick-main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.5fr);gap:16px;align-items:stretch}
+.flow-visual{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:14px;overflow:hidden}.flow-visual svg{width:100%;height:auto;display:block}
+.flow-visual .svg-node{fill:#0f1722;stroke:rgba(255,255,255,.16);stroke-width:1.2}.flow-visual .svg-observed{stroke:#45e6b5}.flow-visual .svg-documented{stroke:#71b8ff;stroke-dasharray:5 4}.flow-visual .svg-human{stroke:#b59cff}.flow-visual .svg-edge{stroke:#6f7f91;stroke-width:1.4;fill:none;marker-end:url(#arrowhead)}.flow-visual .svg-edge-human{stroke:#b59cff;stroke-width:1.35;fill:none;stroke-dasharray:5 5;marker-end:url(#arrowhead-human)}
+.flow-visual text{fill:#edf2f7;font-family:var(--mono);font-size:11px}.flow-visual .t2{fill:#8494a6;font-family:var(--sans);font-size:9.5px}
+.quick-side{display:grid;gap:12px}.quick-card{border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:14px}.quick-card h3{margin:0 0 9px;font-size:13px}.quick-card .memory-line{display:flex;gap:7px;align-items:flex-start;color:var(--muted);font-size:11px;line-height:1.55;margin-top:7px}.quick-card .memory-line b{color:var(--text)}
+.quick-human{border-color:rgba(181,156,255,.26);background:rgba(181,156,255,.035)}.quick-human .relay{font-family:var(--mono);color:var(--purple);font-size:11px;line-height:1.65;text-align:center;margin:4px 0 8px}.quick-next{border-color:rgba(113,184,255,.26);background:rgba(113,184,255,.035)}
+.coverage{margin-top:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel3);padding:15px}.coverage-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:12px}.coverage-head h3{margin:0;font-size:14px}.coverage-head span{color:var(--muted2);font-size:10.5px}
+.coverage-flow{display:grid;grid-template-columns:repeat(8,minmax(90px,1fr));gap:8px;align-items:stretch}.cov-node{min-height:86px;border:1px solid var(--border);border-radius:11px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;background:rgba(255,255,255,.015);position:relative}.cov-node:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:34px;color:var(--muted2);z-index:2;font-size:14px}.cov-node .cov-name{font-family:var(--mono);font-size:10.5px}.cov-node .cov-state{font-size:9.5px;line-height:1.35}.cov-node.observed{border-color:rgba(69,230,181,.34);background:rgba(69,230,181,.035)}.cov-node.observed .cov-state{color:var(--green)}.cov-node.documented{border-color:rgba(113,184,255,.28);border-style:dashed}.cov-node.documented .cov-state{color:var(--blue)}.coverage-caption{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.55}
+.full-divider{display:flex;align-items:center;gap:12px;margin:28px 0 0;color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.1em}.full-divider::before,.full-divider::after{content:'';height:1px;background:var(--border);flex:1}.quick-only-note{margin-top:12px;color:var(--muted2);font-size:10.5px;text-align:center}body.full-reference .quick-only-note{display:none}
+@media(max-width:1050px){.quick-main{grid-template-columns:1fr}.coverage-flow{grid-template-columns:repeat(4,minmax(100px,1fr))}.cov-node:nth-child(4)::after{display:none}}
+@media(max-width:760px){.mode-switch{width:100%;flex-wrap:wrap}.mode-help{width:100%;margin-left:4px}.quick-foundation{grid-template-columns:1fr}.quick-foundation .qarrow{transform:rotate(90deg)}.coverage-flow{grid-template-columns:1fr 1fr}.cov-node::after{display:none!important}}
+@media(max-width:480px){.coverage-flow{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div>
+    <div class="eyebrow">OM Skills Learning Lab · Visual memory map</div>
+    <h1>Open Mercato <span>Skills</span><br>Learning Map</h1>
+    <div class="subtitle">
+      Szybka mapa pamięci: jak repo, tracker state, durable spec artifacts i wyspecjalizowane skills składają się w agentic SDLC.
+      V9 zachowuje Lessons 1–6 i dodaje syntezę Lesson 7: approved spec przechodzi przez cienki router
+      <code>om-auto-implement-spec</code> do fresh-run engine <code>om-auto-create-pr</code>, który tworzy durable execution plan,
+      izolowany worktree, draft PR, incremental commits i parseable <code>## Progress</code>. Design i implementation są osobnymi,
+      ale jawnie połączonymi lifecycle'ami. Nadal są dwie warstwy: 30-second Quick Map oraz Full Reference z runbookiem, gates, evidence i process gaps.
+    </div>
+  </div>
+  <div class="meta">
+    Version: v9 · Lesson 7 synthesis<br>
+    Focus: quick recall · design → implementation lifecycle · full reference<br>
+    Repo state: <code>main</code> · Lesson 7 complete<br>
+    Updated: 2026-08-14
+  </div>
+</header>
+
+<div class="banner">
+  <strong>Najważniejsza korekta po Lesson 7:</strong> approved spec nie staje się kodem w jednym opaque runie.
+  <code>om-auto-implement-spec</code> jest cienkim resolverem/routerem, a fresh implementation deleguje do
+  <code>om-auto-create-pr</code>. Ten engine najpierw materializuje <strong>durable execution state</strong> — plan, branch,
+  isolated worktree i draft PR — a dopiero potem implementuje Phases/Steps z incremental commits i <code>## Progress</code>.
+  W naszym runie plan miał 5 Steps, więc wybrany został flat engine; resume przez <code>om-auto-continue-pr</code> pozostaje
+  osobnym, udokumentowanym, ale nietestowanym capability.
+</div>
+<div class="mode-switch" role="group" aria-label="Learning map view">
+  <button class="mode-btn active" id="quick-mode" type="button" aria-pressed="true">Quick Map</button>
+  <button class="mode-btn" id="full-mode" type="button" aria-pressed="false">Full Reference</button>
+  <span class="mode-help">Quick = 30-second refresh · Full = complete reference</span>
+</div>
+
+<nav class="nav">
+  <a href="#mindset">Mindset</a>
+  <a href="#foundation">Foundation</a>
+  <a href="#config">Config Model</a>
+  <a href="#big-picture">Big Picture</a>
+  <a href="#pipeline">Issue Pipeline</a>
+  <a href="#feature-pipeline">Feature Pipeline</a>
+  <a href="#entry">Entry Paths</a>
+  <a href="#runbook">▶ Runbook</a>
+  <a href="#review">Review Loop</a>
+  <a href="#labels">Label Machine</a>
+  <a href="#gates">Gates &amp; Checkpoints</a>
+  <a href="#skills">Skill Cards</a>
+  <a href="#coverage">Coverage Gaps</a>
+  <a href="#claim">Claim / Lock</a>
+  <a href="#handoff">Handoff Contract</a>
+  <a href="#observed">Observed</a>
+  <a href="#corrections">Corrections</a>
+  <a href="#pattern">Learning Pattern</a>
+  <a href="#process-gaps">Process Gaps</a>
+  <a href="#lesson5">Lesson 5</a>
+  <a href="#lesson6">Lesson 6</a>
+  <a href="#lesson7">Lesson 7</a>
+  <a href="#next">Next</a>
+</nav>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot observed"></span> ● observed in lab</div>
+  <div class="legend-item"><span class="dot documented"></span> ○ documented in SDLC / SKILL.md</div>
+  <div class="legend-item"><span class="dot untested"></span> ◌ not tested yet</div>
+  <div class="legend-item"><span class="dot discussed"></span> ◍ discussed — koncepcja, nie mechanizm repo</div>
+  <div class="legend-item"><span class="swatch sw-purple"></span> repo/config</div>
+  <div class="legend-item"><span class="swatch sw-blue"></span> read / analysis</div>
+  <div class="legend-item"><span class="swatch sw-green"></span> mutation / publish</div>
+  <div class="legend-item"><span class="swatch sw-amber"></span> review / gate</div>
+  <div class="legend-item"><span class="swatch sw-coral"></span> claim / loop / merge edge</div>
+  <div class="legend-item"><span class="swatch sw-gray"></span> housekeeping / jeszcze nieprzećwiczone</div>
+</div>
+
+
+<section class="quick-shell" id="quick-map">
+  <div class="quick-head">
+    <div><h2>Quick Map — 30-second memory refresh</h2><p>Najpierw przypomnij sobie system: foundation, issue orchestration oraz pełny feature path od designu do fresh implementation. Szczegóły są niżej w Full Reference.</p></div>
+    <div class="quick-badge">Lessons 1–7 · current model</div>
+  </div>
+  <div class="quick-body">
+    <div class="arch-title">Foundation — zanim zacznie płynąć praca</div>
+    <div class="quick-foundation">
+      <div class="qnode"><strong>om-setup-agent-pipeline</strong><span>bootstrap repo-level engineering context</span></div>
+      <div class="qarrow">→</div>
+      <div class="qnode"><strong>agentic.config.json</strong><span>config wybiera tracker / validation / labels / gates</span></div>
+      <div class="qarrow">→</div>
+      <div class="qnode"><strong>AGENTS.md</strong><span>Task → Read first → authoritative rules → Action</span></div>
+    </div>
+
+    <div class="quick-main">
+      <div class="flow-visual">
+        <div class="arch-title">Observed issue orchestration — Lesson 5 · feature design + implementation are summarized below</div>
+        <svg viewBox="0 0 920 455" role="img" aria-label="Open Mercato flow where a free-form brief is prepared into an Issue, an existing Issue joins the same path, and om-auto-fix-issue orchestrates verify, root-cause, fix, PR and review">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#6f7f91"></path></marker>
+            <marker id="arrowhead-human" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#b59cff"></path></marker>
+          </defs>
+
+          <!-- Two entry modes -->
+          <rect class="svg-node svg-observed" x="25" y="28" width="165" height="58" rx="10"></rect>
+          <text x="107" y="51" text-anchor="middle">free-form brief</text>
+          <text class="t2" x="107" y="69" text-anchor="middle">● observed input</text>
+
+          <rect class="svg-node svg-observed" x="25" y="128" width="165" height="58" rx="10"></rect>
+          <text x="107" y="151" text-anchor="middle">om-prepare-issue</text>
+          <text class="t2" x="107" y="169" text-anchor="middle">● brief mode companion</text>
+
+          <rect class="svg-node svg-observed" x="255" y="128" width="150" height="58" rx="10"></rect>
+          <text x="330" y="151" text-anchor="middle">Issue</text>
+          <text class="t2" x="330" y="169" text-anchor="middle">● #7 / existing Issue</text>
+
+          <rect class="svg-node svg-observed" x="255" y="28" width="150" height="58" rx="10"></rect>
+          <text x="330" y="51" text-anchor="middle">existing Issue</text>
+          <text class="t2" x="330" y="69" text-anchor="middle">● observed re-entry</text>
+
+          <!-- Orchestrator -->
+          <rect class="svg-node svg-observed" x="485" y="78" width="190" height="62" rx="10"></rect>
+          <text x="580" y="102" text-anchor="middle">om-auto-fix-issue</text>
+          <text class="t2" x="580" y="121" text-anchor="middle">● high-level flow runner</text>
+
+          <!-- Bug companions -->
+          <rect class="svg-node svg-observed" x="735" y="28" width="155" height="55" rx="10"></rect>
+          <text x="812" y="51" text-anchor="middle">verify</text>
+          <text class="t2" x="812" y="68" text-anchor="middle">● triage gate</text>
+
+          <rect class="svg-node svg-observed" x="735" y="118" width="155" height="55" rx="10"></rect>
+          <text x="812" y="141" text-anchor="middle">root-cause</text>
+          <text class="t2" x="812" y="158" text-anchor="middle">● analysis</text>
+
+          <rect class="svg-node svg-observed" x="735" y="208" width="155" height="55" rx="10"></rect>
+          <text x="812" y="231" text-anchor="middle">fix</text>
+          <text class="t2" x="812" y="248" text-anchor="middle">● claim + mutation</text>
+
+          <rect class="svg-node svg-observed" x="485" y="288" width="190" height="55" rx="10"></rect>
+          <text x="580" y="311" text-anchor="middle">om-open-pr</text>
+          <text class="t2" x="580" y="328" text-anchor="middle">● Issue lock → PR</text>
+
+          <rect class="svg-node svg-observed" x="735" y="288" width="155" height="55" rx="10"></rect>
+          <text x="812" y="311" text-anchor="middle">review subsystem</text>
+          <text class="t2" x="812" y="328" text-anchor="middle">● known + PR #8</text>
+
+          <rect class="svg-node svg-human" x="735" y="378" width="155" height="55" rx="10"></rect>
+          <text x="812" y="401" text-anchor="middle">merge</text>
+          <text class="t2" x="812" y="418" text-anchor="middle">human final action here</text>
+
+          <!-- Edges -->
+          <path class="svg-edge" d="M107 86 L107 128"></path>
+          <path class="svg-edge" d="M190 157 L255 157"></path>
+          <path class="svg-edge" d="M330 86 L330 128"></path>
+          <path class="svg-edge" d="M405 157 C445 157 445 109 485 109"></path>
+          <path class="svg-edge" d="M675 109 C705 109 705 55 735 55"></path>
+          <path class="svg-edge" d="M812 83 L812 118"></path>
+          <path class="svg-edge" d="M812 173 L812 208"></path>
+          <path class="svg-edge" d="M735 235 C665 235 665 315 675 315"></path>
+          <path class="svg-edge" d="M675 315 L735 315"></path>
+          <path class="svg-edge-human" d="M812 343 L812 378"></path>
+
+          <text class="t2" x="332" y="205" text-anchor="middle" fill="#45e6b5">brief mode creates durable Issue first</text>
+          <text class="t2" x="580" y="170" text-anchor="middle" fill="#45e6b5">orchestrator sequences companions + passes outputs</text>
+          <text class="t2" x="470" y="438" text-anchor="middle" fill="#b59cff">Lessons 1–4: HUMAN relay remains a valid manual mode</text>
+        </svg>
+      </div>
+      <div class="quick-side">
+        <div class="quick-card">
+          <h3>Distributed state</h3>
+          <div class="memory-line"><b>Intent</b><span>brief · Issue · spec</span></div>
+          <div class="memory-line"><b>Ownership</b><span>assignee · <code>in-progress</code> · claim comment</span></div>
+          <div class="memory-line"><b>Execution</b><span>execution plan · <code>## Progress</code> · worktree · branch · incremental commits · draft PR</span></div>
+          <div class="memory-line"><b>Delivery</b><span>PR · review · QA · CI</span></div>
+          <div class="memory-line"><b>Key idea</b><span>no single shared memory; orchestrator reads/writes durable state and explicit outputs.</span></div>
+        </div>
+        <div class="quick-card quick-human">
+          <h3>Who orchestrates?</h3>
+          <div class="relay">L1–4: HUMAN → skill → HUMAN → skill</div>
+          <div class="relay" style="color:var(--green)">L5: problem brief → issue orchestrator → companions</div>
+          <div class="relay" style="color:var(--blue)">L6: feature brief → spec orchestrator → review + human override</div>
+          <div class="relay" style="color:var(--amber)">L7: approved spec → router → fresh implementation engine → ready PR</div>
+          <p style="margin:0;color:var(--muted);font-size:11px;line-height:1.55">Autonomy is layered: orchestrator composes narrow skills, but durable artifacts and human decisions remain explicit control points.</p>
+        </div>
+        <div class="quick-card quick-next">
+          <h3>Handoff memory cue</h3>
+          <p style="margin:0;color:var(--muted);font-size:11px;line-height:1.55"><code>Issue:</code> / <code>PR:</code> / <code>Spec:</code> / <code>Source doc:</code> / <code>Tracking plan:</code> · <code>Status:</code> · <code>Engine:</code> · durable artifact state.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Lesson 6 findings:</strong>
+      <strong>Finding 006</strong> — feature design is a separate autonomous lifecycle;
+      <strong>Finding 007</strong> — autonomous design is reversible and human-overridable;
+      <strong>Finding 008</strong> — runtime repository state can correct documented assumptions.
+      Memory cue: <code>autonomous proposal → review → human override → amended durable spec</code>.
+    </div>
+
+    <div class="callout" style="border-left-color:var(--amber);background:rgba(244,189,98,.05)">
+      <strong>Lesson 7 findings:</strong>
+      <strong>Finding 009</strong> — spec implementation uses a thin router and separate execution engine;
+      <strong>Finding 010</strong> — approved design becomes a durable execution artifact before code;
+      <strong>Finding 011</strong> — resumability is founded on durable execution state, not agent memory;
+      <strong>Finding 012</strong> — design and implementation are separate but linked lifecycles.
+      Memory cue: <code>approved spec → router → execution plan → durable progress → implementation PR</code>.
+    </div>
+
+    <div class="quick-card" style="margin-top:14px;border-color:rgba(113,184,255,.28);background:rgba(113,184,255,.025)">
+      <h3>Lesson 6 memory chain — feature design before implementation</h3>
+      <div class="next-chain">
+        <code>feature brief</code><span>→</span>
+        <code>om-auto-write-spec</code><span>→</span>
+        <code>om-spec-writing --autonomous</code><span>→</span>
+        <code>spec PR #9</code><span>→</span>
+        <code>architectural review</code><span>→</span>
+        <code>human override</code><span>→</span>
+        <code>amend same spec</code><span>→</span>
+        <code>merge design to main</code>
+      </div>
+      <p style="margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.55">
+        No feature code yet. The merged spec became the durable handoff consumed in Lesson 7.
+      </p>
+    </div>
+
+    <div class="quick-card" style="margin-top:14px;border-color:rgba(244,189,98,.30);background:rgba(244,189,98,.025)">
+      <h3>Lesson 7 memory chain — approved design becomes controlled execution</h3>
+      <div class="next-chain">
+        <code>approved spec on main</code><span>→</span>
+        <code>om-auto-implement-spec</code><span>→</span>
+        <code>om-auto-create-pr</code><span>→</span>
+        <code>5-step execution plan</code><span>→</span>
+        <code>isolated worktree</code><span>→</span>
+        <code>draft PR #10</code><span>→</span>
+        <code>incremental commits + Progress</code><span>→</span>
+        <code>review/autofix</code><span>→</span>
+        <code>ready PR</code>
+      </div>
+      <p style="margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.55">
+        ● Fresh path observed. <code>om-auto-continue-pr</code> remains a separate ○ documented / ◌ not-tested resume path.
+      </p>
+    </div>
+
+    <div class="coverage">
+      <div class="coverage-head"><h3>Current Coverage Map</h3><span>Po Lesson 7 obserwowaliśmy trzy high-level lifecycles: issue repair, feature design i fresh spec implementation.</span></div>
+      <div class="coverage-flow">
+        <div class="cov-node observed"><div class="cov-name">auto-fix-issue</div><div class="cov-state">● observed<br>problem orchestration</div></div>
+        <div class="cov-node observed"><div class="cov-name">auto-write-spec</div><div class="cov-state">● observed<br>brief → spec PR</div></div>
+        <div class="cov-node observed"><div class="cov-name">approved spec</div><div class="cov-state">● observed<br>design → main</div></div>
+        <div class="cov-node observed"><div class="cov-name">implement-spec</div><div class="cov-state">● observed<br>resolve + route</div></div>
+        <div class="cov-node observed"><div class="cov-name">auto-create-pr</div><div class="cov-state">● observed<br>fresh engine</div></div>
+        <div class="cov-node observed"><div class="cov-name">plan + Progress</div><div class="cov-state">● observed<br>durable execution</div></div>
+        <div class="cov-node observed"><div class="cov-name">PR #10</div><div class="cov-state">● observed<br>draft → ready</div></div>
+        <div class="cov-node documented"><div class="cov-name">continue-pr</div><div class="cov-state">○ documented<br>◌ resume untested</div></div>
+      </div>
+      <div class="coverage-caption">Knowledge coverage after Lesson 7: fresh implementation is now runtime-observed. The loop engines, interruption/resume behavior, claim collision and implementation from an unmerged spec PR remain documented or untested.</div>
+    </div>
+    <div class="quick-only-note">Chcesz szczegóły? Przełącz na <strong>Full Reference</strong> u góry — wszystkie sekcje V5 są zachowane.</div>
+  </div>
+</section>
+<div class="full-divider">Full Reference — complete reference</div>
+<div id="deep-reference">
+
+<section class="section" id="mindset">
+  <div class="section-head">
+    <div>
+      <h2>00. Starting Point — mental model shift</h2>
+      <p>To nie jest numerowana Lesson repo-level, tylko punkt startowy nauki: zmiana z ręcznego prowadzenia workflow na projektowanie systemu engineeringowego.</p>
+    </div>
+    <div class="section-kicker">pre-lesson anchor</div>
+  </div>
+  <div class="section-body">
+    <div class="card">
+      <div class="mini-flow">
+        <div class="mini-node"><code>10xDevs style</code><span>human operates the workflow step by step</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>agent</code><span>executes the next instructed step</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>checkpoint</code><span>human decides the next move</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>Open Mercato</code><span>human designs + governs the engineering system</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>skills pipeline</code><span>agents execute inside encoded SDLC rules</span></div>
+      </div>
+      <div class="callout">
+        <strong>Memory cue:</strong> Open Mercato Skills należą do <strong>Engineering Stack</strong>, nie Application Stack.
+        Są stack-agnostic wobec aplikacji, ale opiniated wobec procesu SDLC.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="foundation">
+  <div class="section-head">
+    <div>
+      <h2>0. Foundation — Lessons 1–3</h2>
+      <p>Teraz numeracja odpowiada właściwemu przebiegowi nauki: bootstrap repo, centralny config procesu, a potem AGENTS.md jako knowledge router.</p>
+    </div>
+    <div class="section-kicker">Lessons 1–3</div>
+  </div>
+  <div class="section-body grid-3">
+
+    <div class="card">
+      <h3>Lesson 1 — Bootstrap</h3>
+      <p>Repo jest najpierw przygotowywane jako środowisko działania agentów. Pierwszy skill to one-time configurator pipeline’u.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>fresh repo</code><span>.git + README</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-setup-agent-pipeline</code><span>first skill to run</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>.ai/ + docs</code><span>pipeline foundation created</span></div>
+      </div>
+      <div class="callout">
+        <strong>Output:</strong> <code>.ai/</code>, <code>AGENTS.md</code>, <code>SDLC.md</code>,
+        <code>CODE_REVIEW.md</code>, <code>BACKWARD_COMPATIBILITY.md</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lesson 2 — <code>agentic.config.json</code></h3>
+      <p>Centralna konfiguracja procesu engineeringowego. Skills czytają ten wspólny kontrakt, zamiast mieć wiedzę repo zakodowaną na stałe.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>.ai/agentic.config.json</code><span>shared process contract</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>validation / labels / tracker</code><span>pipeline behavior</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>descriptors chosen</code><span>config selects implementation</span></div>
+      </div>
+      <div class="callout">
+        <strong>Memory cue:</strong> to nie jest config aplikacji ani frameworka — to config procesu SDLC.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lesson 3 — <code>AGENTS.md</code></h3>
+      <p>Repo-level przewodnik dla agentów. Nie dubluje configu, tylko kieruje do właściwych dokumentów i reguł.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>Task</code><span>what kind of work?</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>AGENTS.md</code><span>task routing</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>Read first</code><span>authoritative docs before action</span></div>
+      </div>
+      <div class="callout">
+        <strong>Finding 003:</strong> <code>agentic.config.json</code> = configuration, <code>AGENTS.md</code> = navigation and behavior guidance.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="config">
+  <div class="section-head">
+    <div>
+      <h2>0a. Lesson 2 deep dive — how config selects behavior</h2>
+      <p>Wizualne utrwalenie najważniejszej myśli z Lesson 2: config wybiera, a deskryptory implementują.</p>
+    </div>
+    <div class="section-kicker">Finding 002</div>
+  </div>
+  <div class="section-body">
+    <div class="config-flow">
+      <div class="config-box">
+        <h4>.ai/agentic.config.json</h4>
+        <ul>
+          <li><code>tracker: github</code></li>
+          <li><code>browser: agent-browser</code></li>
+          <li><code>validation.commands</code></li>
+          <li><code>labels.pipeline</code></li>
+          <li><code>qaGate: false</code></li>
+        </ul>
+      </div>
+      <div class="config-arrow">→</div>
+      <div class="config-box">
+        <h4>Selects</h4>
+        <ul>
+          <li>which tracker implementation to use</li>
+          <li>which browser implementation to use</li>
+          <li>which labels and gates are active</li>
+          <li>how the repo pipeline behaves</li>
+        </ul>
+      </div>
+      <div class="config-arrow">→</div>
+      <div class="config-box">
+        <h4>Descriptors</h4>
+        <ul>
+          <li><code>.ai/trackers/github.md</code></li>
+          <li><code>.ai/browsers/*</code></li>
+          <li>tracker operations</li>
+          <li>browser operations</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Rule of thumb:</strong> deskryptor mówi <em>jak</em> wykonać daną klasę operacji, a <code>agentic.config.json</code> mówi <em>którego</em> deskryptora i <em>jakich zasad</em> używać w tym repo.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="big-picture">
+  <div class="section-head">
+    <div>
+      <h2>1. Big Picture — system, nie pojedynczy agent</h2>
+      <p>Skills działają na wspólnym stanie repozytorium i trackera. To on pozwala kolejnym etapom przejmować pracę.</p>
+    </div>
+    <div class="section-kicker">Findings 003–012</div>
+  </div>
+  <div class="section-body hero-grid">
+    <div class="arch-card">
+      <div class="arch-title">Architecture mental model</div>
+      <div class="arch-row">
+        <div class="arch-box">
+          <h3 style="color:var(--purple)">Repository knowledge</h3>
+          <ul>
+            <li>AGENTS.md — orientation + task routing</li>
+            <li>SDLC.md — delivery process</li>
+            <li>.ai/agentic.config.json — pipeline config</li>
+            <li>CODE_REVIEW.md / BACKWARD_COMPATIBILITY.md</li>
+            <li>.ai/trackers/github.md — tracker operations</li>
+          </ul>
+        </div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-box">
+          <h3 style="color:var(--green)">Runtime / GitHub state</h3>
+          <ul>
+            <li>Issues</li>
+            <li>Pull Requests</li>
+            <li>Spec PRs / merged spec artifacts</li>
+            <li>Execution plans / Progress state</li>
+            <li>Draft / ready implementation PRs</li>
+            <li>Labels</li>
+            <li>Assignees</li>
+            <li>Comments / review history</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Najważniejsza idea:</strong> pipeline nie musi być jednym długim promptem.
+        Kolejne skills mogą wejść w ten sam proces, ponieważ stan pracy jest zapisany poza nimi — w repo i trackerze.
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="arch-title">What lives where?</div>
+      <div class="state-list">
+        <div class="state-row"><div class="k">Config</div><div class="v">.ai/agentic.config.json</div></div>
+        <div class="state-row"><div class="k">Agent routing</div><div class="v">AGENTS.md</div></div>
+        <div class="state-row"><div class="k">Process model</div><div class="v">SDLC.md</div></div>
+        <div class="state-row"><div class="k">Tracker behavior</div><div class="v">.ai/trackers/github.md</div></div>
+        <div class="state-row"><div class="k">Intent / demand</div><div class="v">problem brief · feature brief · Issue</div></div>
+        <div class="state-row"><div class="k">Design artifact</div><div class="v">.ai/specs/* · spec branch · spec PR · reviewed assumptions</div></div>
+        <div class="state-row"><div class="k">Ownership</div><div class="v">assignee + in-progress + claim comments</div></div>
+        <div class="state-row"><div class="k">Execution</div><div class="v">execution plan · Progress + SHAs · worktree · branch · commits · draft PR</div></div>
+        <div class="state-row"><div class="k">Delivery</div><div class="v">PR + review + QA + CI state</div></div>
+        <div class="state-row"><div class="k">Installed skills</div><div class="v">.agents/skills/ + skills-lock.json</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="section-head">
+    <div>
+      <h2>2. Issue Pipeline — orchestrated bug flow</h2>
+      <p>Lesson 5 zmieniła ten diagram z przewidywanego chainu w zaobserwowany run: plain brief → Issue #7 → isolated worktree/branch → PR #8 → review subsystem.</p>
+    </div>
+    <div class="section-kicker">Lesson 5 · ● bug route observed</div>
+  </div>
+  <div class="section-body">
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="node mutate"><div class="name">BRIEF / ISSUE</div><div class="sub">● both inputs observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node review"><div class="name">ORCHESTRATE</div><div class="sub">om-auto-fix-issue<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node read"><div class="name">VERIFY</div><div class="sub">om-verify-in-repo<br>● proceed path</div></div>
+        <div class="arrow">→</div>
+        <div class="node read"><div class="name">ROOT CAUSE</div><div class="sub">om-root-cause<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node claim"><div class="name">FIX + CLAIM</div><div class="sub">om-fix<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node mutate"><div class="name">OPEN PR</div><div class="sub">om-open-pr --handoff<br>● observed</div></div>
+        <div class="arrow">→</div>
+        <div class="node review"><div class="name">REVIEW</div><div class="sub">known subsystem<br>● PR #8</div></div>
+        <div class="arrow">→</div>
+        <div class="node review"><div class="name">MERGE QUEUE</div><div class="sub">● PR #8</div></div>
+        <div class="arrow">→</div>
+        <div class="node claim"><div class="name">MERGE</div><div class="sub">human action in this lab</div></div>
+      </div>
+    </div>
+    <div class="flow-note">
+      <span class="pill obs"><b>● observed:</b> brief mode → Issue #7; rerun by issue id; verify → root-cause → fix → open-pr → review</span>
+      <span class="pill obs"><b>● observed:</b> worktree/branch created after triage and removed at cleanup</span>
+      <span class="pill obs"><b>● observed:</b> issue claim began at implementation and moved to PR without an idle gap</span>
+      <span class="pill doc"><b>○ documented:</b> NO_ACTION_NEEDED, LOW_CONFIDENCE, feature/spec route, UI QA path</span>
+      <span class="pill unt"><b>◌ not tested:</b> feature route, actual QA run, claim collision / takeover</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="feature-pipeline">
+  <div class="section-head">
+    <div>
+      <h2>2a. Feature Pipeline — design lifecycle → fresh implementation lifecycle</h2>
+      <p>Lessons 6–7 połączyły dwa osobne autonomous lifecycles przez durable spec artifact. Design PR #9 nie był implementowany in place; merged spec został potem skonsumowany przez osobny implementation run i PR #10.</p>
+    </div>
+    <div class="section-kicker">● Experiments 003–004 · PR #9 → PR #10</div>
+  </div>
+  <div class="section-body">
+    <div class="mini-flow" style="max-width:760px">
+      <div class="mini-node"><code>feature brief</code><span>● human intent</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>om-auto-write-spec → om-spec-writing</code><span>● autonomous design + assumptions</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>spec PR #9 → review → human override → main</code><span>● approved durable design</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>om-auto-implement-spec</code><span>● exact-path resolution + fresh/resume routing</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>om-auto-create-pr</code><span>● fresh implementation engine · 5 Steps · flat engine</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>execution plan → isolated worktree → plan commit → draft PR</code><span>● durable state exists before feature code</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>incremental commits → Progress + SHAs → validation</code><span>● phase/step execution state persisted remotely</span></div>
+      <div class="v-arrow">↓</div>
+      <div class="mini-node"><code>review/autofix → ready PR #10 → merge</code><span>● downstream known subsystem + implementation delivery</span></div>
+    </div>
+    <div class="flow-note">
+      <span class="pill obs"><b>● observed:</b> exact spec resolution, 5-step plan, flat engine, <code>feat/lab-status-check</code>, plan-first commit, draft PR, incremental commits, Progress updates, validation, review/autofix, cleanup</span>
+      <span class="pill obs"><b>● observed:</b> spec PR #9 stayed design-only while implementation shipped on separate PR #10 with cross-links</span>
+      <span class="pill doc"><b>○ documented:</b> <code>om-auto-continue-pr</code>, loop engines, <code>--loop</code>, <code>--force</code></span>
+      <span class="pill unt"><b>◌ not tested:</b> interruption/resume, claim collision, long-plan threshold route, unmerged spec-PR materialization</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="entry">
+  <div class="section-head">
+    <div>
+      <h2>3. Entry Paths — problem brief, feature brief, Issue, or direct branch</h2>
+      <p>Lessons 5–7 dały trzy sprawdzone high-level entry paths: problem brief → durable Issue, feature brief → autonomous design, oraz approved spec → controlled fresh implementation.</p>
+    </div>
+    <div class="section-kicker">● problem · feature · approved-spec entries observed</div>
+  </div>
+  <div class="section-body grid-3">
+    <div class="card">
+      <h3>Free-form brief → orchestrator</h3>
+      <p>● Observed on Lesson 5. Nie tworzyliśmy Issue ręcznie.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>plain problem description</code><span>human intent</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-fix-issue</code><span>brief mode</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-prepare-issue</code><span>dedupe + analysis + labels</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>Issue #7</code><span>durable tracker handoff</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Existing Issue → orchestrator</h3>
+      <p>● Observed on rerun. Po instalacji missing companions wywołaliśmy <code>/om-auto-fix-issue 7</code> i run wznowił się na triage gate.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>Issue #7</code><span>existing durable state</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-fix-issue 7</code><span>re-entry / resume</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>step 4: verify</code><span>no duplicate issue created</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Direct / branch-driven</h3>
+      <p>● Lessons 1–4 path remains valid when work already exists locally; this is not the same orchestration route.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>local change</code><span>working tree</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-check-and-commit / om-open-pr</code><span>manual operator flow</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>review → merge</code><span>known subsystem</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Feature brief → spec lifecycle</h3>
+      <p>● Observed in Lesson 6. Nie tworzyliśmy feature Issue ani implementation branch przed designem.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>feature brief</code><span>Learning Lab Status</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-write-spec</code><span>high-level design orchestrator</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-spec-writing --autonomous</code><span>spec + assumptions + plan</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>PR #9</code><span>design-only durable artifact</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Approved spec → implementation lifecycle</h3>
+      <p>● Observed in Lesson 7. Nie tworzyliśmy implementation Issue, branch, worktree, execution plan ani PR ręcznie.</p>
+      <div class="mini-flow" style="margin-top:14px">
+        <div class="mini-node"><code>.ai/specs/...lab-status-check.md</code><span>approved on main</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-implement-spec</code><span>thin resolver / router</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>om-auto-create-pr</code><span>fresh engine · 5 Steps</span></div>
+        <div class="v-arrow">↓</div>
+        <div class="mini-node"><code>PR #10</code><span>draft visibility → ready implementation PR</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="runbook">
+  <div class="section-head">
+    <div>
+      <h2>3a. Runbook — co dokładnie wpisuję i kiedy</h2>
+      <p>Warstwa, której nie ma ani w <code>SDLC.md</code> (opisuje etapy), ani na diagramach powyżej (opisują stany): <strong>warstwa wywołań</strong>. Tu jest to, co operator faktycznie robi.</p>
+    </div>
+    <div class="section-kicker">operator layer · Lessons 1–7</div>
+  </div>
+  <div class="section-body">
+
+    <div class="arch-title">Start tutaj — co masz na wejściu?</div>
+    <div class="decision">
+      <div class="decision-card">
+        <div class="q">mam plain problem</div>
+        <b>Autonomous issue run</b>
+        <code>/om-auto-fix-issue &lt;brief&gt;</code>
+        <p>● Lesson 5: brief mode sam użył <code>om-prepare-issue</code>, utworzył Issue #7 i rozpoczął routing. Missing companions powodują clean stop — nie lazy install.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam istniejące Issue</div>
+        <b>Resume / issue entry</b>
+        <code>/om-auto-fix-issue &lt;issueId&gt;</code>
+        <p>● Lesson 5: rerun na <code>#7</code> wznowił chain na triage bez ponownego tworzenia Issue.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam lokalne zmiany</div>
+        <b>Branch-driven</b>
+        <code>/om-check-and-commit</code>
+        <p>● Lessons 1–4: operator prowadzi flow ręcznie. Ten path nadal wymaga świadomego branch managementu.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam feature brief</div>
+        <b>Autonomous spec lifecycle</b>
+        <code>/om-auto-write-spec &lt;brief&gt;</code>
+        <p>● Lesson 6: brief → isolated spec branch/worktree → <code>om-spec-writing --autonomous</code> → design-only PR #9. Review + human override mogą potem zmienić spec przed merge.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam otwarty PR</div>
+        <b>Review / merge subsystem</b>
+        <code>/om-auto-review-pr &lt;nr&gt;</code>
+        <p>Znany subsystem. W orchestrated bug runie <code>om-auto-fix-issue</code> wywołał review sam; merge pozostawał osobnym krokiem.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam approved spec na main</div>
+        <b>Fresh spec implementation</b>
+        <code>/om-auto-implement-spec &lt;spec-path&gt;</code>
+        <p>● Lesson 7: resolver sprawdził istniejący implementation PR, wybrał fresh engine <code>om-auto-create-pr</code>, utworzył 5-step plan, worktree, draft PR i kontrolowany implementation run.</p>
+      </div>
+    </div>
+
+    <div class="arch-title" style="margin-top:26px">Pełny przebieg branch-driven — tak wyglądały PR #4 i PR #5</div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">0</span>
+        <h3>Preflight — świadomie wybierz punkt startu</h3>
+        <span class="who">robi: człowiek · żaden skill tego nie pilnuje</span>
+      </div>
+      <div class="cmd">git checkout main &amp;&amp; git pull --ff-only &amp;&amp; git checkout -b &lt;typ&gt;/&lt;opis&gt;
+        <span class="alt">np. <code>docs/lesson-5-findings</code>, <code>chore/vendor-skills</code>, <code>fix/label-guard</code></span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">Czyste drzewo robocze.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Branch odgałęzia się od aktualnego <code>main</code>.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">Nowy branch lokalny.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v"><code>git status</code> — branch zgodny z oczekiwaniem.</div></div>
+      </div>
+      <div class="pause"><b>⚠ Luka procesu:</b> ani <code>SDLC.md</code>, ani żaden skill nie mówi, kto i kiedy zakłada branch. To krok wyłącznie ludzki — patrz sekcja <a class="ev" href="#process-gaps">Process Gaps</a>.</div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">1</span>
+        <h3>Zrób zmianę i opublikuj branch</h3>
+        <span class="who">robi: <code>om-check-and-commit</code></span>
+      </div>
+      <div class="cmd">/om-check-and-commit
+        <span class="alt">albo zdaniem: „Use om-check-and-commit to verify and commit the current changes"</span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">Jesteś na feature branchu, zmiany w drzewie roboczym.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Uruchamia <code>validation.commands</code>, naprawia proste błędy, commituje i pushuje.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">SHA commita + nazwę brancha; ustawia upstream.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v"><code>git log --oneline -1</code> oraz branch widoczny na GitHubie.</div></div>
+      </div>
+      <div class="pause"><b>Kiedy pominąć:</b> jeśli od razu idziesz do <code>/om-open-pr</code> — on też commituje i pushuje. Dwa skille pod rząd potrzebne są tylko wtedy, gdy chcesz publikować branch <em>bez</em> otwierania PR.</div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">2</span>
+        <h3>Otwórz PR z pełnym zestawem labeli</h3>
+        <span class="who">robi: <code>om-open-pr</code></span>
+      </div>
+      <div class="cmd">/om-open-pr
+        <span class="alt">issue-driven: <code>/om-open-pr &lt;issueId&gt;</code> — wtedy dokłada linkowanie i zwalnia locka na Issue</span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">Branch istnieje; PR dla niego jeszcze nie istnieje (skill i tak sprawdza).</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Otwiera <strong>ready</strong> (nie draft) PR do <code>main</code>, nakłada 5 labeli + komentarz z uzasadnieniem.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v"><code>PR: #&lt;n&gt; (link: …)</code> — <strong>to jest input następnego kroku</strong>.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v"><code>gh pr view &lt;n&gt; --json labels,isDraft</code></div></div>
+      </div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">3</span>
+        <h3>Review — i ewentualnie autofix</h3>
+        <span class="who">robi: <code>om-auto-review-pr</code> (silnik: <code>om-code-review</code>)</span>
+      </div>
+      <div class="cmd">/om-auto-review-pr &lt;nr&gt;
+        <span class="alt">cudzy PR, który ma zostać naprawiony: <code>/om-auto-review-pr &lt;nr&gt; --autofix</code></span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">PR otwarty i nieprzejęty przez innego agenta.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Claim → izolowany worktree → gate → checklisty → werdykt → label → zwolnienie locka → sprzątanie.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">APPROVED lub CHANGES REQUESTED + <code>PR:</code>; przy autofixie także SHA commitów naprawczych.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v">Label <code>merge-queue</code> lub <code>changes-requested</code> + komentarz z raportem.</div></div>
+      </div>
+      <div class="pause"><b>⏸ Autofix nie zawsze rusza:</b> pętla naprawcza działa tylko na <strong>Twoim własnym</strong> PR albo z flagą <code>--autofix</code>. Na cudzym PR bez flagi skill zrobi review i odda PR autorowi — nie dotknie brancha.</div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">4</span>
+        <h3>Re-review po każdej zmianie HEAD</h3>
+        <span class="who">robi: <code>om-auto-review-pr</code> · decyduje: człowiek</span>
+      </div>
+      <div class="cmd">/om-auto-review-pr &lt;nr&gt;   <span class="alt">ten sam skill; wykrywa, że to re-review, i re-sprawdza poprzednie findings</span></div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">Po poprzednim review pojawiły się nowe commity.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Tytuł raportu <code>Re-review:</code>, sprawdzenie każdego wcześniejszego findingu, świeży werdykt.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">Nowy werdykt zakotwiczony w <strong>aktualnym</strong> SHA.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v">Porównaj SHA z raportu z <code>gh pr view &lt;n&gt; --json headRefOid</code>.</div></div>
+      </div>
+      <div class="pause"><b>⏸ Pułapka, w którą wpadliśmy dwa razy:</b> <strong>approve dotyczy konkretnego SHA</strong>. Każdy push dezaktualizuje werdykt, a label <code>merge-queue</code> zostaje — więc wygląda na aktualny, choć opisuje starszy commit. PR #5 mergował się jako <code>6c4dea7</code>, mając approve z <code>6719890</code>.</div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">5</span>
+        <h3>Merge z kontrolą bramek</h3>
+        <span class="who">robi: <code>om-approve-merge-pr</code> · zgoda: człowiek</span>
+      </div>
+      <div class="cmd">/om-approve-merge-pr &lt;nr&gt;
+        <span class="alt">z follow-upem: „…and add a follow-up: &lt;treść&gt;" — issue powstaje dopiero po udanym merge'u</span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">PR otwarty, bez twardych blokad, konflikt rozwiązany.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Sprawdza blokady i QA gate, próbuje approve, robi squash merge.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">SHA merge commita + potwierdzenie usunięcia brancha, jeśli o to poprosisz.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v"><code>git log origin/main --oneline -1</code></div></div>
+      </div>
+      <div class="pause"><b>⏸ Tu pipeline zawsze pyta w solo-repo:</b> GitHub odrzuca <code>approve</code> na własnym PR. Skill zgłasza to i czeka na Twoją decyzję: merge bez formalnego approve, drugie konto, albo bot. Zdarzyło się na PR #3, #4, #5 i #9 — to nie jest wyjątek, to stały element procesu tutaj.</div>
+    </div>
+
+    <div class="runbook-step">
+      <div class="runbook-head">
+        <span class="runbook-num">6</span>
+        <h3>Sync i sprzątanie po merge'u</h3>
+        <span class="who">robi: człowiek · żaden skill tego nie robi</span>
+      </div>
+      <div class="cmd">git checkout main &amp;&amp; git pull --ff-only &amp;&amp; git branch -D &lt;branch&gt; &amp;&amp; git fetch --prune
+        <span class="alt">sprawdź też: <code>git worktree list</code> i <code>git branch --list 'review/*'</code></span>
+      </div>
+      <div class="runbook-grid">
+        <div class="rb-cell"><div class="k">Warunek wstępny</div><div class="v">PR zmergowany.</div></div>
+        <div class="rb-cell"><div class="k">Co się dzieje</div><div class="v">Lokalne repo dogania <code>origin/main</code>; znikają martwe refy.</div></div>
+        <div class="rb-cell"><div class="k">Zwraca</div><div class="v">Czysty punkt startu do następnej lekcji.</div></div>
+        <div class="rb-cell"><div class="k">Weryfikacja</div><div class="v"><code>git status</code> mówi „up to date with origin/main".</div></div>
+      </div>
+      <div class="pause"><b>⚠ Trzy razy z rzędu o tym zapomnieliśmy.</b> Po każdym merge zostawał lokalny branch za <code>origin</code> i skasowany remote. Na Windows katalog worktree potrafi zostać zablokowany („Permission denied" / „Device or resource busy") — wtedy powtórz usunięcie po chwili.</div>
+    </div>
+
+    <div class="callout">
+      <strong>Zasada przekazywania kontekstu po Lessons 5–7:</strong> stabilne linie <code>Issue:</code> / <code>PR:</code> / <code>Spec:</code>,
+      markery sterujące, previous-step blocks i jawne assumptions tworzą kontrakt między skills i lifecycle'ami.
+      W issue flow przenosi je <code>om-auto-fix-issue</code>; w design flow <code>om-auto-write-spec</code> publikuje durable spec PR; w implementation flow <code>Source doc:</code>, <code>Tracking plan:</code>, <code>Status:</code>, <code>Engine:</code> i parseable <code>## Progress</code> spinają execution state z PR i Git history.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="review">
+  <div class="section-head">
+    <div>
+      <h2>4. Review Loop — nie pojedynczy review</h2>
+      <p>Najbardziej widoczna pętla Lesson 4. Review może zmienić stan PR, naprawić findings i uruchomić kolejną recenzję.</p>
+    </div>
+    <div class="section-kicker">● observed on <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a></div>
+  </div>
+  <div class="section-body">
+    <div class="review-loop">
+      <div class="loop-node">
+        <h3 style="color:var(--amber)">review</h3>
+        <p>PR zaczyna w stanie <code>review</code>. om-auto-review-pr uruchamia review engine.</p>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-node">
+        <h3 style="color:var(--coral)">changes-requested</h3>
+        <p>Blocker / Major oznacza request changes. Autofix może wejść do pętli.</p>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-node">
+        <h3 style="color:var(--green)">merge-queue</h3>
+        <p>Po czystym re-review PR trafia do routingu merge. To nie jest samo QA approval.</p>
+      </div>
+    </div>
+    <div class="loop-back">changes-requested → autofix → re-review → approve → merge-queue</div>
+  </div>
+</section>
+
+<section class="section" id="labels">
+  <div class="section-head">
+    <div>
+      <h2>4a. Label state machine — reguły, nie tylko zestaw</h2>
+      <p>Labele to nie tagi opisowe, tylko stan procesu. Kluczowa jest <strong>ekskluzywność</strong>: co może współistnieć, a co nie.</p>
+    </div>
+    <div class="section-kicker">SDLC.md · ● observed</div>
+  </div>
+  <div class="section-body">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Grupa</th><th>Labele</th><th>Reguła</th><th>Kto ustawia</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pipeline</td>
+            <td>review · changes-requested · qa · qa-failed · merge-queue · blocked · do-not-merge</td>
+            <td><strong>dokładnie jeden naraz</strong> — przejścia idą przez <code>set_pipeline_label</code>, który najpierw zdejmuje pozostałe</td>
+            <td>skille review/merge; <code>blocked</code> i <code>do-not-merge</code> tylko człowiek</td>
+          </tr>
+          <tr>
+            <td>Category</td>
+            <td>bug · feature · refactor · security · dependencies · documentation</td>
+            <td>addytywne — może być kilka</td>
+            <td><code>om-open-pr</code> przy otwarciu</td>
+          </tr>
+          <tr>
+            <td>Meta</td>
+            <td>needs-qa · skip-qa · qa-approved · qa-self-verified · in-progress · ci-monitoring</td>
+            <td>addytywne, ale <code>needs-qa</code> i <code>skip-qa</code> <strong>nigdy razem</strong>; <code>in-progress</code> i <code>ci-monitoring</code> stoją obok labela pipeline, bo to nie stan workflow</td>
+            <td>skille — poza <code>qa-approved</code>, którego automat nie nadaje nigdy</td>
+          </tr>
+          <tr>
+            <td>Priority</td>
+            <td>priority-low · medium · high · extreme</td>
+            <td>dokładnie jeden; brak = czytaj jako medium</td>
+            <td>skill wnioskuje przy otwarciu, review może skorygować</td>
+          </tr>
+          <tr>
+            <td>Risk</td>
+            <td>risk-low · medium · high</td>
+            <td>dokładnie jeden; brak = czytaj jako medium</td>
+            <td>jw. — przy sprzecznych sygnałach wygrywa wyższy</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>Trzy rzeczy, które łatwo pomylić:</strong> <code>merge-queue</code> to routing, a nie dowód QA —
+      PR z <code>needs-qa</code> legalnie tam czeka. Labela <code>qa</code> należy wyłącznie do testera i żaden automat jej nie nadaje.
+      A <code>in-progress</code> to <em>lock</em>, nie stan procesu: <code>ci-monitoring</code>, które go zastępuje po zakończeniu pracy,
+      <strong>nie blokuje nikogo</strong> — mówi tylko, że wciąż należy się komentarz z wynikiem CI.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="gates">
+  <div class="section-head">
+    <div>
+      <h2>4b. Gates &amp; Checkpoints — co realnie blokuje i gdzie pipeline pyta człowieka</h2>
+      <p>Najtrzeźwiejsza sekcja tej mapy: rygor pipeline'u równa się rygorowi bramek, które faktycznie skonfigurowałeś.</p>
+    </div>
+    <div class="section-kicker">reality check</div>
+  </div>
+  <div class="section-body">
+    <div class="gate-grid">
+      <div class="gate">
+        <h3>Validation gate <span class="state on">● aktywna</span></h3>
+        <p><code>validation.commands</code> w tym repo to dokładnie jedna komenda: <code>git diff --check</code>.
+        Wyłapuje trailing whitespace i markery konfliktu — nic więcej. Brak buildu, lintera, testów. W Lesson 7 implementation engine dołożył spec-specific checks (PowerShell parser, non-ASCII scan i scratch-clone scenarios), ale nie zmieniło to repo-level gate.
+        <strong>Konsekwencja:</strong> „approve" tutaj jest zdaniem o <em>lekturze + uruchomionych checks tego runu</em>, nie o zielonym CI buildzie.</p>
+      </div>
+      <div class="gate">
+        <h3>QA gate <span class="state off">○ wyłączona</span></h3>
+        <p><code>qaGate: false</code>, więc <code>needs-qa</code> jest tylko doradcze i nie zatrzyma merge'a.
+        Po włączeniu PR z <code>needs-qa</code> nie zmerguje się bez <code>qa-approved</code>, które nadaje wyłącznie tester
+        albo inżynier korzystający z wyjątku self-QA (z dowodem). Twarde blokady działają <em>zawsze</em>:
+        <code>qa-failed</code>, <code>blocked</code>, <code>do-not-merge</code>.</p>
+      </div>
+      <div class="gate">
+        <h3>CI / required checks <span class="state off">◌ nie istnieje</span></h3>
+        <p>Brak katalogu <code>.github/workflows/</code> — żaden check nie raportuje się na PR-ach, więc nie ma na co czekać
+        i nic nie gatuje merge'a poza labelami. Cała logika <code>ci.maxWaitMinutes</code>, <code>ci-monitoring</code> i
+        follow-upu z wynikiem CI jest opisana, ale <strong>ani razu nieuruchomiona</strong>.</p>
+      </div>
+      <div class="gate">
+        <h3>Branch protection <span class="state off">◌ brak</span></h3>
+        <p><code>main</code> nie jest chroniony: <code>gh api …/protection</code> zwraca 404. Dlatego brak formalnego approve
+        nie zablokował żadnego merge'a. To jedyny powód, dla którego limit self-approval był niedogodnością, a nie ścianą.</p>
+      </div>
+    </div>
+
+    <div class="arch-title" style="margin-top:26px">⏸ Gdzie pipeline zatrzymuje się i pyta człowieka</div>
+    <div class="claim-card">
+      <div class="chk">
+        <div class="chk-row">
+          <div class="w">self-approval</div>
+          <div class="d">GitHub odrzuca approve własnego PR. <code>om-approve-merge-pr</code> zgłasza to i czeka na decyzję. <strong>● zaobserwowane ponownie</strong> (PR #3, #4, #5, #9 oraz review PR #10) — w solo-repo to stały punkt procesu.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">claim conflict</div>
+          <div class="d">Jeśli locka trzyma ktoś inny, skill <strong>zatrzymuje się i pyta</strong>, zamiast nadpisać. Ominięcie wymaga jawnego <code>--force</code> i komentarza z uzasadnieniem. ◌ nietestowane — nie było kolizji.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">needs-qa + skip-qa</div>
+          <div class="d">Sprzeczne labele QA → skill pyta, który jest właściwy, i nie zgaduje. ◌ nietestowane.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">changes-requested przy merge'u</div>
+          <div class="d">Labela sugeruje nieprzerobiony feedback → <code>om-approve-merge-pr</code> prosi o potwierdzenie zamiaru. ◌ nietestowane.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">decyzje architektoniczne</div>
+          <div class="d">Autofix naprawia sam braki testów, lint, typy i drobiazgi, ale <strong>zatrzymuje się</strong> przy niejednoznacznych decyzjach produktowych, zmianach łamiących kontrakt i braku dostępu do środowiska.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">draft PR</div>
+          <div class="d">Merge skilla nie tknie draftu po cichu — najpierw pyta, czy oznaczyć jako ready. ◌ nietestowane.</div>
+        </div>
+      </div>
+      <div class="claim-note">
+        Zasada, którą warto zapamiętać: <strong>raportowanie jest wczesne, merge nigdy</strong>.
+        Skille nakładają labele i publikują review, gdy tylko skończą pracę — nie czekając na CI. Ale merge wymaga,
+        żeby bramki były naprawdę zielone; lokalna walidacja jest dowodem <em>tego przebiegu</em>, nigdy substytutem branch protection.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="section-head">
+    <div>
+      <h2>5. Skills We Actually Know</h2>
+      <p>Karty pokazują rolę skilla w systemie, a nie pełną dokumentację. Lista rośnie dopiero po realnym poznaniu danego skilla.</p>
+    </div>
+    <div class="section-kicker">15 installed · Lesson 7 fresh implementation added · resume documented</div>
+  </div>
+  <div class="section-body">
+    <div class="filter-row">
+      <span class="filter-label">Rola</span>
+      <div class="filters" style="margin-bottom:0">
+        <button class="filter-btn active" data-filter="all" type="button" aria-pressed="true">All</button>
+        <button class="filter-btn" data-filter="setup" type="button" aria-pressed="false">Setup</button>
+        <button class="filter-btn" data-filter="analysis" type="button" aria-pressed="false">Analysis</button>
+        <button class="filter-btn" data-filter="mutation" type="button" aria-pressed="false">Mutation</button>
+        <button class="filter-btn" data-filter="review" type="button" aria-pressed="false">Review</button>
+        <button class="filter-btn" data-filter="merge" type="button" aria-pressed="false">Merge</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Status</span>
+      <div class="filters" style="margin-bottom:0">
+        <button class="filter-btn active" data-status-filter="all" type="button" aria-pressed="true">All</button>
+        <button class="filter-btn" data-status-filter="observed" type="button" aria-pressed="false">● observed</button>
+        <button class="filter-btn" data-status-filter="documented" type="button" aria-pressed="false">○ documented</button>
+      </div>
+    </div>
+
+    <div class="skills-grid">
+      <article class="skill" data-kind="setup" data-status="observed">
+        <h3>om-setup-agent-pipeline</h3>
+        <div class="role">Bootstrap repo-level agentic pipeline.</div>
+        <dl>
+          <dt>Input</dt><dd>new / existing repo</dd>
+          <dt>Does</dt><dd>creates .ai/, AGENTS.md, SDLC.md and policy docs</dd>
+          <dt>State</dt><dd>establishes pipeline foundation</dd>
+          <dt>Seen</dt><dd>Lesson 1</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="observed">
+        <h3>om-check-and-commit</h3>
+        <div class="role">Validate current branch, then commit and push.</div>
+        <dl>
+          <dt>Input</dt><dd>working tree / current branch</dd>
+          <dt>Does</dt><dd>validation → minimal repair → commit → push</dd>
+          <dt>Claims</dt><dd>no tracker claim</dd>
+          <dt>Seen</dt><dd>skill vendoring + Lesson 4 notes</dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="observed">
+        <h3>om-open-pr</h3>
+        <div class="role">Shared PR publisher for branch- and issue-driven runs.</div>
+        <dl>
+          <dt>Input</dt><dd>current branch; optional issue id</dd>
+          <dt>Does</dt><dd>commit/push if needed, open/reuse PR, labels, summary</dd>
+          <dt>Claims</dt><dd>not every direct run; issue handoff documented</dd>
+          <dt>State</dt><dd>→ review</dd>
+          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">PR #4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">PR #5</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">PR #9 reuse + refresh</a></dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-code-review</h3>
+        <div class="role">Review engine: correctness, security, compatibility, quality.</div>
+        <dl>
+          <dt>Input</dt><dd>PR / branch / diff</dd>
+          <dt>Does</dt><dd>validation gate + checklists + severity-ranked findings</dd>
+          <dt>Output</dt><dd>approve / request changes</dd>
+          <dt>Used by</dt><dd>om-auto-review-pr</dd>
+          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">PR #4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">PR #5</a></dd>
+        </dl>
+        <div class="status observed">● observed as review engine</div>
+      </article>
+
+      <article class="skill" data-kind="review" data-status="observed">
+        <h3>om-auto-review-pr</h3>
+        <div class="role">PR review orchestrator with claim + autofix loop.</div>
+        <dl>
+          <dt>Input</dt><dd>PR #</dd>
+          <dt>Uses</dt><dd>om-code-review</dd>
+          <dt>Claims</dt><dd>yes — assignee + in-progress + comment</dd>
+          <dt>Can fix</dt><dd>tylko własny PR albo z <code>--autofix</code>; potem re-review</dd>
+          <dt>State</dt><dd>review ↔ changes-requested → merge-queue</dd>
+          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a></dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="merge" data-status="observed">
+        <h3>om-approve-merge-pr</h3>
+        <div class="role">Merge enforcement point and squash-merge convenience skill.</div>
+        <dl>
+          <dt>Input</dt><dd>PR #</dd>
+          <dt>Does</dt><dd>check blocks + QA gate + approval attempt + squash merge</dd>
+          <dt>Edge</dt><dd>GitHub rejects self-approval on same account</dd>
+          <dt>Routes</dt><dd>do <code>om-auto-fix-pr</code> — <strong>niezainstalowany tutaj</strong>, więc ta trasa kończy się ślepo</dd>
+          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">#9</a></dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+
+      <article class="skill" data-kind="review" data-status="observed">
+        <h3>om-auto-fix-issue</h3>
+        <div class="role">High-level flow runner for one issue-driven session.</div>
+        <dl>
+          <dt>Input</dt><dd>Issue id or free-form brief</dd>
+          <dt>Does</dt><dd>classify → route → sequence companions → worktree/lock lifecycle → report</dd>
+          <dt>Observed</dt><dd>bug route from brief / Issue #7 to PR #8</dd>
+          <dt>Untested</dt><dd>feature/spec route</dd>
+        </dl>
+        <div class="status observed">● observed · bug route</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="observed">
+        <h3>om-prepare-issue</h3>
+        <div class="role">Turns a free-form brief into one actionable new tracker issue without implementing.</div>
+        <dl>
+          <dt>Observed</dt><dd>dedupe search + Issue #7 creation</dd>
+          <dt>State</dt><dd>brief → durable Issue reference</dd>
+          <dt>Documented</dt><dd>can author a spec PR for substantial features</dd>
+        </dl>
+        <div class="status observed">● observed · basic brief path</div>
+      </article>
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-verify-in-repo</h3>
+        <div class="role">Read-only triage gate: should the bug chain proceed?</div>
+        <dl>
+          <dt>Observed</dt><dd>proceed path on Issue #7</dd>
+          <dt>Mutates</dt><dd>no</dd>
+          <dt>Documented</dt><dd><code>NO_ACTION_NEEDED</code> clean-stop path</dd>
+        </dl>
+        <div class="status observed">● observed proceed · ○ stop contract</div>
+      </article>
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-root-cause</h3>
+        <div class="role">Read-only analyzer that defines the minimal change surface for om-fix.</div>
+        <dl>
+          <dt>Observed</dt><dd>analysis brief consumed in Lesson 5 run</dd>
+          <dt>Contract</dt><dd>Summary · Root cause · Files · Approach · Risks</dd>
+          <dt>Documented</dt><dd><code>LOW_CONFIDENCE</code> can propagate</dd>
+        </dl>
+        <div class="status observed">● observed · ○ low-confidence marker</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="observed">
+        <h3>om-fix</h3>
+        <div class="role">Claim boundary: implement minimal change, tests/checks, configured validation; no commit/push/PR.</div>
+        <dl>
+          <dt>Observed</dt><dd>Issue #7 claim + README mutation + validation</dd>
+          <dt>Claim</dt><dd>assignee + in-progress + claim comment</dd>
+          <dt>Output</dt><dd><code>Status: ready</code> / <code>Status: blocked</code></dd>
+        </dl>
+        <div class="status observed">● observed</div>
+      </article>
+      <article class="skill" data-kind="review" data-status="observed">
+        <h3>om-auto-write-spec</h3>
+        <div class="role">High-level feature-design orchestrator: brief / FR → autonomous spec → published spec PR.</div>
+        <dl>
+          <dt>Input</dt><dd>free-form feature brief or feature-request Issue</dd>
+          <dt>Uses</dt><dd><code>om-spec-writing --autonomous</code> + PR publishing</dd>
+          <dt>Does</dt><dd>isolated spec branch/worktree, assumptions, optional evidence, PR + handoff markers</dd>
+          <dt>Observed</dt><dd>Learning Lab Status → PR #9</dd>
+          <dt>Boundary</dt><dd>design-only; implementation deliberately separate</dd>
+        </dl>
+        <div class="status observed">● observed · Lesson 6</div>
+      </article>
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-spec-writing</h3>
+        <div class="role">Specification engine and architectural reviewer with skeleton/Open-Questions discipline.</div>
+        <dl>
+          <dt>Modes</dt><dd>interactive · <code>--autonomous</code> · review/audit</dd>
+          <dt>Observed</dt><dd>autonomous spec, architectural review, in-place amendments</dd>
+          <dt>Human control</dt><dd>autonomous defaults were overridden for PowerShell + smaller scope</dd>
+          <dt>Output</dt><dd>durable spec with architecture, risks, phasing and step-level implementation plan</dd>
+        </dl>
+        <div class="status observed">● observed · author + reviewer + amendment</div>
+      </article>
+      <article class="skill" data-kind="review" data-status="observed">
+        <h3>om-auto-implement-spec</h3>
+        <div class="role">Thin approved-spec resolver/router: fresh implementation vs resume, then final verification/reporting.</div>
+        <dl>
+          <dt>Input</dt><dd>spec path / slug / issue / spec-PR reference</dd>
+          <dt>Observed</dt><dd>exact-path resolution of Lab Status spec on <code>main</code>; no existing impl PR → fresh route</dd>
+          <dt>Uses</dt><dd><code>om-auto-create-pr</code> for fresh run; resume engine documented separately</dd>
+          <dt>Boundary</dt><dd>does not own planning/coding machinery</dd>
+          <dt>Seen</dt><dd>Experiment 004 · PR #10</dd>
+        </dl>
+        <div class="status observed">● observed · thin router</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="observed">
+        <h3>om-auto-create-pr</h3>
+        <div class="role">Fresh autonomous implementation engine with durable plan, isolated worktree, draft PR and Progress tracking.</div>
+        <dl>
+          <dt>Input</dt><dd>brief + optional <code>--spec</code>; Lesson 7 received approved spec via router</dd>
+          <dt>Observed</dt><dd>5 Steps → flat engine; <code>feat/lab-status-check</code>; worktree under <code>.ai/tmp/</code></dd>
+          <dt>First commit</dt><dd>execution plan before feature code</dd>
+          <dt>Progress</dt><dd>incremental commits + dedicated Progress updates with SHAs + push</dd>
+          <dt>PR</dt><dd>draft early for visibility → ready after completion/review</dd>
+        </dl>
+        <div class="status observed">● observed · fresh implementation engine</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="documented">
+        <h3>om-auto-continue-pr</h3>
+        <div class="role">Resume engine for an existing implementation PR; intentionally separated from the fresh-run Lesson 7 experiment.</div>
+        <dl>
+          <dt>Status</dt><dd>referenced by inspected skills; own runtime behavior not inspected/tested</dd>
+          <dt>Input</dt><dd>existing implementation PR</dd>
+          <dt>Contract</dt><dd>resume durable plan/Progress state instead of opening a duplicate PR</dd>
+          <dt>Loop variant</dt><dd><code>om-auto-continue-pr-loop</code> when tracking artifact is a run folder</dd>
+          <dt>Next</dt><dd>candidate for a separate resume-focused experiment</dd>
+        </dl>
+        <div class="status documented">○ documented · ◌ not tested</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="coverage">
+  <div class="section-head">
+    <div>
+      <h2>5a. Coverage gaps — what remains after fresh spec implementation</h2>
+      <p>Po Lesson 7 granica spec → fresh implementation nie jest już luką. Otwarta jest przede wszystkim continuation/loop behavior oraz bardziej wymagające runtime branches.</p>
+    </div>
+    <div class="section-kicker">repo coverage · post-Lesson 7</div>
+  </div>
+  <div class="section-body">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Capability / branch</th><th>Stan</th><th>Co to znaczy teraz</th></tr></thead>
+        <tbody>
+          <tr><td>om-auto-implement-spec</td><td>installed · ● observed</td><td>Exact-path resolution + fresh/resume routing observed on approved spec from <code>main</code>.</td></tr>
+          <tr><td>om-auto-create-pr</td><td>installed · ● observed</td><td>Fresh 5-step implementation engine observed end-to-end: durable plan, worktree, draft PR, incremental commits, Progress, validation, review and ready PR.</td></tr>
+          <tr><td>om-auto-continue-pr</td><td>not installed here · ○ documented / ◌ not tested</td><td>Resume path is intentionally separate. We know its routing role from inspected skills, but have not inspected its own SKILL.md or resumed an interrupted PR.</td></tr>
+          <tr><td>om-auto-create-pr-loop / continue-pr-loop</td><td>○ documented / ◌ not tested</td><td>Long-plan/run-folder engines were not selected because the Lab Status plan had 5 Steps vs threshold 20.</td></tr>
+          <tr><td>--loop / --force / claim collision</td><td>○ documented / ◌ not tested</td><td>No forced engine route or ownership collision occurred.</td></tr>
+          <tr><td>implementation from unmerged spec PR</td><td>○ documented / ◌ not tested</td><td>Our spec was already merged to <code>main</code>; temporary materialization from spec-PR head was unnecessary.</td></tr>
+          <tr><td>om-auto-qa-pr</td><td>missing · ◌ not tested</td><td>Lesson 7 change was terminal/docs-only, so UI verification correctly reported <code>UI: n/a</code> and used <code>skip-qa</code>.</td></tr>
+          <tr><td>CI / required checks / branch protection</td><td>◌ absent in lab</td><td>Repo still has only <code>git diff --check</code>; richer engine checks in Experiment 004 were run-specific, not repo-level gates.</td></tr>
+          <tr><td>om-auto-fix-pr / batch / housekeeping skills</td><td>missing</td><td>Conflict/red-CI recovery, batch review and post-merge tracker automation remain outside current coverage.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>Correction after Lesson 7:</strong> <code>om-auto-create-pr</code> is not merely a PR-opening helper. In runtime it was the fresh implementation engine that converted the spec's Implementation Plan into durable execution state and code. <code>om-auto-continue-pr</code> remains deliberately separate and must not be promoted to observed.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="claim">
+  <div class="section-head">
+    <div>
+      <h2>6. Claim / Lock — continuous ownership across Issue → PR</h2>
+      <p>Lesson 5 pokazała claim jako część orchestration, nie tylko izolowany review lock.</p>
+    </div>
+    <div class="section-kicker">● observed on Issue #7 / PR #8</div>
+  </div>
+  <div class="section-body claim-grid">
+    <div class="claim-card">
+      <h3>Claim signals</h3>
+      <div class="claim-signals">
+        <div class="signal"><b>assignee</b><span>ownership signal</span></div>
+        <div class="signal"><b>in-progress</b><span>active lock</span></div>
+        <div class="signal"><b>claim comment</b><span>audit / actor signal</span></div>
+      </div>
+      <div class="claim-note">
+        ● Lesson 5: triage i root-cause były read-only i nie claimowały Issue. Claim zaczął się dopiero w <code>om-fix</code>,
+        czyli na granicy rozpoczęcia mutacji.
+      </div>
+    </div>
+    <div class="claim-card">
+      <h3>Continuous handoff</h3>
+      <div class="state-list">
+        <div class="state-row"><div class="k">Issue #7</div><div class="v">● claimed by om-fix when implementation began</div></div>
+        <div class="state-row"><div class="k">om-open-pr</div><div class="v">● transferred chain ownership onto PR #8</div></div>
+        <div class="state-row"><div class="k">review</div><div class="v">● re-entered inherited PR lock during review/autofix</div></div>
+        <div class="state-row"><div class="k">run end</div><div class="v">● orchestrator released the final lock and cleaned worktree</div></div>
+        <div class="state-row"><div class="k">collision</div><div class="v">○ documented stop/force protocol · ◌ not tested</div></div>
+        <div class="state-row"><div class="k">fresh impl slot</div><div class="v">○ <code>om-auto-create-pr</code> documents three signals: plan path + branch + open PR; Experiment 004 had no collision</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="handoff">
+  <div class="section-head">
+    <div>
+      <h2>6a. Handoff Contract — references, execution markers, durable state</h2>
+      <p>Po Lessons 5–7 widać trzy klasy handoffów: problem/Issue, design/spec oraz implementation execution. Żaden nie wymaga „magicznej shared memory”.</p>
+    </div>
+    <div class="section-kicker">● Issue / PR / Spec / execution-plan handoffs observed</div>
+  </div>
+  <div class="section-body">
+    <div class="grid-2">
+      <div class="card">
+        <h3>Observed contracts</h3>
+        <div class="state-list">
+          <div class="state-row"><div class="k">References</div><div class="v"><code>Issue:</code> / <code>PR:</code> / <code>Spec:</code> — stable chaining references across issue, design and implementation lifecycles</div></div>
+          <div class="state-row"><div class="k">Design → exec</div><div class="v"><code>Source doc:</code> binds the implementation plan/PR back to the approved spec</div></div>
+          <div class="state-row"><div class="k">Run visibility</div><div class="v"><code>Tracking plan:</code> + <code>Status: in-progress</code> on the early draft PR</div></div>
+          <div class="state-row"><div class="k">Engine</div><div class="v"><code>Engine: om-auto-create-pr (steps: 5, --loop: no)</code> exposed deterministic routing choice</div></div>
+          <div class="state-row"><div class="k">Progress</div><div class="v"><code>## Progress</code> checklist + completed Step SHAs persisted execution state</div></div>
+          <div class="state-row"><div class="k">Cross-link</div><div class="v">spec PR #9 received implementation PR #10 link; implementation remained on its own branch/PR</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Documented but not exercised</h3>
+        <div class="state-list">
+          <div class="state-row"><div class="k">Resume</div><div class="v">existing implementation PR → <code>om-auto-continue-pr</code>; ◌ actual resume not tested</div></div>
+          <div class="state-row"><div class="k">Loop resume</div><div class="v"><code>Tracking run folder:</code> selects loop continuation; ◌ not tested</div></div>
+          <div class="state-row"><div class="k">Long plan</div><div class="v">Step count above threshold or <code>--loop</code> → loop engine; our 5-step plan stayed flat</div></div>
+          <div class="state-row"><div class="k">Conflict</div><div class="v"><code>--force</code> and claim-conflict protocol are documented; ◌ no collision occurred</div></div>
+          <div class="state-row"><div class="k">Unmerged spec</div><div class="v">spec-PR materialization path documented; ◌ our approved spec was already on <code>main</code></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Mental model:</strong> durable artifacts are the protocol: Issue/Spec identify intent, execution plan + Progress identify run state, Git commits identify completed work, and the PR exposes current delivery state. Resume can therefore be designed around persisted state instead of conversational memory.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="observed">
+  <div class="section-head">
+    <div>
+      <h2>7. What I Actually Observed</h2>
+      <p>Oddzielamy rzeczy praktycznie zobaczone od tych tylko opisanych w dokumentacji. Numery są klikalne — każdy wiersz da się zweryfikować.</p>
+    </div>
+    <div class="section-kicker">Lessons 1–7 · Experiments 001–004 · Findings 001–012 · PR #9 / #10</div>
+  </div>
+  <div class="section-body table-wrap">
+    <table>
+      <thead>
+        <tr><th>Mechanism</th><th>Status</th><th>Observed evidence</th><th>Memory cue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mental model shift</td><td style="color:var(--purple)">◍ discussed</td><td>starting point</td><td>human operator → human governor of engineering system</td></tr>
+        <tr><td>Bootstrap skill</td><td style="color:var(--green)">● observed</td><td>om-setup-agent-pipeline</td><td>first skill creates the shared repo contract</td></tr>
+        <tr><td>Skill installation layout</td><td style="color:var(--green)">● observed</td><td>.agents/ + .claude/ + skills-lock.json</td><td>.agents is canonical; .claude is harness integration/symlink</td></tr>
+        <tr><td>Agentic config</td><td style="color:var(--green)">● observed</td><td>.ai/agentic.config.json</td><td>process config, not app stack config</td></tr>
+        <tr><td>AGENTS.md role</td><td style="color:var(--green)">● observed</td><td>Lesson 3 reading</td><td>knowledge router, not pipeline config</td></tr>
+        <tr><td>Task routing</td><td style="color:var(--green)">● observed</td><td>AGENTS.md</td><td>Task → Read first → authoritative docs → action</td></tr>
+        <tr><td>Issue claim</td><td style="color:var(--green)">● observed</td><td><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/issues/2">Issue #2</a></td><td>assignee + in-progress + comment</td></tr>
+        <tr><td>PR labels</td><td style="color:var(--green)">● observed</td><td><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a></td><td>pipeline + category + QA + priority + risk</td></tr>
+        <tr><td>PR claim</td><td style="color:var(--green)">● observed</td><td>om-auto-review-pr</td><td>review skill locks while active</td></tr>
+        <tr><td>Review state transition</td><td style="color:var(--green)">● observed</td><td><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a></td><td>review → changes-requested → merge-queue</td></tr>
+        <tr><td>Autofix loop</td><td style="color:var(--green)">● observed</td><td><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a></td><td>finding → fix commit → re-review</td></tr>
+        <tr><td>Review engine separation</td><td style="color:var(--green)">● observed</td><td>om-auto-review-pr + om-code-review</td><td>orchestrator ≠ review engine</td></tr>
+        <tr><td>Isolated worktree</td><td style="color:var(--green)">● observed</td><td>review/pr-* branches</td><td>review/autofix can run outside main worktree</td></tr>
+        <tr><td>Self-approval limit</td><td style="color:var(--green)">● observed</td><td><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a> / <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">#9</a></td><td>same GitHub account cannot approve its own PR</td></tr>
+        <tr><td>Merge gate enforcement</td><td style="color:var(--green)">● observed</td><td>om-approve-merge-pr</td><td>checks blockers and QA state before merge</td></tr>
+        <tr><td>Branch cleanup</td><td style="color:var(--green)">● observed</td><td>git branch -vv / worktree list / fetch --prune</td><td>worktree gone ≠ local branch ref gone</td></tr>
+      
+        <tr><td>Free-form brief entry</td><td style="color:var(--green)">● observed</td><td>Lesson 5 → Issue #7</td><td>orchestrator can start before an Issue exists</td></tr>
+        <tr><td>High-level issue orchestrator</td><td style="color:var(--green)">● observed</td><td>om-auto-fix-issue run #7</td><td>flow runner sequences companions in one session</td></tr>
+        <tr><td>Prepare Issue handoff</td><td style="color:var(--green)">● observed</td><td>om-prepare-issue → Issue #7</td><td>plain brief becomes durable tracker state</td></tr>
+        <tr><td>Resume / re-entry</td><td style="color:var(--green)">● observed</td><td>/om-auto-fix-issue 7</td><td>rerun continued from existing Issue instead of recreating it</td></tr>
+        <tr><td>Verify → root-cause → fix</td><td style="color:var(--green)">● observed</td><td>Lesson 5 bug chain</td><td>read-only gate → read-only analysis → mutation boundary</td></tr>
+        <tr><td>Issue → PR lock handoff</td><td style="color:var(--green)">● observed</td><td>Issue #7 → PR #8</td><td>continuous ownership across artifact boundary</td></tr>
+        <tr><td>Autonomous worktree/branch lifecycle</td><td style="color:var(--green)">● observed</td><td>fix/issue-7-readme-purpose-and-navigation</td><td>created after triage, cleaned at end; primary checkout preserved</td></tr>
+        <tr><td>Feature brief → spec orchestration</td><td style="color:var(--green)">● observed</td><td>Experiment 003 · <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">PR #9</a></td><td><code>om-auto-write-spec</code> turned a plain feature brief into a design-only spec PR</td></tr>
+        <tr><td>Autonomous spec engine</td><td style="color:var(--green)">● observed</td><td><code>om-spec-writing --autonomous</code></td><td>skeleton/open-questions logic resolved into explicit reversible assumptions</td></tr>
+        <tr><td>Architectural spec review</td><td style="color:var(--green)">● observed</td><td>Lesson 6 review of Lab Status spec</td><td>fresh review found correctness issues before implementation</td></tr>
+        <tr><td>Human override of autonomous design</td><td style="color:var(--green)">● observed</td><td>PowerShell + scope reduction decisions</td><td>autonomous default is proposal, not final authority</td></tr>
+        <tr><td>In-place spec amendment</td><td style="color:var(--green)">● observed</td><td><code>om-spec-writing</code> amendments</td><td>same durable spec evolved without restarting the lifecycle</td></tr>
+        <tr><td>Runtime corrects docs assumption</td><td style="color:var(--green)">● observed</td><td>NTFS Junction discovery entries</td><td>filesystem observation overrode docs-only “symlink” assumption</td></tr>
+        <tr><td>Existing PR reuse / metadata refresh</td><td style="color:var(--green)">● observed</td><td><code>om-open-pr</code> on PR #9</td><td>existing PR reused; stale POSIX body refreshed after amendment</td></tr>
+        <tr><td>Design-only spec merge</td><td style="color:var(--green)">● observed</td><td>PR #9 → main</td><td>approved spec landed before any feature code</td></tr>
+        <tr><td>Approved spec → implementation routing</td><td style="color:var(--green)">● observed</td><td>Experiment 004 · <code>om-auto-implement-spec</code></td><td>exact path resolved; no existing impl PR → fresh engine</td></tr>
+        <tr><td>Thin router / engine separation</td><td style="color:var(--green)">● observed</td><td><code>om-auto-implement-spec → om-auto-create-pr</code></td><td>resolution/routing ≠ implementation machinery</td></tr>
+        <tr><td>Execution plan from approved spec</td><td style="color:var(--green)">● observed</td><td>5 Steps from spec Implementation Plan</td><td>design intent becomes explicit execution state</td></tr>
+        <tr><td>Deterministic engine selection</td><td style="color:var(--green)">● observed</td><td><code>Engine: om-auto-create-pr (steps: 5, --loop: no)</code></td><td>5 &lt; threshold 20 → flat engine</td></tr>
+        <tr><td>Plan-first durable mutation</td><td style="color:var(--green)">● observed</td><td><code>7c22dd7 docs(runs): add execution plan...</code></td><td>plan commit landed before feature code</td></tr>
+        <tr><td>Fresh implementation isolation</td><td style="color:var(--green)">● observed</td><td><code>feat/lab-status-check</code> + <code>.ai/tmp/om-auto-create-pr/</code></td><td>primary checkout stayed on main</td></tr>
+        <tr><td>Early draft PR visibility</td><td style="color:var(--green)">● observed</td><td>PR #10</td><td>draft PR existed during execution, not only after coding</td></tr>
+        <tr><td>Incremental implementation commits</td><td style="color:var(--green)">● observed</td><td>ef6114b → a347cc6</td><td>implementation split into bounded Steps/areas</td></tr>
+        <tr><td>Durable Progress + SHAs</td><td style="color:var(--green)">● observed</td><td>eda21c4 + fdf642b</td><td>Progress updated after implementation and review autofix</td></tr>
+        <tr><td>Run-specific verification beyond repo gate</td><td style="color:var(--green)">● observed</td><td>PSParser, non-ASCII scan, scratch-clone scenarios</td><td>engine can add evidence while repo gate remains minimal</td></tr>
+        <tr><td>Review found host-encoding bug</td><td style="color:var(--green)">● observed</td><td>4a2e036 UTF-8 fix</td><td>Windows PowerShell 5.1 default encoding mattered despite passing on cp65001 host</td></tr>
+        <tr><td>Design PR vs implementation PR separation</td><td style="color:var(--green)">● observed</td><td>PR #9 → main; PR #10 → implementation</td><td>design and execution are separate but cross-linked</td></tr>
+        <tr><td>UI verification classification</td><td style="color:var(--green)">● observed</td><td><code>UI: n/a</code> + <code>skip-qa</code></td><td>terminal/docs change did not invoke UI QA</td></tr>
+        <tr><td>Implementation worktree cleanup</td><td style="color:var(--green)">● observed</td><td><code>git worktree list --porcelain</code> → primary only</td><td>temporary execution environment removed after run</td></tr>
+        <tr><td>om-auto-continue-pr</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td>routing contract from inspected implementation skills</td><td>resume path intentionally postponed</td></tr>
+        <tr><td>Loop implementation engines</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td>threshold / <code>--loop</code> contract</td><td>5-step run did not earn run-folder ceremony</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" id="corrections">
+  <div class="section-head">
+    <div>
+      <h2>7a. Corrections log — co zapisałem źle i jak to wyszło</h2>
+      <p>Log nauki jest wart tyle, ile jego wiarygodność. Te wpisy przeszły review, review je obalił dowodem i zostały poprawione — to jest wzorzec, nie wstyd.</p>
+    </div>
+    <div class="section-kicker">● corrections verified across Lessons 4–7</div>
+  </div>
+  <div class="section-body">
+
+    <div class="corr">
+      <h3>1 · Experiment 001 sklejał dwa różne przebiegi</h3>
+      <div class="was"><strong>Było:</strong> jedna lista obserwacji bez wskazania, skąd pochodzi która — „claim na Issue" obok „odrzucone approve", jakby to był jeden przebieg.</div>
+      <div class="now"><strong>Jest:</strong> Goal mówi wprost, że opisane są dwa przebiegi, a bullety noszą swój numer — <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/issues/2">Issue #2</a> → <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a> dla claimu, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">PR #4</a> dla reszty.</div>
+      <div class="why"><strong>Jak wyszło:</strong> review sprawdziło każdą obserwację osobno i zobaczyło, że przebieg PR #4 <em>nie miał</em> żadnego Issue. Oba zdania były prawdziwe — fałszywa była sugestia, że pochodzą z jednego runu.</div>
+    </div>
+
+    <div class="corr">
+      <h3>2 · „claims prevented concurrent agents" — wniosek bez obserwacji</h3>
+      <div class="was"><strong>Było:</strong> claimy <em>zapobiegły</em> równoległej pracy agentów.</div>
+      <div class="now"><strong>Jest:</strong> claimy były nakładane i zwalniane wokół każdego etapu; to mechanizm, który <em>ma</em> temu zapobiegać, ale kolizji nie było.</div>
+      <div class="why"><strong>Jak wyszło:</strong> nikt nigdy nie próbował przejąć tego PR — więc nic nie zostało powstrzymane. Zdanie opisywało intencję projektu jako zaobserwowany skutek.</div>
+    </div>
+
+    <div class="corr">
+      <h3>3 · „Each skill claimed the PR" — nadmierne uogólnienie</h3>
+      <div class="was"><strong>Było:</strong> każdy skill claimował PR assignee'em, labelą <code>in-progress</code> i komentarzem.</div>
+      <div class="now"><strong>Jest:</strong> claimuje tylko <code>om-auto-review-pr</code>; <code>om-open-pr</code> i <code>om-approve-merge-pr</code> działają na PR bez brania locka.</div>
+      <div class="why"><strong>Jak wyszło:</strong> timeline <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">PR #4</a> pokazuje pięć labeli nałożonych <em>bez</em> assignee, a dopiero potem zdarzenie <code>assigned</code> razem z <code>in-progress</code>. Ironia: to zdanie napisał agent, poprawiając poprzedni błąd — dlatego re-review po poprawce nie jest formalnością.</div>
+    </div>
+
+
+    <div class="corr">
+      <h3>4 · „Human relay is the orchestration model” — prawda historyczna, nie pełny model OM</h3>
+      <div class="was"><strong>V6:</strong> aktualny diagram mówił <code>HUMAN → skill → HUMAN → skill</code>, a <code>om-auto-fix-issue</code> był tylko hipotezą.</div>
+      <div class="now"><strong>V7:</strong> Lessons 1–4 pozostają human-relayed, ale Lesson 5 zaobserwowała <code>om-auto-fix-issue</code> jako flow runner, który sam sekwencjonuje bug companions.</div>
+      <div class="why"><strong>Dowód:</strong> plain brief utworzył Issue #7, a późniejszy run przeszedł verify → root-cause → fix → open-pr → review bez ręcznych wywołań pośrednich.</div>
+    </div>
+
+    <div class="corr">
+      <h3>5 · „Branch creation is an OM process gap” — zbyt szerokie uogólnienie</h3>
+      <div class="was"><strong>V6:</strong> brak automatycznego tworzenia brancha był opisany jako luka SDLC.</div>
+      <div class="now"><strong>V7:</strong> to luka manualnego branch-driven path w tym labie. W issue-driven bug orchestration Lesson 5 flow runner utworzył isolated worktree i branch po triage.</div>
+      <div class="why"><strong>Dowód:</strong> branch <code>fix/issue-7-readme-purpose-and-navigation</code> powstał automatycznie i został posprzątany po runie.</div>
+    </div>
+
+    <div class="corr">
+      <h3>6 · „Discovery entries = symlinks” — dokumentacja nie opisywała realnego Windows runtime</h3>
+      <div class="was"><strong>Docs / wcześniejszy model:</strong> <code>.claude/skills/</code> było konsekwentnie opisywane jako symlinki.</div>
+      <div class="now"><strong>Lesson 6 runtime:</strong> <code>Get-Item</code> pokazał 13 wpisów typu NTFS <code>Junction</code>. Finalny spec akceptuje zarówno <code>SymbolicLink</code>, jak i <code>Junction</code>, ale wymaga żeby target prowadził do odpowiadającego skilla w <em>tym</em> checkout.</div>
+      <div class="why"><strong>Finding 008:</strong> dokumentacja opisuje intent, ale rzeczywisty filesystem/runtime może skorygować assumption potrzebne do poprawnego designu.</div>
+    </div>
+
+    <div class="corr">
+      <h3>7 · „Autonomous spec = gotowy design” — za mocne założenie</h3>
+      <div class="was"><strong>Pierwszy draft:</strong> POSIX <code>.sh</code> + szerszy diagnostic scope wyglądał na kompletny autonomous result.</div>
+      <div class="now"><strong>Finalny spec:</strong> human review zmienił technologię na Windows PowerShell 5.1 i świadomie zmniejszył Phase 1; architectural review dostarczył correctness findings, a kolejne amendments doprecyzowały kontrakty.</div>
+      <div class="why"><strong>Finding 007:</strong> autonomia w OM jest proposal-driven i reversible. Human judgement pozostaje first-class gate przed implementacją.</div>
+    </div>
+
+    <div class="corr">
+      <h3>8 · „Worktree cleanup failed” — pierwszy snapshot był zbyt wczesnym wnioskiem</h3>
+      <div class="was"><strong>Pierwszy probe po Lesson 7:</strong> zwykłe <code>git worktree list</code> nadal pokazało ścieżkę implementation worktree, więc wyglądało jak niedokończony cleanup.</div>
+      <div class="now"><strong>Dalsza weryfikacja:</strong> katalog fizycznie już nie istniał, a chwilę później <code>git worktree list --porcelain</code> pokazało wyłącznie primary checkout na <code>main</code>. Finalny cleanup był kompletny.</div>
+      <div class="why"><strong>Lekcja evidence:</strong> nie promuj pojedynczego przejściowego snapshotu do findingu. Przy cleanupie sprawdzaj filesystem + Git metadata i dopiero finalny stan klasyfikuj jako observed.</div>
+    </div>
+
+    <div class="callout">
+      <strong>Reguła wyciągnięta z corrections:</strong> każde twierdzenie w logu musi dać się przypiąć do dowodu —
+      numeru PR, Issue, commita albo timeline'u. Jeśli nie potrafisz wskazać dowodu, wpis należy do
+      <code>◌ not tested</code>, a nie do <code>● observed</code>. Sekcja <a class="ev" href="#observed">Observed</a> ma dlatego klikalne numery.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pattern">
+  <div class="section-head">
+    <div>
+      <h2>8. Learning Pattern — how we add new skills</h2>
+      <p>Nie instalujemy całej kolekcji na zapas. Każdy nowy skill wchodzi do mapy dopiero po świadomym poznaniu.</p>
+    </div>
+    <div class="section-kicker">lab rule</div>
+  </div>
+  <div class="section-body">
+    <div class="pattern">
+      <div class="pattern-step"><b>1 · discover</b><span>Najpierw wybierz nowy high-level capability — nie skill inventory dla samego inventory.</span></div>
+      <div class="pattern-step"><b>2 · install + inspect</b><span>Zainstaluj jeden entry point, przeczytaj SKILL.md i odkryj prawdziwy graph / companions.</span></div>
+      <div class="pattern-step"><b>3 · run</b><span>Uruchom na realnym problemie, feature briefie, Issue, branchu lub PR.</span></div>
+      <div class="pattern-step"><b>4 · observe + synthesize</b><span>Oddziel runtime evidence od docs; po lekcji zapisz Experiment, Finding i dopiero wtedy aktualizuj mapę.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="process-gaps">
+  <div class="section-head">
+    <div>
+      <h2>8a. Process gaps — repo coverage vs actual OM questions</h2>
+      <p>Lesson 7 zamknęła fresh spec → implementation boundary. V9 przesuwa otwarte pytania na continuation, loop engines, collision behavior i mocniejsze gates.</p>
+    </div>
+    <div class="section-kicker">post-Lesson 7 correction</div>
+  </div>
+  <div class="section-body">
+    <div class="arch-title">A · Repo / coverage gaps — czego ten lab nadal nie przećwiczył</div>
+    <div class="gap-item"><b>1 · Resume implementation</b><span><code>om-auto-continue-pr</code> jest ○ documented jako resume engine, ale nie zainstalowaliśmy/nie przeczytaliśmy jego własnego SKILL.md i nie przerwaliśmy żadnego runu, żeby go wznowić.</span></div>
+    <div class="gap-item"><b>2 · Long-plan / run-folder engines</b><span><code>om-auto-create-pr-loop</code> / <code>om-auto-continue-pr-loop</code> pozostały ◌ not tested. Nasz plan miał 5 Steps wobec threshold 20.</span></div>
+    <div class="gap-item"><b>3 · Claim collision / --force</b><span>Fresh engine dokumentuje slot ownership przez plan/branch/PR signals, ale nie wywołaliśmy konkurencyjnego runu ani forced supersede.</span></div>
+    <div class="gap-item"><b>4 · UI QA + CI / branch protection</b><span>PR #10 był terminal/docs-only, więc <code>UI: n/a</code>. Repo nadal nie ma required checks ani branch protection; <code>git diff --check</code> jest jedynym configured gate.</span></div>
+    <div class="gap-item"><b>5 · Implementation from unmerged spec PR</b><span>Dokumentowany materialization path nie był potrzebny, bo spec #9 był już merged do <code>main</code>.</span></div>
+
+    <div class="arch-title" style="margin-top:24px">B · Actual OM process / documentation questions</div>
+    <div class="gap-item"><b>6 · Runtime vs documented repo shape</b><span>Lesson 6 junction/symlink mismatch pozostaje ważnym przypomnieniem, że runtime evidence może korygować docs assumptions.</span></div>
+    <div class="gap-item"><b>7 · Validation depth</b><span>Lesson 7 pokazała różnicę między repo-level gate (<code>git diff --check</code>) i bogatszym run-specific verification. Pytanie na przyszłość: które checks powinny zostać przeniesione do trwałego <code>validation.commands</code>?</span></div>
+    <div class="gap-item"><b>8 · Same-account review semantics</b><span>PR #10 ponownie pokazał, że logiczny review verdict może być reprezentowany komentarzem/pipeline state, podczas gdy GitHub-native formal approval jest niemożliwy dla własnego PR.</span></div>
+    <div class="gap-item"><b>9 · Durable execution-plan lifecycle</b><span>Plan + Progress są już ● observed jako foundation resumability. Nadal nie wiemy runtime'owo, jak dokładnie continuation parser wybiera następny Step po realnym interruption.</span></div>
+
+    <div class="callout">
+      <strong>Usunięte z listy luk po Lesson 7:</strong> „spec → implementation orchestration”, „om-auto-implement-spec missing” i „om-auto-create-pr missing”. Fresh approved-spec implementation jest teraz observed. Otwarty jest dopiero resume/loop side of the execution architecture.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="lesson5">
+  <div class="section-head">
+    <div>
+      <h2>9. Lesson 5 — Autonomous issue orchestration</h2>
+      <p>Pytanie badawcze: jak OM automatyzuje pracę z Issue i kto naprawdę orkiestruje proces?</p>
+    </div>
+    <div class="section-kicker">Experiment 002 · Finding 005</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>What we actually ran · ● observed</h3>
+      <p>Start od plain problem description → <code>om-auto-fix-issue</code> → <code>om-prepare-issue</code> → Issue #7. Pierwszy run clean-stop na brakujących companions. Po instalacji rerun <code>/om-auto-fix-issue 7</code> przeszedł triage, root-cause, fix, isolated worktree/branch, PR #8, review/autofix/re-review, merge-queue i cleanup.</p>
+      <div class="next-chain">
+        <code>brief</code><span>→</span><code>Issue #7</code><span>→</span><code>verify</code><span>→</span><code>root-cause</code><span>→</span><code>fix</code><span>→</span><code>PR #8</code>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What we only inspected · ○ documented</h3>
+      <p><code>NO_ACTION_NEEDED</code>, <code>LOW_CONFIDENCE</code>, feature/spec route, actual UI-QA execution, claim collision/force takeover oraz plan-driven <code>Tracking plan:</code>/<code>Status:</code>/<code>## Progress</code> continuation. Rozumiemy ich kontrakty, ale nie oznaczamy ich jako observed.</p>
+    </div>
+    <div class="card">
+      <h3>New mental model</h3>
+      <p><strong>Finding 005:</strong> orchestration jest jawna i resumable. Flow runner koordynuje wyspecjalizowane skills przez explicit output contracts oraz distributed durable state w repo/trackerze, zamiast polegać na jednej ciągłej pamięci agenta.</p>
+    </div>
+    <div class="card">
+      <h3>Open questions after Lesson 5</h3>
+      <p>Feature/spec route została odpowiedziana etapami: Lesson 6 zaobserwowała autonomous design lifecycle, a Lesson 7 fresh spec implementation. Nadal otwarte są resume/loop execution, real claim collision oraz QA/CI gates.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="lesson6">
+  <div class="section-head">
+    <div>
+      <h2>10. Lesson 6 — Autonomous feature specification lifecycle</h2>
+      <p>Pytanie badawcze: jak OM przechodzi od feature intent do zatwierdzonego design artifactu — i gdzie autonomia oddaje kontrolę review oraz człowiekowi?</p>
+    </div>
+    <div class="section-kicker">Experiment 003 · Findings 006–008 · PR #9</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>What we actually ran · ● observed</h3>
+      <p>Plain brief dla <strong>Learning Lab Status</strong> → <code>om-auto-write-spec</code> → isolated <code>spec/lab-status-check</code> worktree/branch → <code>om-spec-writing --autonomous</code> → design-only PR #9. Potem osobny architectural review, human decision pass, kilka in-place amendments, PR metadata refresh przez <code>om-open-pr</code> i squash merge speca do <code>main</code>.</p>
+      <div class="next-chain">
+        <code>feature brief</code><span>→</span><code>autonomous spec</code><span>→</span><code>review</code><span>→</span><code>human override</code><span>→</span><code>amend</code><span>→</span><code>PR #9</code><span>→</span><code>main</code>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Finding 006 — design is its own lifecycle</h3>
+      <p>Spec nie był ukrytą częścią implementacji. Został osobnym durable artifactem: własny branch, własny PR, review i merge — bez ani jednej linii feature code. Mental model: <code>feature intent → design lifecycle → approved spec → implementation lifecycle</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 007 — autonomy is reversible</h3>
+      <p>Pierwszy autonomous draft wybrał POSIX shell i szerszy scope. Human review zmienił technologię na Windows PowerShell 5.1 i zmniejszył Phase 1. <code>om-spec-writing</code> zaktualizował ten sam spec in place. Autonomous defaults są proposalem z audit trail, nie final authority.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 008 — runtime can correct docs</h3>
+      <p>Repo docs mówiły „symlinks”, ale realny Windows checkout miał 13 NTFS <code>Junction</code>. Finalny design zaczął akceptować oba link types i weryfikować real target w bieżącym repo. Reguła: <code>repo rules + repo state + runtime observation → design</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Architectural review vs human judgement</h3>
+      <p>Review wykrył realne correctness problemy (anchoring, validation check, symlink target verification), ale zaakceptował POSIX i szeroki scope. Human context był nadal potrzebny. Automated architectural review i product/context judgement rozwiązują różne klasy problemów.</p>
+    </div>
+    <div class="card">
+      <h3>Boundary that Lesson 7 later resolved</h3>
+      <p>Lesson 6 kończyła się na approved spec on <code>main</code>. W Lesson 7 ten handoff został runtime-observed przez <code>om-auto-implement-spec → om-auto-create-pr</code>, bez zmiany historycznego zakresu Experiment 003.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="lesson7">
+  <div class="section-head">
+    <div>
+      <h2>11. Lesson 7 — Autonomous spec implementation lifecycle</h2>
+      <p>Pytanie badawcze: jak OM bierze approved spec na <code>main</code> i zamienia go w kontrolowaną, śledzoną i potencjalnie resumable implementację?</p>
+    </div>
+    <div class="section-kicker">Experiment 004 · Findings 009–012 · PR #10</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>What we inspected first · ○ documented</h3>
+      <p><code>om-auto-implement-spec</code> okazał się thin orchestrator: spec resolution + routing. Fresh work deleguje zawsze do <code>om-auto-create-pr</code>; existing implementation PR routes to <code>om-auto-continue-pr</code>. Nie instalowaliśmy resume companions na zapas.</p>
+    </div>
+    <div class="card">
+      <h3>What we actually ran · ● observed</h3>
+      <p>Approved <code>.ai/specs/2026-08-13-lab-status-check.md</code> → exact-path resolution → no existing implementation PR → <code>om-auto-create-pr</code> → 5-step flat engine → <code>feat/lab-status-check</code> → PR #10.</p>
+      <div class="next-chain"><code>approved spec</code><span>→</span><code>router</code><span>→</span><code>fresh engine</code><span>→</span><code>plan</code><span>→</span><code>draft PR</code><span>→</span><code>implementation</code><span>→</span><code>ready PR</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 009 — router ≠ engine</h3>
+      <p><code>om-auto-implement-spec</code> nie duplikuje planning/coding machinery. Resolver wykrywa spec i existing implementation state, a fresh execution oddaje do <code>om-auto-create-pr</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 010 — plan before code</h3>
+      <p>Spec's Implementation Plan został przetłumaczony na 5 Steps. Pierwszy durable commit to <code>7c22dd7 docs(runs): add execution plan...</code>; dopiero potem pojawiły się feature commits. Design intent i execution state mają osobne artifacts.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 011 — resumability foundation</h3>
+      <p>Remote branch + committed execution plan + parseable <code>## Progress</code> + Step SHAs + draft PR tworzą durable state poza pojedynczą sesją agenta. Faktyczne resume przez <code>om-auto-continue-pr</code> pozostaje ◌ not tested.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 012 — linked lifecycles</h3>
+      <p>PR #9 pozostał design-only; PR #10 był implementation artifactem na osobnym <code>feat/</code> branchu. Cross-links i <code>Source doc:</code> spinają lifecycle'y bez mieszania ich historii.</p>
+    </div>
+    <div class="card">
+      <h3>Runtime details worth remembering</h3>
+      <p>Engine line: <code>om-auto-create-pr (steps: 5, --loop: no)</code>. Implementation miała incremental commits, dedicated Progress commits, full validation stage i review/autofix. Review znalazł realny Windows PowerShell 5.1 UTF-8 host-code-page bug i naprawił go w <code>4a2e036</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Delivery / verification edges</h3>
+      <p>UI było <code>n/a</code>, więc <code>om-auto-qa-pr</code> nie ruszył i PR dostał <code>skip-qa</code>. GitHub ponownie nie pozwolił automation account formalnie approve'ować własnego PR; verdict był reprezentowany comment/pipeline state. Finalny temporary worktree został usunięty.</p>
+    </div>
+    <div class="card">
+      <h3>Fresh vs resume status</h3>
+      <p><code>om-auto-create-pr</code> = <strong>● observed</strong>. <code>om-auto-create-pr-loop</code> = <strong>○ documented / ◌ not tested</strong>. <code>om-auto-continue-pr</code> i <code>om-auto-continue-pr-loop</code> = <strong>○ documented / ◌ not tested</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>Evidence discipline: cleanup probe</h3>
+      <p>Pierwsze <code>git worktree list</code> wyglądało jak stale worktree, ale ścieżka już nie istniała i finalne <code>git worktree list --porcelain</code> pokazało tylko primary checkout. Lesson: w przejściowym cleanup state trzeba sprawdzić finalny filesystem + Git metadata przed findingiem.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="next">
+  <div class="section-head">
+    <div>
+      <h2>12. Next Expansion — after Lesson 7</h2>
+      <p>Fresh implementation path jest zamknięty evidence. Najbliższy logiczny kontrast to resume/continuation, ale pozostaje osobnym capability i nie jest automatycznie „częścią observed Lesson 7”.</p>
+    </div>
+    <div class="section-kicker">candidate · resume architecture</div>
+  </div>
+  <div class="section-body">
+    <div class="next">
+      <h3>Candidate next discovery — <code>om-auto-continue-pr</code></h3>
+      <p>Mapa celowo pokazuje go jako <code>○ documented / ◌ not tested</code>. Jeśli wybierzemy ten kierunek, powinniśmy powtórzyć learning rule: install one capability → inspect its own SKILL.md → zbudować documented resume graph → dopiero potem zaprojektować bezpieczny interruption/resume experiment.</p>
+      <div class="next-chain"><code>existing draft implementation PR</code><span>→</span><code>inspect continue-pr</code><span>→</span><code>resume markers</code><span>→</span><code>controlled interruption</code><span>→</span><code>actual resume evidence</code></div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /deep-reference -->
+<footer class="footer">
+  <div>
+    OM Skills Learning Lab · visual memory map · v9<br>
+    Built from Lessons 1–7, Experiments 001–004, Findings 001–012 and observed repo / GitHub behavior.<br>
+    Opisuje stan wiedzy po zakończonej Lesson 7 (2026-08-14). Tekst normatywny procesu żyje w <code>SDLC.md</code> — ta mapa go nie zastępuje.
+  </div>
+  <div style="text-align:right">
+    Keep this file alive: update after each practical lesson.<br>
+    Principle: mental model first, observed behavior second, documentation anchored to evidence.<br>
+    Status rule: <code>● observed</code> only for runtime evidence; <code>○ documented</code> never auto-promotes.
+  </div>
+</footer>
+
+</div>
+
+<script>
+const cards = document.querySelectorAll('.skill');
+const kindButtons = document.querySelectorAll('.filter-btn[data-filter]');
+const statusButtons = document.querySelectorAll('.filter-btn[data-status-filter]');
+const state = { kind: 'all', status: 'all' };
+
+function apply() {
+  cards.forEach(card => {
+    const kindOk = state.kind === 'all' || card.dataset.kind === state.kind;
+    const statusOk = state.status === 'all' || card.dataset.status === state.status;
+    card.classList.toggle('hidden', !(kindOk && statusOk));
+  });
+}
+
+function wire(buttons, key, attr) {
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      state[key] = btn.dataset[attr];
+      apply();
+    });
+  });
+}
+
+wire(kindButtons, 'kind', 'filter');
+wire(statusButtons, 'status', 'statusFilter');
+
+const quickModeBtn = document.getElementById('quick-mode');
+const fullModeBtn = document.getElementById('full-mode');
+function setReferenceMode(mode){
+  const full=mode==='full';
+  document.body.classList.toggle('full-reference',full);
+  quickModeBtn.classList.toggle('active',!full);
+  fullModeBtn.classList.toggle('active',full);
+  quickModeBtn.setAttribute('aria-pressed',String(!full));
+  fullModeBtn.setAttribute('aria-pressed',String(full));
+  document.getElementById('deep-reference')?.setAttribute('aria-hidden',String(!full));
+  if(!full && location.hash && location.hash!=='#quick-map'){history.replaceState(null,'',location.pathname+location.search);}
+}
+quickModeBtn?.addEventListener('click',()=>setReferenceMode('quick'));
+fullModeBtn?.addEventListener('click',()=>setReferenceMode('full'));
+const deepLinkTarget=location.hash && location.hash!=='#quick-map';
+setReferenceMode(deepLinkTarget?'full':'quick');
+
+</script>
+</body>
+</html>
