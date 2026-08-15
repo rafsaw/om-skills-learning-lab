@@ -39,3 +39,10 @@
 - `git diff --check` green, 0 parse errors, full fixture matrix verified across two scratch clones under `$env:TEMP`. Details in `checkpoint-1-checks.md`.
 - Four real defects were caught before their commits landed: the success-stream capture that silenced stdout, the `[string[]]` empty-string binding that silently broke every spec title, a singular/plural verb disagreement in the discovery note, and a summary that claimed "0 findings" when `FINDINGS.md` was unreadable rather than empty.
 - Integration suite and UI verification skipped with reason: this repository has no integration suite and no application, and the deliverable has no graphical surface.
+
+## 2026-08-15T16:30:00Z — final gate passed
+
+- `git diff --check` green both against the working tree and across the branch diff `origin/main...HEAD` — the second run is the one that actually checks the shipped content.
+- Integration suite skipped: this repository has no suite, no application, and no test runner. Design-system pass skipped: no such tooling exists here.
+- Shipped diff confirmed to contain only the script, the run folder, and the two documentation pointers. The materialized spec and `lab-status.ps1` are both absent, as the plan's Non-goals require.
+- Standing gap disclosed rather than papered over: with no assertion framework in this repository, the spec's fixture procedure stands in for unit tests. It caught four real defects before their commits landed.
