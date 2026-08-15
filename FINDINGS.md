@@ -982,3 +982,92 @@ checkpoint-level verification granularity
 
 The existence of checkpoint execution is **runtime observed in Lesson 10**. The full set of checkpoint trigger rules remains documented rather than exhaustively runtime-tested.
 
+---
+
+## Finding 020 — Linked design and implementation PRs can be finalized as a coordinated merge pair
+
+**Evidence:** Lesson 10 — runtime execution of `om-approve-merge-pr` for implementation PR #12 and linked spec PR #11
+
+During finalization of the Lab Report feature, `om-approve-merge-pr` discovered that implementation PR #12 was linked to spec PR #11.
+
+The skill did not silently merge both PRs just because the relationship existed.
+
+Instead, it surfaced the relationship and required an explicit human decision. After the user chose to merge both, the implementation PR was merged first and the spec PR second.
+
+The observed flow was:
+
+```text
+implementation PR #12
+        +
+linked spec PR #11
+        ↓
+detect linked PR relationship
+        ↓
+human decision
+        ↓
+merge implementation PR #12
+        ↓
+main changes
+        ↓
+re-check spec PR #11
+        ↓
+MERGEABLE / CLEAN
+        ↓
+merge spec PR #11
+```
+
+A particularly important behavior was that the second PR was not assumed to remain safe after the first merge changed `main`.
+
+GitHub briefly reported PR #11 mergeability as `UNKNOWN` while recomputing. `om-approve-merge-pr` waited for the state to settle, re-checked it, confirmed `CLEAN`, and only then merged the spec PR.
+
+The resulting squash merge commits were:
+
+```text
+PR #12 → 10f9456
+PR #11 → e96339a
+```
+
+### Conclusion
+
+Open Mercato can treat linked design and implementation PRs as a coordinated finalization unit without collapsing them into one atomic operation.
+
+The observed model is:
+
+```text
+discover relationship
+        ↓
+request merge authority
+        ↓
+merge first PR
+        ↓
+repository state changes
+        ↓
+re-observe remaining PR
+        ↓
+validate against new state
+        ↓
+merge second PR
+```
+
+This reinforces two architectural principles already visible elsewhere in the skills:
+
+```text
+AUTONOMY
+≠
+UNBOUNDED AUTHORITY
+```
+
+and:
+
+```text
+previously observed state
+≠
+current authoritative state
+```
+
+The skill can discover relationships and coordinate the merge sequence, but the human retains authority over whether the linked PRs should actually be merged.
+
+At the same time, each state-changing action is followed by fresh observation rather than assuming that the remaining PR is still mergeable.
+
+This behavior was **runtime observed in Lesson 10** with implementation PR #12 and linked spec PR #11.
+

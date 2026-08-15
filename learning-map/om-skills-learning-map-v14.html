@@ -525,7 +525,7 @@ body.full-reference #deep-reference{display:block}
   <code>om-auto-create-pr</code> jest default flat engine; tylko explicit <code>--loop</code> albo plan z liczbą Steps
   większą niż <code>engine.loopStepThreshold</code> (default 20) wybiera <code>om-auto-create-pr-loop</code>.
   Loop nie jest „tym samym silnikiem więcej razy”: runtime PR #12 pokazał <strong>run folder → PLAN/Tasks → Step-level commits →
-  checkpoint → HANDOFF/NOTIFY → final gate</strong>. Interruption/resume przez <code>om-auto-continue-pr-loop</code> nadal nie był testowany.
+  checkpoint → HANDOFF/NOTIFY → final gate</strong>. Finalizacja pokazała też, że <code>om-approve-merge-pr</code> wykrył linked spec PR #11, poprosił człowieka o zgodę na merge pary, zmergował #12, ponownie sprawdził #11 po zmianie <code>main</code>, a dopiero potem zmergował #11. Interruption/resume przez <code>om-auto-continue-pr-loop</code> nadal nie był testowany.
 </div>
 <div class="mode-switch" role="group" aria-label="Learning map view">
   <button class="mode-btn active" id="quick-mode" type="button" aria-pressed="true">Quick Map</button>
@@ -731,8 +731,8 @@ body.full-reference #deep-reference{display:block}
       <code>om-auto-create-pr-loop</code> was forced with <code>--loop</code> on a real 6-Step Lab Report implementation.
       Runtime confirmed a different durable execution protocol: run folder, <code>PLAN.md</code> Tasks state, <code>HANDOFF.md</code>,
       <code>NOTIFY.md</code>, one implementation Step per commit, checkpoint verification and final gate. PR #11 remained design-only;
-      implementation shipped separately as ready PR #12.
-      Memory cue: <code>fresh run → engine routing → loop → durable Steps + checkpoints → ready PR</code>.
+      implementation shipped separately as ready PR #12. Final merge przez <code>om-approve-merge-pr</code> wykrył linked spec PR #11, oddał decyzję człowiekowi, zmergował #12, re-checknął #11 po zmianie <code>main</code> i dopiero potem zmergował #11.
+      Memory cue: <code>fresh run → engine routing → loop → durable Steps + checkpoints → linked merge finalization</code>.
     </div>
 
 
@@ -764,9 +764,9 @@ body.full-reference #deep-reference{display:block}
           <div class="mental-node observed"><b>om-auto-review-pr</b><span>review / handoff capability</span></div>
         </div>
         <div class="mental-arrow">→</div>
-        <div class="mental-node merge"><b>merge-ready</b><span>default stop; merge only with explicit allow</span></div>
+        <div class="mental-node merge"><b>om-approve-merge-pr</b><span>merge gates + linked PR discovery + human authority</span></div>
       </div>
-      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → flat/loop build → PR autopilot → specialized capability → merge-ready</code>. Lesson 10 adds the implementation-engine boundary: flat is default; loop is earned by <code>--loop</code> or Step threshold and persists richer execution state.</div>
+      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → flat/loop build → PR capability → merge gates → linked finalization</code>. Lesson 10 adds the implementation-engine boundary: flat is default; loop is earned by <code>--loop</code> or Step threshold and persists richer execution state.</div>
     </div>
 
     <div class="feature-quick">
@@ -880,7 +880,7 @@ body.full-reference #deep-reference{display:block}
             </div>
           </div>          
 
-          <div class="feature-note">Memory cue: <code>PR #9/#11 = design artifacts</code> · <code>PR #10 = flat implementation</code> · <code>PR #12 = loop implementation</code> · <code>resume reconstructs state</code> · <code>autopilot diagnoses before routing</code>.</div>
+          <div class="feature-note">Memory cue: <code>PR #9/#11 = design artifacts</code> · <code>PR #10 = flat implementation</code> · <code>PR #12 = loop implementation</code> · <code>#12 → #11 linked merge pair</code> · <code>resume reconstructs state</code> · <code>autopilot diagnoses before routing</code>.</div>
         </div>
 
         <div class="feature-side">
@@ -1066,7 +1066,7 @@ body.full-reference #deep-reference{display:block}
       <h2>1. Big Picture — system, nie pojedynczy agent</h2>
       <p>Skills działają na wspólnym stanie repozytorium i trackera. To on pozwala kolejnym etapom przejmować pracę.</p>
     </div>
-    <div class="section-kicker">Findings 003–019</div>
+    <div class="section-kicker">Findings 003–020</div>
   </div>
   <div class="section-body hero-grid">
     <div class="arch-card">
@@ -1729,10 +1729,11 @@ body.full-reference #deep-reference{display:block}
         <div class="role">Merge enforcement point and squash-merge convenience skill.</div>
         <dl>
           <dt>Input</dt><dd>PR #</dd>
-          <dt>Does</dt><dd>check blocks + QA gate + approval attempt + squash merge</dd>
+          <dt>Does</dt><dd>check blocks + QA gate + approval attempt + squash merge; can discover a linked spec PR and coordinate a merge sequence</dd>
+          <dt>Linked PR</dt><dd>● Lesson 10: PR #12 referenced spec PR #11; skill surfaced the pair, required human choice, merged #12, re-checked #11 against changed <code>main</code>, then merged #11</dd>
           <dt>Edge</dt><dd>GitHub rejects self-approval on same account</dd>
           <dt>Routes</dt><dd>do <code>om-auto-fix-pr</code> — <strong>niezainstalowany tutaj</strong>, więc ta trasa kończy się ślepo</dd>
-          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">#9</a></dd>
+          <dt>Seen</dt><dd><a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/3">PR #3</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/4">#4</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/5">#5</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/9">#9</a>, <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/12">#12</a> + linked <a class="ev" href="https://github.com/rafsaw/om-skills-learning-lab/pull/11">#11</a></dd>
         </dl>
         <div class="status observed">● observed</div>
       </article>
@@ -1910,7 +1911,7 @@ body.full-reference #deep-reference{display:block}
           <tr><td>om-auto-continue-pr-loop</td><td>○ documented / ◌ runtime not tested</td><td>Run-folder continuation contract is understood, but interruption/resume was intentionally not exercised.</td></tr>
           <tr><td>--loop</td><td>● observed</td><td>Explicit flag forced loop handoff before Step counting; engine report was <code>steps: n/a, --loop: yes</code>.</td></tr>
           <tr><td>automatic threshold route / --force / claim collision</td><td>○ documented / ◌ not tested</td><td>Default threshold is 20 Steps; automatic &gt;20 routing and ownership collision/force takeover were not exercised.</td></tr>
-          <tr><td>implementation from unmerged spec PR</td><td>○ documented / ◌ not tested</td><td>Our spec was already merged to <code>main</code>; temporary materialization from spec-PR head was unnecessary.</td></tr>
+          <tr><td>implementation from unmerged spec PR</td><td>● observed</td><td>Lesson 10: spec PR #11 was still open; the spec was materialized into the implementation worktree for reference and deliberately excluded from PR #12 diff.</td></tr>
           <tr><td>om-auto-qa-pr</td><td>missing · ◌ not tested</td><td>Lesson 7 change was terminal/docs-only, so UI verification correctly reported <code>UI: n/a</code> and used <code>skip-qa</code>.</td></tr>
           <tr><td>CI / required checks / branch protection</td><td>◌ absent in lab</td><td>Repo still has only <code>git diff --check</code>; richer engine checks in Experiment 004 were run-specific, not repo-level gates.</td></tr>
           <tr><td>om-auto-fix-pr / om-auto-qa-pr / other autopilot companions</td><td>partly missing</td><td>Lesson 9 exposed these as delegated capabilities in the routing matrix. The autopilot must stop and name a missing companion rather than improvise a replacement.</td></tr>
@@ -1977,7 +1978,7 @@ body.full-reference #deep-reference{display:block}
           <div class="state-row"><div class="k">Engine</div><div class="v">● flat: <code>Engine: om-auto-create-pr (steps: 5, --loop: no)</code>; ● forced loop: <code>Engine: om-auto-create-pr-loop (steps: n/a, --loop: yes)</code></div></div>
           <div class="state-row"><div class="k">Progress</div><div class="v">flat: <code>## Progress</code> + SHAs; loop: <code>PLAN.md ## Tasks</code> + HANDOFF/NOTIFY + checkpoint state</div></div>
           <div class="state-row"><div class="k">PR diagnosis</div><div class="v">○ <code>PR State Report</code> normalizes 10 state signals before the autopilot's routing matrix consumes them</div></div>
-          <div class="state-row"><div class="k">Cross-link</div><div class="v">spec PR #9 received implementation PR #10 link; implementation remained on its own branch/PR</div></div>
+          <div class="state-row"><div class="k">Cross-link</div><div class="v">spec/implementation PRs remain separate but linked. Lesson 10: #12 referenced #11; merge skill discovered the pair and coordinated #12 → re-check #11 → #11</div></div>
         </div>
       </div>
       <div class="card">
@@ -2003,7 +2004,7 @@ body.full-reference #deep-reference{display:block}
       <h2>7. What I Actually Observed</h2>
       <p>Oddzielamy rzeczy praktycznie zobaczone od tych tylko opisanych w dokumentacji. Numery są klikalne — każdy wiersz da się zweryfikować.</p>
     </div>
-    <div class="section-kicker">Lessons 1–10 · Experiments 001–005 · Findings 001–019 · PR #9 / #10 / #11 / #12</div>
+    <div class="section-kicker">Lessons 1–10 · Experiments 001–005 · Findings 001–020 · PR #9 / #10 / #11 / #12</div>
   </div>
   <div class="section-body table-wrap">
     <table>
@@ -2064,6 +2065,8 @@ body.full-reference #deep-reference{display:block}
         <tr><td>Loop Step-level commits</td><td style="color:var(--green)">● observed</td><td>6 implementation Steps in Lab Report run</td><td>one implementation Step ↔ one commit</td></tr>
         <tr><td>Loop checkpoint</td><td style="color:var(--green)">● observed</td><td>Experiment 005 checkpoint during six-Step run</td><td>fine-grained Steps + coarser verification checkpoint</td></tr>
         <tr><td>Implementation from unmerged spec PR</td><td style="color:var(--green)">● observed</td><td>spec PR #11 materialized into implementation worktree</td><td>design stayed uncommitted on implementation branch; PR #12 referenced #11</td></tr>
+        <tr><td>Linked implementation + spec merge coordination</td><td style="color:var(--green)">● observed</td><td>Lesson 10 · <code>om-approve-merge-pr</code> on PR #12 + linked PR #11</td><td>discover pair → human choice → merge #12 → re-check #11 → merge #11</td></tr>
+        <tr><td>Post-merge revalidation</td><td style="color:var(--green)">● observed</td><td>PR #11 briefly <code>UNKNOWN</code> after #12 changed <code>main</code>, then re-checked <code>CLEAN</code></td><td>state-changing action invalidates stale assumptions; observe again before next mutation</td></tr>
         <tr><td>Automatic threshold routing</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td><code>engine.loopStepThreshold</code> default 20</td><td>20 Steps stays flat; &gt;20 routes loop, but runtime not exercised</td></tr></tbody>
     </table>
   </div>
@@ -2409,7 +2412,7 @@ body.full-reference #deep-reference{display:block}
       <h2>14. Lesson 10 — Loop implementation execution model</h2>
       <p>Discovery + controlled runtime experiment: czym <code>om-auto-create-pr-loop</code> różni się od flat engine i co dokładnie oznacza durable loop execution?</p>
     </div>
-    <div class="section-kicker">Experiment 005 · Findings 017–019 · PR #11 → PR #12</div>
+    <div class="section-kicker">Experiment 005 · Findings 017–020 · PR #11 ↔ PR #12</div>
   </div>
   <div class="section-body grid-2">
     <div class="card">
@@ -2446,6 +2449,16 @@ body.full-reference #deep-reference{display:block}
       <p><strong>Flat</strong> = execution plan + Progress + incremental implementation. <strong>Loop</strong> = durable execution protocol, w którym plan, Step state, handoff, event log i checkpoints stają się first-class repo artifacts.</p>
       <div class="callout"><strong>Shortest version:</strong> <code>loop ≠ repeat; loop = durable execution protocol</code>.</div>
     </div>
+    <div class="card">
+      <h3>Finding 020 — linked merge pair · ● observed</h3>
+      <p><code>om-approve-merge-pr</code> rozpoznał, że implementation PR #12 referuje design PR #11. Nie zmergował obu po cichu: zaproponował człowiekowi decyzję. Po akceptacji zmergował #12, a następnie ponownie ocenił #11 wobec nowego <code>main</code> i dopiero po <code>CLEAN</code> zmergował #11.</p>
+      <div class="next-chain"><code>#12 implementation</code><span>→</span><code>human choice</code><span>→</span><code>merge #12</code><span>→</span><code>re-check #11</code><span>→</span><code>merge #11</code></div>
+    </div>
+    <div class="card">
+      <h3>Merge lesson — state must be re-observed</h3>
+      <p>PR #11 był wcześniej mergeable, ale po merge #12 GitHub chwilowo raportował <code>UNKNOWN</code>. Skill nie użył starego wyniku; poczekał na recompute i sprawdził stan ponownie. Memory hook: <code>previously safe ≠ currently safe after state mutation</code>.</p>
+    </div>
+
   </div>
 </section>
 
@@ -2460,7 +2473,7 @@ body.full-reference #deep-reference{display:block}
   <div class="section-body">
     <div class="next">
       <h3>Learning rule for the next lesson</h3>
-      <p>Wybierz następny capability, który odsłoni nowy mechanizm Open Mercato. Flat i loop fresh implementation mają już runtime evidence; resume i PR autopilot mają wystarczająco dobry documented model na obecnym etapie. Następna lekcja powinna odsłonić nowy capability lub orchestration mechanism, nie powtarzać znany workflow.</p>
+      <p>Wybierz następny capability, który odsłoni nowy mechanizm Open Mercato. Flat i loop fresh implementation oraz linked spec/implementation finalization mają już runtime evidence; resume i PR autopilot mają wystarczająco dobry documented model na obecnym etapie. Następna lekcja powinna odsłonić nowy capability lub orchestration mechanism, nie powtarzać znany workflow.</p>
       <div class="next-chain"><code>new capability</code><span>→</span><code>inspect own contract</code><span>→</span><code>identify real knowledge gap</code><span>→</span><code>runtime only if it adds evidence</code></div>
       <div class="callout"><strong>Evidence rule:</strong> <code>○ documented</code> pozostaje odrębne od <code>● observed</code>, ale brak runtime nie jest sam w sobie luką lekcji. Eksperyment ma odpowiadać na pytanie, a nie służyć wyłącznie „odhaczeniu” skilla.</div>
     </div>
@@ -2471,8 +2484,8 @@ body.full-reference #deep-reference{display:block}
 <footer class="footer">
   <div>
     OM Skills Learning Lab · visual memory map · v14<br>
-    Built from Lessons 1–10, Experiments 001–005, Findings 001–019, observed repo/GitHub behavior, Lesson 8 resume discovery, Lesson 9 PR-autopilot discovery and Lesson 10 loop-engine runtime experiment.<br>
-    Opisuje stan wiedzy po Lesson 10 experiment (2026-08-15): flat i loop fresh implementation są runtime-observed; continue-loop i PR-autopilot pozostają runtime-untested. Tekst normatywny procesu żyje w <code>SDLC.md</code> — ta mapa go nie zastępuje.
+    Built from Lessons 1–10, Experiments 001–005, Findings 001–020, observed repo/GitHub behavior, Lesson 8 resume discovery, Lesson 9 PR-autopilot discovery and Lesson 10 loop-engine runtime experiment and linked PR merge finalization.<br>
+    Opisuje stan wiedzy po Lesson 10 experiment (2026-08-15): flat i loop fresh implementation oraz linked PR merge coordination są runtime-observed; continue-loop i PR-autopilot pozostają runtime-untested. Tekst normatywny procesu żyje w <code>SDLC.md</code> — ta mapa go nie zastępuje.
   </div>
   <div style="text-align:right">
     Keep this file alive: update after each practical lesson.<br>
