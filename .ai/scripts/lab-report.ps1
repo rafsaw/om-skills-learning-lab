@@ -84,6 +84,16 @@ function ConvertTo-CellText {
     return ($Text -replace '\|', '\|')
 }
 
+# Wrap a value in a code span, unless it contains a backtick of its own - which
+# would close the span early and spill markup into the document. Such a value is
+# rendered as escaped plain text instead: less pretty, never broken.
+function Format-CodeSpan {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text)
+    $cell = ConvertTo-CellText $Text
+    if ($Text.Contains('`')) { return $cell }
+    return '`' + $cell + '`'
+}
+
 function Show-Usage {
     Write-Output 'lab-report.ps1 - what does this repository currently contain?'
     Write-Output ''
@@ -123,7 +133,7 @@ function Get-LabReportData {
         Repository = (Get-RepositoryInfo -RepoRoot $RepoRoot)
         Skills     = (Get-SkillsInfo -RepoRoot $RepoRoot)
         Specs      = (Get-SpecsInfo -RepoRoot $RepoRoot -SpecsDir (Resolve-SpecsDir -RepoRoot $RepoRoot))
-        Log        = $null
+        Log        = (Get-LearningLogInfo -RepoRoot $RepoRoot)
     }
 }
 
@@ -377,8 +387,15 @@ function Get-SkillsInfo {
     }
 
     if ($unresolved -gt 0) {
+        $verb = 'do not resolve'
+        $consequence = 'those skills dispatch nothing or dispatch another checkout''s copy'
+        if ($unresolved -eq 1) {
+            $verb = 'does not resolve'
+            $consequence = 'that skill dispatches nothing or dispatches another checkout''s copy'
+        }
         Add-Note ((Format-Count $unresolved 'discovery entry' 'discovery entries') +
-            ' under `.claude/skills/` do not resolve into this checkout, so those skills dispatch nothing or dispatch another checkout''s copy. Run `.ai/scripts/lab-status.ps1` for the per-entry diagnosis.')
+            ' under `.claude/skills/` ' + $verb + ' into this checkout, so ' + $consequence +
+            '. Run `.ai/scripts/lab-status.ps1` for the per-entry diagnosis.')
     }
 
     $onlyInLock = @()
@@ -489,6 +506,88 @@ function Get-SpecsInfo {
     return $info
 }
 
+# Scan a learning-log document for its numbered entry headings.
+#
+# Fence-awareness is structural, not incidental: EXPERIMENTS.md carries an entry
+# template inside a fenced block whose heading is '## Experiment NNN'. A
+# digit-anchored pattern skips that one only because the placeholder is literally
+# NNN - anyone filling it in with digits, or pasting a fenced sample of a real
+# entry, would otherwise create a phantom entry.
+function Get-LogEntries {
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][string] $Kind
+    )
+
+    $lines = Read-DocumentLines -Path $Path
+    if ($null -eq $lines) { return $null }
+
+    $pattern = '^##\s+' + $Kind + '\s+(\d{3})\b(.*)$'
+    $inFence = $false
+    $byNumber = @{}
+
+    foreach ($line in $lines) {
+        $text = [string]$line
+        if ($text.TrimStart().StartsWith('```')) {
+            $inFence = -not $inFence
+            continue
+        }
+        if ($inFence) { continue }
+
+        $match = [regex]::Match($text, $pattern)
+        if (-not $match.Success) { continue }
+
+        $number = [int]$match.Groups[1].Value
+        # Heading suffixes are not uniform - an em dash, a hyphen, a colon, a
+        # parenthesis, or nothing at all all occur - so the title is whatever
+        # follows the number once the separators are trimmed off.
+        $title = ($match.Groups[2].Value -replace '^[\s:\-\u2012\u2013\u2014]+', '').Trim()
+        # Duplicate numbers collapse rather than crash; the later heading wins.
+        $byNumber[$number] = $title
+    }
+
+    $entries = @($byNumber.Keys | Sort-Object -Descending | ForEach-Object {
+        [pscustomobject]@{ Number = ('{0:d3}' -f $_); Title = $byNumber[$_] }
+    })
+    return $entries
+}
+
+function Get-LearningLogInfo {
+    param([Parameter(Mandatory = $true)][string] $RepoRoot)
+
+    $documents = @(
+        [pscustomobject]@{ File = 'EXPERIMENTS.md'; Kind = 'Experiment'; Noun = 'experiment'; Plural = 'experiments' },
+        [pscustomobject]@{ File = 'FINDINGS.md';    Kind = 'Finding';    Noun = 'finding';    Plural = 'findings' }
+    )
+
+    $result = New-Object System.Collections.Generic.List[object]
+    foreach ($document in $documents) {
+        $entries = Get-LogEntries -Path (Join-Path $RepoRoot $document.File) -Kind $document.Kind
+
+        if ($null -eq $entries) {
+            Add-Note ('`' + $document.File + '` is missing or could not be read, so the ' + $document.Plural + ' could not be counted.')
+            $entries = @()
+            $present = $false
+        } else {
+            $present = $true
+            if ($entries.Count -eq 0) {
+                Add-Note ('`' + $document.File + '` has no "## ' + $document.Kind + ' NNN" heading outside a code fence, so no ' + $document.Plural + ' could be reported.')
+            }
+        }
+
+        $result.Add([pscustomobject]@{
+            File    = $document.File
+            Noun    = $document.Noun
+            Plural  = $document.Plural
+            Present = $present
+            Count   = $entries.Count
+            Entries = $entries
+        })
+    }
+
+    return $result.ToArray()
+}
+
 # ---------------------------------------------------------------------------
 # Render. Data in, Markdown lines out. No I/O.
 # ---------------------------------------------------------------------------
@@ -507,7 +606,9 @@ function Format-LabReport {
         switch ($section) {
             'Repository'       { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
             'Installed skills' { Add-SkillsSection -Lines $lines -Skills $Data.Skills }
-            'Specs'            { Add-SpecsSection -Lines $lines -Specs $Data.Specs }
+            'Specs'              { Add-SpecsSection -Lines $lines -Specs $Data.Specs }
+            'Learning artifacts' { Add-LearningLogSection -Lines $lines -Log $Data.Log }
+            'Summary'            { Add-SummarySection -Lines $lines -Data $Data }
         }
     }
 
@@ -522,7 +623,7 @@ function Add-RepositorySection {
 
     $head = 'unavailable'
     if ($Repository.Available -and $Repository.Sha -ne 'unavailable') {
-        $head = '`' + $Repository.Sha + '`'
+        $head = Format-CodeSpan $Repository.Sha
         if ($Repository.Subject -ne '') {
             $head = $head + ' - ' + (ConvertTo-CellText $Repository.Subject)
         }
@@ -538,7 +639,7 @@ function Add-RepositorySection {
     }
 
     $branch = $Repository.Branch
-    if ($Repository.Available -and $branch -ne 'unavailable') { $branch = '`' + $branch + '`' }
+    if ($Repository.Available -and $branch -ne 'unavailable') { $branch = Format-CodeSpan $branch }
 
     $Lines.Add('')
     $Lines.Add('| Field | Value |')
@@ -574,7 +675,7 @@ function Add-SkillsSection {
     $Lines.Add('| Skill | SKILL.md | Lockfile | Discovery |')
     $Lines.Add('|---|---|---|---|')
     foreach ($row in $Skills.Rows) {
-        $Lines.Add('| `' + (ConvertTo-CellText $row.Name) + '` | ' + $row.SkillMd + ' | ' + $row.InLock + ' | ' + $row.Discovery + ' |')
+        $Lines.Add('| ' + (Format-CodeSpan $row.Name) + ' | ' + $row.SkillMd + ' | ' + $row.InLock + ' | ' + $row.Discovery + ' |')
     }
 }
 
@@ -603,8 +704,100 @@ function Add-SpecsSection {
     $Lines.Add('| Spec | Date | Title |')
     $Lines.Add('|---|---|---|')
     foreach ($row in $Specs.Rows) {
-        $Lines.Add('| `' + (ConvertTo-CellText $row.Path) + '` | ' + $row.Date + ' | ' + (ConvertTo-CellText $row.Title) + ' |')
+        $Lines.Add('| ' + (Format-CodeSpan $row.Path) + ' | ' + $row.Date + ' | ' + (ConvertTo-CellText $row.Title) + ' |')
     }
+}
+
+function Add-LearningLogSection {
+    param(
+        [Parameter(Mandatory = $true)] $Lines,
+        [Parameter(Mandatory = $true)] $Log
+    )
+
+    foreach ($document in $Log) {
+        $Lines.Add('')
+        $Lines.Add('### ' + $document.File)
+        $Lines.Add('')
+
+        if (-not $document.Present) {
+            $Lines.Add('Not present.')
+            continue
+        }
+        if ($document.Count -eq 0) {
+            $Lines.Add('No entries recorded.')
+            continue
+        }
+
+        $latest = $document.Entries[0]
+        $latestText = $latest.Number
+        if ($latest.Title -ne '') { $latestText = $latestText + ' - ' + $latest.Title }
+        $Lines.Add((Format-Count $document.Count $document.Noun $document.Plural) +
+            ' recorded. Latest: ' + (ConvertTo-CellText $latestText) + '.')
+        $Lines.Add('')
+        foreach ($entry in @($document.Entries | Select-Object -First 3)) {
+            $text = $entry.Number
+            if ($entry.Title -ne '') { $text = $text + ' - ' + $entry.Title }
+            $Lines.Add('- ' + (ConvertTo-CellText $text))
+        }
+    }
+}
+
+function Add-SummarySection {
+    param(
+        [Parameter(Mandatory = $true)] $Lines,
+        [Parameter(Mandatory = $true)] $Data
+    )
+
+    $repository = $Data.Repository
+    $skills = $Data.Skills
+
+    $where = 'The lab is in an unknown git state'
+    if ($repository.Available) {
+        $tree = 'an unreadable working tree'
+        if ($null -ne $repository.Dirty) {
+            if ($repository.Dirty -eq 0) {
+                $tree = 'a clean working tree'
+            } else {
+                $tree = 'a dirty working tree (' + (Format-Count $repository.Dirty 'entry' 'entries') + ')'
+            }
+        }
+        $where = 'The lab is on branch ' + (Format-CodeSpan $repository.Branch) + ' with ' + $tree
+    }
+
+    $skillsText = 'No skills are vendored'
+    if ($skills.VendoredCount -gt 0) {
+        if ($skills.Resolved -eq $skills.VendoredCount -and $skills.SetsMatch) {
+            $skillsText = 'All ' + $skills.VendoredCount +
+                ' installed skills are vendored, recorded in the lockfile, and dispatchable from this checkout'
+        } else {
+            $skillsText = '' + $skills.Resolved + ' of ' + $skills.VendoredCount +
+                ' installed skills are dispatchable from this checkout'
+        }
+    }
+
+    $specCount = 0
+    if ($Data.Specs.Exists) { $specCount = $Data.Specs.Rows.Count }
+    # An unreadable document is not the same claim as an empty one: reporting
+    # "0 findings" when FINDINGS.md is missing would state something false.
+    $logText = @($Data.Log | ForEach-Object {
+        if ($_.Present) { (Format-Count $_.Count $_.Noun $_.Plural) }
+        else { 'no readable ' + $_.Noun + ' log' }
+    }) -join ' and '
+
+    $Lines.Add('')
+    $Lines.Add($where + '. ' + $skillsText + '. ' +
+        (Format-Count $specCount 'spec is' 'specs are') + ' on record, and the learning log holds ' + $logText + '.')
+
+    $Lines.Add('')
+    if ($script:Notes.Count -eq 0) {
+        # A permanently present "Notes: none" trains the reader to skip the
+        # section that matters, so the healthy state is one flat line.
+        $Lines.Add('No notes.')
+        return
+    }
+    $Lines.Add('Notes:')
+    $Lines.Add('')
+    foreach ($note in $script:Notes) { $Lines.Add('- ' + $note) }
 }
 
 # ---------------------------------------------------------------------------
