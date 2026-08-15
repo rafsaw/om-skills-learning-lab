@@ -652,3 +652,140 @@ Open Mercato's resume architecture is not restricted to work originally created 
 PR adoption provides an adapter from external or incomplete PR state into the standard execution-plan contract, after which the ordinary resume machinery can take over.
 
 Adoption was **inspected but not runtime-tested in Lesson 8**.
+
+---
+
+## Finding 016 — PR autopilot is a state-driven orchestration layer
+
+**Evidence:** Lesson 9 — documented inspection of `om-pr-autopilot`, `references/diagnose.md`, `references/state-matrix.md`, `references/rules.md`, `references/report-templates.md`, and `references/agentic-setup.md`
+
+`om-pr-autopilot` provides a single orchestration entry point for an existing open PR.
+
+It does not implement review, fixes, CI repair, QA, continuation, or merge itself. Instead, it first reconstructs a normalized view of the PR and then decides which specialized `om-*` capabilities should run and in what order.
+
+The documented lifecycle is:
+
+```text
+existing open PR
+        ↓
+agentic preflight
+        ↓
+diagnose 10 state signals
+        ↓
+PR State Report
+        ↓
+classify through state matrix
+        ↓
+build ordered skill chain
+        ↓
+delegate to specialized om-* skill
+        ↓
+re-diagnose changed signals
+        ↓
+adapt remaining chain
+        ↓
+stop / merge-ready / explicit merge
+        ↓
+publish PR + session report
+```
+
+Diagnosis considers multiple independent dimensions of PR state, including:
+
+```text
+identity / repository
+PR ownership and draft state
+plan progress
+diff scope
+review state and conversations
+CI
+mergeability
+labels
+QA evidence
+claim state
+```
+
+Classification is not a one-time selection of a single skill.
+
+The state matrix is evaluated top-to-bottom, and one PR can match multiple rows. This produces an ordered lifecycle chain such as:
+
+```text
+unfinished implementation
+        ↓
+continue implementation
+        ↓
+review / autofix
+        ↓
+CI
+        ↓
+QA
+        ↓
+merge-ready
+```
+
+After delegated steps, the autopilot re-reads relevant PR signals because one capability may satisfy several later conditions. The remaining chain can therefore shrink or change as the PR state changes.
+
+The orchestration also distinguishes technical capability from authority:
+
+```text
+PUSHABLE
+= can this identity technically push to the branch?
+
+DRIVABLE
+= is this identity permitted to autonomously modify this PR?
+```
+
+This allows the same technical PR state to route differently depending on ownership and policy. For example, another author's PR can be reviewed and handed off rather than automatically modified.
+
+Autonomy is similarly bounded. Ordinary reversible decisions are made without requiring a human in the loop, while explicit gates such as claim conflicts and `⚠ NEEDS HUMAN CONFIRMATION` stop execution. Merge is also intentionally excluded from default autonomous execution: the normal endpoint is `merge-ready`, and actual merge requires `--allow-merge`.
+
+The orchestration is repository-aware rather than GitHub-hard-coded. Configuration, tracker operations, labels, repository instructions, and optional repo-local skill extensions are resolved during agentic preflight. Tracker access is performed through named operations defined by the configured tracker descriptor.
+
+### Conclusion
+
+`om-pr-autopilot` establishes a higher PR orchestration layer above the specialized PR skills.
+
+Its responsibility is:
+
+```text
+observe state
+    ↓
+normalize state
+    ↓
+apply routing and policy
+    ↓
+sequence capabilities
+    ↓
+observe the new state
+    ↓
+adapt
+    ↓
+report
+```
+
+while the delegated skills retain responsibility for the actual implementation, review, fix, QA, CI, and merge work.
+
+A useful architectural model is therefore:
+
+```text
+                 om-pr-autopilot
+                        │
+          state diagnosis + policy
+                        │
+                  routing matrix
+                        │
+                 dynamic chain
+                        │
+       ┌────────────────┼────────────────┐
+       ▼                ▼                ▼
+   continue         review/fix           QA
+       │                │                │
+       └────────────────┼────────────────┘
+                        ▼
+                   merge-ready
+```
+
+This makes `om-pr-autopilot` best understood as a **state-driven dispatcher/orchestrator with policy guards**.
+
+It exhibits state-machine-like behavior because execution repeatedly transitions between observed PR states, but describing it formally as a state machine remains an architectural interpretation rather than terminology established by the inspected skill documentation.
+
+This finding is **documented and inspected in Lesson 9 but has not been runtime-tested in the Learning Lab**.

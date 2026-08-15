@@ -67,6 +67,12 @@
       "skillPath": "skills/om-open-pr/SKILL.md",
       "computedHash": "02fcaf135aadb0c0db4c38d90608870a088b1a2ae56fb6b83916f752c4258c6f"
     },
+    "om-pr-autopilot": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-pr-autopilot/SKILL.md",
+      "computedHash": "922c80ee826db2dd3d8fa8eb43e54c3f78b32a3f941ea8350b02a2a66056b7c6"
+    },
     "om-prepare-issue": {
       "source": "open-mercato/skills",
       "sourceType": "github",
