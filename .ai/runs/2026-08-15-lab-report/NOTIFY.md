@@ -54,3 +54,10 @@
 - The major is the absent test file. Waived because this repository has no test runner at all; the committed 28-case fixture matrix stands in, and the residual risk (a manual procedure protects this change, not the next one) is stated in the review rather than hidden.
 - Step `1.6-review-fix` applies both minors: `Resolve-SpecsDir` was called twice per run, and the data object carried two dead fields (`SpecsDir`, `RepoRoot`) that nothing read. The review had caught only `SpecsDir`; `RepoRoot` was found while fixing and removed in the same edit.
 - Nit n1 (lockfile-only rows dropped when `.agents/skills/` is empty) left as author's call and documented in the review.
+
+## 2026-08-15T16:40:00Z — run ended
+
+- Status: **complete**. Every Tasks row is `done`; 10 commits on `feat/lab-report`.
+- PR: https://github.com/rafsaw/om-skills-learning-lab/pull/12 — flipped from draft to ready, pipeline label moved from `review` to `merge-queue` on the approve verdict.
+- Final label set: `merge-queue`, `feature`, `skip-qa`, `priority-low`, `risk-low`.
+- Open decision left to a human: the approve verdict came from an automated self-review that GitHub would not record as a formal approval, and `main` is unprotected, so nothing mechanically requires a second reviewer. Stated on the PR so the choice is deliberate.
