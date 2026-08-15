@@ -33,3 +33,9 @@
 
 - `if (-not (Write-Report ...))` captured the function's entire success stream, so the stdout report was swallowed into the `if` condition and nothing printed while the exit code still said `0`.
 - Fixed by splitting emission from the file write: `Save-Report` handles files only and never writes to the success stream; stdout emission happens inline in `Invoke-Main` where nothing captures it.
+
+## 2026-08-15T16:28:00Z — checkpoint 1 (Steps 1.1-1.5) passed
+
+- `git diff --check` green, 0 parse errors, full fixture matrix verified across two scratch clones under `$env:TEMP`. Details in `checkpoint-1-checks.md`.
+- Four real defects were caught before their commits landed: the success-stream capture that silenced stdout, the `[string[]]` empty-string binding that silently broke every spec title, a singular/plural verb disagreement in the discovery note, and a summary that claimed "0 findings" when `FINDINGS.md` was unreadable rather than empty.
+- Integration suite and UI verification skipped with reason: this repository has no integration suite and no application, and the deliverable has no graphical surface.
