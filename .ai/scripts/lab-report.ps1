@@ -121,7 +121,7 @@ function Get-LabReportData {
         RepoRoot   = $RepoRoot
         SpecsDir   = (Resolve-SpecsDir -RepoRoot $RepoRoot)
         Repository = (Get-RepositoryInfo -RepoRoot $RepoRoot)
-        Skills     = $null
+        Skills     = (Get-SkillsInfo -RepoRoot $RepoRoot)
         Specs      = $null
         Log        = $null
     }
@@ -243,6 +243,168 @@ function Get-PropertyOrNull {
     return $InputObject.PSObject.Properties[$Name].Value
 }
 
+# Drive-letter casing, a trailing separator, and '.'/'..' segments must not be
+# able to produce a false "does not resolve", so both sides of every comparison
+# are normalized through here first. This behavior is copied deliberately from
+# lab-status.ps1 and must not diverge from it.
+function Get-NormalizedPath {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) { return '' }
+    try {
+        return [System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/')
+    } catch {
+        return $Path.TrimEnd('\', '/')
+    }
+}
+
+# The entries in this checkout are NTFS junctions, not symbolic links: Git Bash
+# on Windows without the privilege to create symlinks produces junctions, even
+# though every repository document calls them symlinks. Both types are accepted -
+# demanding SymbolicLink would report a perfectly healthy lab as entirely broken.
+# Copied deliberately from lab-status.ps1; must not diverge.
+function Get-EntryLinkTarget {
+    param(
+        [Parameter(Mandatory = $true)] $Item,
+        [Parameter(Mandatory = $true)][string] $ParentDir
+    )
+
+    $linkType = [string](Get-PropertyOrNull -InputObject $Item -Name 'LinkType')
+    if ($linkType -ne 'Junction' -and $linkType -ne 'SymbolicLink') { return '' }
+
+    $raw = Get-PropertyOrNull -InputObject $Item -Name 'Target'
+    $first = @($raw) | Where-Object { $null -ne $_ -and [string]$_ -ne '' } | Select-Object -First 1
+    if ($null -eq $first) { return '' }
+
+    $targetText = [string]$first
+    # A symbolic link may record a relative target; resolve it against the
+    # directory the link itself lives in, never the caller's cwd.
+    if (-not [System.IO.Path]::IsPathRooted($targetText)) {
+        $targetText = Join-Path $ParentDir $targetText
+    }
+    return (Get-NormalizedPath $targetText)
+}
+
+# Compare only the set of names. Recomputing the skills CLI's content hash would
+# report drift on every local edit, which a learning lab expects to have.
+function Read-LockfileSkillNames {
+    param([Parameter(Mandatory = $true)][string] $LockPath)
+
+    try {
+        if (-not (Test-Path -LiteralPath $LockPath -PathType Leaf)) { throw 'not found' }
+        # -Encoding UTF8 explicitly: Windows PowerShell 5.1 otherwise decodes with
+        # the host's ANSI code page, and this repository's files are UTF-8 without
+        # a BOM, so the default is only correct on a host whose code page happens
+        # to be 65001.
+        $raw = Get-Content -LiteralPath $LockPath -Raw -Encoding UTF8 -ErrorAction Stop
+        if ([string]::IsNullOrWhiteSpace($raw)) { throw 'empty' }
+        $json = ConvertFrom-Json -InputObject $raw -ErrorAction Stop
+        $skills = Get-PropertyOrNull -InputObject $json -Name 'skills'
+        if ($null -eq $skills) { throw 'no skills object' }
+        return @($skills.PSObject.Properties | ForEach-Object { $_.Name })
+    } catch {
+        # The lockfile is never allowed to abort the report.
+        return $null
+    }
+}
+
+function Get-SkillsInfo {
+    param([Parameter(Mandatory = $true)][string] $RepoRoot)
+
+    $vendoredRoot  = Join-Path $RepoRoot '.agents\skills'
+    $discoveryRoot = Join-Path $RepoRoot '.claude\skills'
+
+    $vendored = @(Get-ChildItem -LiteralPath $vendoredRoot -Directory -Force -ErrorAction SilentlyContinue | Sort-Object Name)
+    $vendoredNames = @($vendored | ForEach-Object { $_.Name })
+
+    # Enumerate the discovery directory once. A listing includes a link whose
+    # target no longer exists, which a Test-Path probe on the entry would not.
+    $entries = @{}
+    if (Test-Path -LiteralPath $discoveryRoot -PathType Container) {
+        foreach ($entry in @(Get-ChildItem -LiteralPath $discoveryRoot -Force -ErrorAction SilentlyContinue)) {
+            $entries[$entry.Name] = $entry
+        }
+    }
+
+    $lockNames = Read-LockfileSkillNames -LockPath (Join-Path $RepoRoot 'skills-lock.json')
+    $lockReadable = ($null -ne $lockNames)
+    if (-not $lockReadable) { $lockNames = @() }
+
+    # The union, so a name that exists only in the lockfile or only under
+    # .claude\skills\ still gets a row rather than being silently dropped.
+    $allNames = @($vendoredNames + $lockNames + @($entries.Keys)) | Sort-Object -Unique
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $resolved = 0
+    $unresolved = 0
+
+    foreach ($name in $allNames) {
+        $isVendored = ($vendoredNames -contains $name)
+
+        $hasSkillMd = '-'
+        if ($isVendored) {
+            $skillMd = Join-Path (Join-Path $vendoredRoot $name) 'SKILL.md'
+            if (Test-Path -LiteralPath $skillMd -PathType Leaf) { $hasSkillMd = 'yes' } else { $hasSkillMd = 'no' }
+        }
+
+        $inLock = '-'
+        if ($lockReadable) { if ($lockNames -contains $name) { $inLock = 'yes' } else { $inLock = 'no' } }
+
+        # One bit, not a classification. lab-status.ps1 owns the five-way
+        # diagnosis (missing / not-a-link / broken / foreign) because each class
+        # implies a different repair; this report only says whether the skill
+        # dispatches from this checkout, and points at that script for the rest.
+        $discovery = 'does not resolve'
+        if ($isVendored -and $entries.ContainsKey($name)) {
+            $expected = Get-NormalizedPath (Join-Path $vendoredRoot $name)
+            $target = Get-EntryLinkTarget -Item $entries[$name] -ParentDir $discoveryRoot
+            if ($target -ne '' -and (Test-Path -LiteralPath $target) -and $target -eq $expected) {
+                $discovery = 'resolves'
+            }
+        } elseif (-not $isVendored) {
+            $discovery = '-'
+        }
+
+        if ($isVendored) {
+            if ($discovery -eq 'resolves') { $resolved++ } else { $unresolved++ }
+        }
+
+        $rows.Add([pscustomobject]@{
+            Name       = $name
+            SkillMd    = $hasSkillMd
+            InLock     = $inLock
+            Discovery  = $discovery
+        })
+    }
+
+    if ($unresolved -gt 0) {
+        Add-Note ((Format-Count $unresolved 'discovery entry' 'discovery entries') +
+            ' under `.claude/skills/` do not resolve into this checkout, so those skills dispatch nothing or dispatch another checkout''s copy. Run `.ai/scripts/lab-status.ps1` for the per-entry diagnosis.')
+    }
+
+    $onlyInLock = @()
+    $onlyVendored = @()
+    if ($lockReadable) {
+        $onlyInLock   = @($lockNames | Where-Object { $vendoredNames -notcontains $_ })
+        $onlyVendored = @($vendoredNames | Where-Object { $lockNames -notcontains $_ })
+        if ($onlyInLock.Count -gt 0 -or $onlyVendored.Count -gt 0) {
+            Add-Note ('`skills-lock.json` and `.agents/skills/` disagree on ' +
+                (Format-Count ($onlyInLock.Count + $onlyVendored.Count) 'entry' 'entries') +
+                ', so the next reproducible install would not match this tree.')
+        }
+    } else {
+        Add-Note '`skills-lock.json` is missing or could not be parsed, so the installed set could not be compared against `.agents/skills/`.'
+    }
+
+    return [pscustomobject]@{
+        Rows          = $rows.ToArray()
+        VendoredCount = $vendored.Count
+        LockCount     = $lockNames.Count
+        LockReadable  = $lockReadable
+        Resolved      = $resolved
+        SetsMatch     = ($lockReadable -and $onlyInLock.Count -eq 0 -and $onlyVendored.Count -eq 0)
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Render. Data in, Markdown lines out. No I/O.
 # ---------------------------------------------------------------------------
@@ -259,7 +421,8 @@ function Format-LabReport {
         $lines.Add('')
         $lines.Add('## ' + $section)
         switch ($section) {
-            'Repository' { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
+            'Repository'       { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
+            'Installed skills' { Add-SkillsSection -Lines $lines -Skills $Data.Skills }
         }
     }
 
@@ -299,6 +462,35 @@ function Add-RepositorySection {
     $Lines.Add('| HEAD | ' + $head + ' |')
     $Lines.Add('| Committed | ' + $Repository.Date + ' |')
     $Lines.Add('| Working tree | ' + $tree + ' |')
+}
+
+function Add-SkillsSection {
+    param(
+        [Parameter(Mandatory = $true)] $Lines,
+        [Parameter(Mandatory = $true)] $Skills
+    )
+
+    $Lines.Add('')
+
+    if ($Skills.VendoredCount -eq 0) {
+        $Lines.Add('No skills vendored under `.agents/skills/`.')
+        return
+    }
+
+    $lockPhrase = '`skills-lock.json` is unreadable'
+    if ($Skills.LockReadable) {
+        $lockPhrase = '' + $Skills.LockCount + ' recorded in `skills-lock.json`'
+        if ($Skills.SetsMatch) { $lockPhrase = $lockPhrase + ', sets match' } else { $lockPhrase = $lockPhrase + ', sets differ' }
+    }
+    $Lines.Add('' + $Skills.VendoredCount + ' vendored under `.agents/skills/`, ' + $lockPhrase + '.')
+    $Lines.Add('' + $Skills.Resolved + ' of ' + $Skills.VendoredCount + ' discovery entries under `.claude/skills/` resolve into this checkout.')
+
+    $Lines.Add('')
+    $Lines.Add('| Skill | SKILL.md | Lockfile | Discovery |')
+    $Lines.Add('|---|---|---|---|')
+    foreach ($row in $Skills.Rows) {
+        $Lines.Add('| `' + (ConvertTo-CellText $row.Name) + '` | ' + $row.SkillMd + ' | ' + $row.InLock + ' | ' + $row.Discovery + ' |')
+    }
 }
 
 # ---------------------------------------------------------------------------
