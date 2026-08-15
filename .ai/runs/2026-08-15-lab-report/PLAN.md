@@ -13,8 +13,8 @@
 |-------|------|-------|------|--------|--------|
 | 1 | 1.1 | Create the script skeleton and the emit path | inline | done | cd1128b |
 | 1 | 1.2 | Implement the Repository section | inline | done | 97816df |
-| 1 | 1.3 | Implement the Installed skills section | inline | done | pending |
-| 1 | 1.4 | Implement the Specs section | inline | todo | — |
+| 1 | 1.3 | Implement the Installed skills section | inline | done | 58cea56 |
+| 1 | 1.4 | Implement the Specs section | inline | done | pending |
 | 1 | 1.5 | Implement the Learning artifacts section, the Summary, and escaping | inline | todo | — |
 | 1 | 1.6 | Make it discoverable | inline | todo | — |
 

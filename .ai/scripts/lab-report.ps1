@@ -122,7 +122,7 @@ function Get-LabReportData {
         SpecsDir   = (Resolve-SpecsDir -RepoRoot $RepoRoot)
         Repository = (Get-RepositoryInfo -RepoRoot $RepoRoot)
         Skills     = (Get-SkillsInfo -RepoRoot $RepoRoot)
-        Specs      = $null
+        Specs      = (Get-SpecsInfo -RepoRoot $RepoRoot -SpecsDir (Resolve-SpecsDir -RepoRoot $RepoRoot))
         Log        = $null
     }
 }
@@ -405,6 +405,90 @@ function Get-SkillsInfo {
     }
 }
 
+# Read a UTF-8 document into lines, or $null when it cannot be read.
+#
+# -Encoding UTF8 is load-bearing, not decoration. Windows PowerShell 5.1 decodes
+# with the host's ANSI code page when no encoding is given, and this repository's
+# documents are UTF-8 without a BOM: on a cp1252 host an em dash in a heading
+# would arrive as three mojibake characters and be printed as such.
+function Read-DocumentLines {
+    param([Parameter(Mandatory = $true)][string] $Path)
+    try {
+        if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
+        return @(Get-Content -LiteralPath $Path -Encoding UTF8 -ErrorAction Stop)
+    } catch {
+        return $null
+    }
+}
+
+# The first level-1 heading found OUTSIDE a fenced code block, or '' when there
+# is none. Fence-awareness is structural: a spec that shows an example document
+# inside a fence must not have that example's title reported as its own.
+function Get-DocumentTitle {
+    # AllowEmptyString is required, not decorative: every document has blank
+    # lines, and without it the binder rejects the whole array.
+    param([Parameter(Mandatory = $true)][AllowEmptyCollection()][AllowEmptyString()][string[]] $Lines)
+
+    $inFence = $false
+    foreach ($line in $Lines) {
+        $text = [string]$line
+        if ($text.TrimStart().StartsWith('```')) {
+            $inFence = -not $inFence
+            continue
+        }
+        if ($inFence) { continue }
+        $match = [regex]::Match($text, '^#\s+(.+?)\s*$')
+        if ($match.Success) { return $match.Groups[1].Value }
+    }
+    return ''
+}
+
+function Get-SpecsInfo {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string] $SpecsDir
+    )
+
+    $info = [pscustomobject]@{
+        Dir     = $SpecsDir
+        Exists  = $false
+        Rows    = @()
+    }
+
+    $full = Join-Path $RepoRoot ($SpecsDir -replace '/', '\')
+    if (-not (Test-Path -LiteralPath $full -PathType Container)) {
+        Add-Note ('The specs directory `' + $SpecsDir + '` does not exist, so no specs could be listed.')
+        return $info
+    }
+    $info.Exists = $true
+
+    # Not recursive: the directory is flat by convention, and an assets/
+    # subdirectory holds spec mockups rather than specs.
+    $files = @(Get-ChildItem -LiteralPath $full -Filter '*.md' -File -ErrorAction SilentlyContinue |
+        Sort-Object Name -Descending)
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($file in $files) {
+        $date = ''
+        $dateMatch = [regex]::Match($file.Name, '^(\d{4}-\d{2}-\d{2})')
+        if ($dateMatch.Success) { $date = $dateMatch.Groups[1].Value }
+
+        $title = ''
+        $lines = Read-DocumentLines -Path $file.FullName
+        if ($null -ne $lines) { $title = Get-DocumentTitle -Lines $lines }
+        if ($title -eq '') { $title = [System.IO.Path]::GetFileNameWithoutExtension($file.Name) }
+
+        $rows.Add([pscustomobject]@{
+            Path  = $SpecsDir + '/' + $file.Name
+            Date  = $date
+            Title = $title
+        })
+    }
+
+    $info.Rows = $rows.ToArray()
+    return $info
+}
+
 # ---------------------------------------------------------------------------
 # Render. Data in, Markdown lines out. No I/O.
 # ---------------------------------------------------------------------------
@@ -423,6 +507,7 @@ function Format-LabReport {
         switch ($section) {
             'Repository'       { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
             'Installed skills' { Add-SkillsSection -Lines $lines -Skills $Data.Skills }
+            'Specs'            { Add-SpecsSection -Lines $lines -Specs $Data.Specs }
         }
     }
 
@@ -490,6 +575,35 @@ function Add-SkillsSection {
     $Lines.Add('|---|---|---|---|')
     foreach ($row in $Skills.Rows) {
         $Lines.Add('| `' + (ConvertTo-CellText $row.Name) + '` | ' + $row.SkillMd + ' | ' + $row.InLock + ' | ' + $row.Discovery + ' |')
+    }
+}
+
+function Add-SpecsSection {
+    param(
+        [Parameter(Mandatory = $true)] $Lines,
+        [Parameter(Mandatory = $true)] $Specs
+    )
+
+    $Lines.Add('')
+
+    if (-not $Specs.Exists) {
+        $Lines.Add('No specs directory at `' + $Specs.Dir + '`.')
+        return
+    }
+
+    if ($Specs.Rows.Count -eq 0) {
+        # An empty spec directory is a normal early state, not a problem, so
+        # this case deliberately produces no note.
+        $Lines.Add('No specs recorded.')
+        return
+    }
+
+    $Lines.Add((Format-Count $Specs.Rows.Count 'spec' 'specs') + ' under `' + $Specs.Dir + '`.')
+    $Lines.Add('')
+    $Lines.Add('| Spec | Date | Title |')
+    $Lines.Add('|---|---|---|')
+    foreach ($row in $Specs.Rows) {
+        $Lines.Add('| `' + (ConvertTo-CellText $row.Path) + '` | ' + $row.Date + ' | ' + (ConvertTo-CellText $row.Title) + ' |')
     }
 }
 
