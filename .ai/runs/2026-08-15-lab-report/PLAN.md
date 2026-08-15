@@ -11,7 +11,7 @@
 
 | Phase | Step | Title | Exec | Status | Commit |
 |-------|------|-------|------|--------|--------|
-| 1 | 1.1 | Create the script skeleton and the emit path | inline | todo | — |
+| 1 | 1.1 | Create the script skeleton and the emit path | inline | done | pending |
 | 1 | 1.2 | Implement the Repository section | inline | todo | — |
 | 1 | 1.3 | Implement the Installed skills section | inline | todo | — |
 | 1 | 1.4 | Implement the Specs section | inline | todo | — |
