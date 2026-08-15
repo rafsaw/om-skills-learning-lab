@@ -7,6 +7,12 @@
       "skillPath": "skills/om-approve-merge-pr/SKILL.md",
       "computedHash": "649fe546c90f224a715896c657b815bb4070d4c30f2a9fb0c0fefd3d75e700d4"
     },
+    "om-auto-continue-pr": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-continue-pr/SKILL.md",
+      "computedHash": "b76f7104536a2b240e5012bd1cc3f5e32f15293e5d46a4553afcff4435a2bb6e"
+    },
     "om-auto-create-pr": {
       "source": "open-mercato/skills",
       "sourceType": "github",
