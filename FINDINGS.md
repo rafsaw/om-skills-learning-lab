@@ -434,3 +434,221 @@ implementation PR
 ```
 
 Open Mercato therefore treats approved design and implementation as **separate autonomous lifecycles connected by durable handoff artifacts**, rather than as one continuous opaque agent run.
+
+---
+
+## Finding 013 — `om-auto-continue-pr` reconstructs and resumes unfinished PR work
+
+**Evidence:** Lesson 8 — documented inspection of `om-auto-continue-pr`, `references/claim-pr.md`, and `references/worktree-setup.md`
+
+`om-auto-continue-pr` accepts an existing PR number as its primary entry point and reconstructs the implementation context required to continue that PR.
+
+The documented normal resume path is:
+
+```text
+PR number
+    ↓
+claim / concurrency check
+    ↓
+resolve Tracking plan
+    ↓
+restore isolated worktree from PR head
+    ↓
+parse ## Progress
+    ↓
+cross-check completed commit SHA
+    ↓
+first unchecked Step
+    ↓
+continue implementation
+```
+
+The skill does not create a fresh implementation branch. It restores the existing PR head in an isolated worktree and continues the existing execution plan.
+
+The resume point is selected at **Step granularity**:
+
+```text
+[x] completed Step
+[x] completed Step
+[ ] first pending Step  ← resume point
+[ ] later Step
+```
+
+Execution then continues phase-by-phase using the same implementation, validation, Progress-update, review, and finalization discipline as `om-auto-create-pr`.
+
+### Conclusion
+
+`om-auto-continue-pr` is the resume engine for unfinished PR work.
+
+Its role can be summarized as:
+
+```text
+om-auto-create-pr
+        ↓
+creates implementation state
+        ↓
+unfinished PR
+        ↓
+om-auto-continue-pr
+        ↓
+reconstructs implementation context
+        ↓
+continues from first pending Step
+        ↓
+finishes PR
+```
+
+This behavior is **documented and inspected in Lesson 8 but has not been runtime-tested in the Learning Lab**.
+
+---
+
+## Finding 014 — Resume state is reconstructed from multiple durable surfaces
+
+**Evidence:** Lesson 8 — documented inspection of `om-auto-continue-pr`, `references/claim-pr.md`, and `references/worktree-setup.md`
+
+Lesson 7 showed that autonomous implementation persists execution state outside the active agent invocation.
+
+Lesson 8 clarified how the resume contract uses those artifacts.
+
+The documented state model is:
+
+```text
+PR
+= resume entry point and coordination surface
+
+Tracking plan
+= execution contract
+
+## Progress
+= logical completion state
+
+commit SHAs + Git history
+= checkpoint verification
+
+remote PR head
+= durable implementation source
+
+assignee + in-progress label + claim comments
+= concurrency / ownership state
+```
+
+Before continuing implementation, `om-auto-continue-pr` reconstructs both execution state and ownership state.
+
+It resolves the plan from the PR, restores an isolated worktree from the existing remote PR head, finds the first unchecked Progress Step, and cross-checks the last recorded completed Step SHA against Git history.
+
+The documented worktree restoration path is:
+
+```text
+existing PR
+    ↓
+headRefName
+    ↓
+origin/<PR-head>
+    ↓
+temporary isolated worktree
+```
+
+This means normal resume reconstruction depends on durable remote state rather than the previous invocation's local filesystem state.
+
+### Conclusion
+
+Open Mercato resumability is not simply:
+
+```text
+read Progress
+→ continue coding
+```
+
+The documented model is closer to:
+
+```text
+coordination state
+        +
+execution plan
+        +
+Progress
+        +
+Git history
+        +
+remote PR branch
+        ↓
+reconstruct safe execution context
+        ↓
+select resume point
+        ↓
+continue
+```
+
+Lesson 7 observed the creation of much of this durable state. Lesson 8 documented how `om-auto-continue-pr` is designed to consume it.
+
+The actual resume reconstruction path remains **not runtime-tested in the Learning Lab**.
+
+---
+
+## Finding 015 — PR adoption normalizes external or undocumented PRs into the standard resume contract
+
+**Evidence:** Lesson 8 — documented inspection of `references/adopt-pr.md`
+
+`om-auto-continue-pr` is not limited to PRs created by `om-auto-create-pr`.
+
+When an existing PR has no usable execution plan, the skill can **adopt** it rather than treating missing pipeline metadata as a terminal error.
+
+The documented adoption path is:
+
+```text
+existing PR
+    ↓
+no usable Tracking plan
+    ↓
+evidence sweep
+    ↓
+reconstruct goal and remaining work
+    ↓
+create canonical execution plan
+    ↓
+create ## Progress
+    ↓
+add Tracking plan: to PR
+    ↓
+ordinary resume machinery
+```
+
+The evidence sweep can use:
+
+```text
+PR title / body / task lists
+comments
+review feedback
+failing checks
+linked issues
+specs and design documents
+diff
+Git history
+repository conventions
+```
+
+Adoption therefore acts as a normalization layer.
+
+Instead of building a separate execution mechanism for non-pipeline PRs, it converts them into the same durable representation expected by the normal resume engine:
+
+```text
+arbitrary PR state
+        ↓
+ADOPTION
+        ↓
+execution plan + Progress
+        ↓
+standard om-auto-continue-pr lifecycle
+```
+
+The same mechanism can repair a malformed or missing `## Progress` section without replacing the rest of an existing plan.
+
+For an interactive run, documented `ask` mode can commit and publish the reconstructed plan, release the claim, clean up the worktree, and stop for human confirmation before implementation. This leaves the PR in a durable state that can later be re-entered through the normal resume path.
+
+### Conclusion
+
+Open Mercato's resume architecture is not restricted to work originally created by its own implementation engine.
+
+PR adoption provides an adapter from external or incomplete PR state into the standard execution-plan contract, after which the ordinary resume machinery can take over.
+
+Adoption was **inspected but not runtime-tested in Lesson 8**.
