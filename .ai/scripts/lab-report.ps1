@@ -127,12 +127,17 @@ function Show-Usage {
 function Get-LabReportData {
     param([Parameter(Mandatory = $true)][string] $RepoRoot)
 
+    # Resolved once. Two call sites would read and parse the config twice and,
+    # worse, leave the specs directory derived in two places that must agree.
+    $specsDir = Resolve-SpecsDir -RepoRoot $RepoRoot
+
+    # Only the four section payloads belong here. RepoRoot and SpecsDir were
+    # carried on this object at first and read by nothing - dead state on a
+    # shared object is what invites the divergence the comment above describes.
     return [pscustomobject]@{
-        RepoRoot   = $RepoRoot
-        SpecsDir   = (Resolve-SpecsDir -RepoRoot $RepoRoot)
         Repository = (Get-RepositoryInfo -RepoRoot $RepoRoot)
         Skills     = (Get-SkillsInfo -RepoRoot $RepoRoot)
-        Specs      = (Get-SpecsInfo -RepoRoot $RepoRoot -SpecsDir (Resolve-SpecsDir -RepoRoot $RepoRoot))
+        Specs      = (Get-SpecsInfo -RepoRoot $RepoRoot -SpecsDir $specsDir)
         Log        = (Get-LearningLogInfo -RepoRoot $RepoRoot)
     }
 }
@@ -604,8 +609,8 @@ function Format-LabReport {
         $lines.Add('')
         $lines.Add('## ' + $section)
         switch ($section) {
-            'Repository'       { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
-            'Installed skills' { Add-SkillsSection -Lines $lines -Skills $Data.Skills }
+            'Repository'         { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
+            'Installed skills'   { Add-SkillsSection -Lines $lines -Skills $Data.Skills }
             'Specs'              { Add-SpecsSection -Lines $lines -Specs $Data.Specs }
             'Learning artifacts' { Add-LearningLogSection -Lines $lines -Log $Data.Log }
             'Summary'            { Add-SummarySection -Lines $lines -Data $Data }

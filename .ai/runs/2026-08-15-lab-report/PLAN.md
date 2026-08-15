@@ -17,6 +17,7 @@
 | 1 | 1.4 | Implement the Specs section | inline | done | 666fd11 |
 | 1 | 1.5 | Implement the Learning artifacts section, the Summary, and escaping | inline | done | 1082c03 |
 | 1 | 1.6 | Make it discoverable | inline | done | a8c068e |
+| 1 | 1.6-review-fix | Drop dead state from the report data object | inline | done | pending |
 
 **Why every Step is `inline`.** The six Steps build one file, each layering onto helpers the previous Step introduced (the anchor, the renderer's escaping helpers, the fence-aware scanner), so a fresh executor session would re-derive the same accumulated context for each one. Per `references/task-planning.md`, that is exactly the case `inline` describes: executor overhead would exceed the work. This run additionally operates under a session constraint that prohibits spawning subagents unless the user asks, which makes `inline` the only available placement — recorded here so the choice is auditable rather than silent.
 
