@@ -56,6 +56,34 @@ $script:ExitCode = 0
 # - stable enough to grep for, not promoted to a protected surface.
 $script:SectionOrder = @('Repository', 'Installed skills', 'Specs', 'Learning artifacts', 'Summary')
 
+# Summary notes, appended by the readers. Present in the report only when
+# something is off: a permanently present "Notes: none" trains the reader to
+# skip the section that matters.
+$script:Notes = New-Object System.Collections.Generic.List[string]
+
+function Add-Note {
+    param([Parameter(Mandatory = $true)][string] $Message)
+    $script:Notes.Add($Message)
+}
+
+function Format-Count {
+    param(
+        [Parameter(Mandatory = $true)][int] $Count,
+        [Parameter(Mandatory = $true)][string] $Singular,
+        [Parameter(Mandatory = $true)][string] $Plural
+    )
+    if ($Count -eq 1) { return "$Count $Singular" }
+    return "$Count $Plural"
+}
+
+# A commit subject, a spec title, or a finding heading is free text lifted out of
+# the repository, and a single '|' in it ends a table cell early - breaking the
+# table for every downstream reader. Everything entering a cell goes through here.
+function ConvertTo-CellText {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string] $Text)
+    return ($Text -replace '\|', '\|')
+}
+
 function Show-Usage {
     Write-Output 'lab-report.ps1 - what does this repository currently contain?'
     Write-Output ''
@@ -92,12 +120,93 @@ function Get-LabReportData {
     return [pscustomobject]@{
         RepoRoot   = $RepoRoot
         SpecsDir   = (Resolve-SpecsDir -RepoRoot $RepoRoot)
-        Repository = $null
+        Repository = (Get-RepositoryInfo -RepoRoot $RepoRoot)
         Skills     = $null
         Specs      = $null
         Log        = $null
-        Notes      = @()
     }
+}
+
+# Run git against the anchored root rather than the caller's directory, and hand
+# back success plus output instead of letting a non-zero exit escape as an error.
+function Invoke-Git {
+    param(
+        [Parameter(Mandatory = $true)][string] $RepoRoot,
+        [Parameter(Mandatory = $true)][string[]] $GitArgs
+    )
+
+    $global:LASTEXITCODE = 0
+    $output = & git '-C' $RepoRoot @GitArgs 2>$null
+    return [pscustomobject]@{
+        Ok    = ($global:LASTEXITCODE -eq 0)
+        Lines = @($output | Where-Object { $null -ne $_ })
+    }
+}
+
+function Get-RepositoryInfo {
+    param([Parameter(Mandatory = $true)][string] $RepoRoot)
+
+    $info = [pscustomobject]@{
+        Available = $false
+        Branch    = 'unavailable'
+        Sha       = 'unavailable'
+        Subject   = ''
+        Date      = 'unavailable'
+        Dirty     = $null
+    }
+
+    if (-not (Get-Command 'git' -CommandType Application -ErrorAction SilentlyContinue)) {
+        Add-Note 'git is not on PATH, so the repository section could not be filled in. Every other section is unaffected.'
+        return $info
+    }
+
+    $inside = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('rev-parse', '--is-inside-work-tree')
+    if (-not $inside.Ok -or ($inside.Lines -join '') -ne 'true') {
+        Add-Note 'The repository root is not a git work tree, so the repository section could not be filled in. Every other section is unaffected.'
+        return $info
+    }
+
+    $info.Available = $true
+
+    # symbolic-ref answers on a branch, including an unborn one; it fails on a
+    # detached HEAD, which is what the short-sha fallback is for.
+    $symbolic = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('symbolic-ref', '--quiet', '--short', 'HEAD')
+    if ($symbolic.Ok -and $symbolic.Lines.Count -gt 0) {
+        $info.Branch = [string]$symbolic.Lines[0]
+    } else {
+        $head = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('rev-parse', '--short', 'HEAD')
+        if ($head.Ok -and $head.Lines.Count -gt 0) {
+            $info.Branch = '(detached at ' + [string]$head.Lines[0] + ')'
+        }
+    }
+
+    # Subject goes last and the split is capped at three fields: a commit subject
+    # is free text and may well contain the delimiter, while a short SHA and an
+    # ISO date cannot.
+    $log = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('log', '-1', '--format=%h|%ad|%s', '--date=short')
+    if ($log.Ok -and $log.Lines.Count -gt 0) {
+        $parts = ([string]$log.Lines[0]) -split '\|', 3
+        if ($parts.Count -ge 1) { $info.Sha = $parts[0] }
+        if ($parts.Count -ge 2) { $info.Date = $parts[1] }
+        if ($parts.Count -ge 3) { $info.Subject = $parts[2] }
+    } else {
+        Add-Note 'The repository has no commits yet, so the HEAD commit could not be reported.'
+    }
+
+    $status = Invoke-Git -RepoRoot $RepoRoot -GitArgs @('status', '--porcelain')
+    if ($status.Ok) {
+        $entries = @($status.Lines | Where-Object { $_.ToString().Trim() -ne '' })
+        $info.Dirty = $entries.Count
+        if ($entries.Count -gt 0) {
+            Add-Note ('The working tree has uncommitted changes (' +
+                (Format-Count $entries.Count 'entry' 'entries') +
+                '), so this report describes a state that is not committed anywhere.')
+        }
+    } else {
+        Add-Note 'git status failed, so the working-tree state could not be reported.'
+    }
+
+    return $info
 }
 
 # paths.specs is the repository's contract for where specs live, so the value
@@ -149,9 +258,47 @@ function Format-LabReport {
     foreach ($section in $script:SectionOrder) {
         $lines.Add('')
         $lines.Add('## ' + $section)
+        switch ($section) {
+            'Repository' { Add-RepositorySection -Lines $lines -Repository $Data.Repository }
+        }
     }
 
     return $lines.ToArray()
+}
+
+function Add-RepositorySection {
+    param(
+        [Parameter(Mandatory = $true)] $Lines,
+        [Parameter(Mandatory = $true)] $Repository
+    )
+
+    $head = 'unavailable'
+    if ($Repository.Available -and $Repository.Sha -ne 'unavailable') {
+        $head = '`' + $Repository.Sha + '`'
+        if ($Repository.Subject -ne '') {
+            $head = $head + ' - ' + (ConvertTo-CellText $Repository.Subject)
+        }
+    }
+
+    $tree = 'unavailable'
+    if ($null -ne $Repository.Dirty) {
+        if ($Repository.Dirty -eq 0) {
+            $tree = 'clean'
+        } else {
+            $tree = 'dirty (' + (Format-Count $Repository.Dirty 'entry' 'entries') + ')'
+        }
+    }
+
+    $branch = $Repository.Branch
+    if ($Repository.Available -and $branch -ne 'unavailable') { $branch = '`' + $branch + '`' }
+
+    $Lines.Add('')
+    $Lines.Add('| Field | Value |')
+    $Lines.Add('|---|---|')
+    $Lines.Add('| Branch | ' + $branch + ' |')
+    $Lines.Add('| HEAD | ' + $head + ' |')
+    $Lines.Add('| Committed | ' + $Repository.Date + ' |')
+    $Lines.Add('| Working tree | ' + $tree + ' |')
 }
 
 # ---------------------------------------------------------------------------
