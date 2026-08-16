@@ -1,6 +1,6 @@
-# OM Skills Learning Lab – Findings
+# OM Skills Learning Lab -- Findings
 
-## Finding 001  (Lesson 1-2)
+## Finding 001 (Lesson 1-2)
 
 ### Question
 
@@ -16,17 +16,18 @@ What is the first Open Mercato skill?
 
 The setup created:
 
-- .ai/
-- AGENTS.md
-- SDLC.md
-- CODE_REVIEW.md
-- BACKWARD_COMPATIBILITY.md
+-   .ai/
+-   AGENTS.md
+-   SDLC.md
+-   CODE_REVIEW.md
+-   BACKWARD_COMPATIBILITY.md
 
 ### Conclusion
 
-The engineering pipeline is bootstrapped before any implementation skills are used.
+The engineering pipeline is bootstrapped before any implementation
+skills are used.
 
----
+------------------------------------------------------------------------
 
 ## Finding 002 (Lesson 1-2)
 
@@ -44,19 +45,20 @@ SKILL.md:
 
 The config contains:
 
-- validation
-- labels
-- tracker
-- paths
-- engine
+-   validation
+-   labels
+-   tracker
+-   paths
+-   engine
 
 It contains no application framework configuration.
 
 ### Conclusion
 
-Open Mercato centralizes engineering-process configuration rather than application-stack configuration.
+Open Mercato centralizes engineering-process configuration rather than
+application-stack configuration.
 
----
+------------------------------------------------------------------------
 
 ## Finding 003
 
@@ -66,149 +68,217 @@ Why does `AGENTS.md` exist if `.ai/agentic.config.json` already exists?
 
 ### Evidence
 
-`AGENTS.md` contains a **Task routing** section that maps task types to the documents an agent should read first (for example, pipeline changes → `.ai/agentic.config.json` + `SDLC.md`, skill editing → `SKILL.md` + `references/`).
+`AGENTS.md` contains a **Task routing** section that maps task types to
+the documents an agent should read first (for example, pipeline changes
+→ `.ai/agentic.config.json` + `SDLC.md`, skill editing → `SKILL.md` +
+`references/`).
 
-`.ai/agentic.config.json` contains only structured pipeline configuration such as validation commands, labels, engine settings and artifact paths.
+`.ai/agentic.config.json` contains only structured pipeline
+configuration such as validation commands, labels, engine settings and
+artifact paths.
 
 ### Observation
 
 The two files have different responsibilities.
 
-- `agentic.config.json` configures the engineering pipeline.
-- `AGENTS.md` explains how an agent should navigate the repository and which documents become authoritative for a given task.
+-   `agentic.config.json` configures the engineering pipeline.
+-   `AGENTS.md` explains how an agent should navigate the repository and
+    which documents become authoritative for a given task.
 
 ### Conclusion
 
 Open Mercato separates **configuration** from **repository guidance**.
 
-`agentic.config.json` defines **how the pipeline is configured**, while `AGENTS.md` acts as a **knowledge router**, directing agents to the correct documentation before making changes.
+`agentic.config.json` defines **how the pipeline is configured**, while
+`AGENTS.md` acts as a **knowledge router**, directing agents to the
+correct documentation before making changes.
 
----
+------------------------------------------------------------------------
 
-## Finding 004 — Lesson 4: Pipeline execution through skills
+## Finding 004 --- Lesson 4: Pipeline execution through skills
 
 ### Question
 
-What does running a change through the pipeline reveal about how the skills relate to each other?
+What does running a change through the pipeline reveal about how the
+skills relate to each other?
 
 ### Evidence
 
-Issue #2 and PR #3 — the issue-driven run: the issue was assigned and claimed by comment before work started.
+Issue #2 and PR #3 --- the issue-driven run: the issue was assigned and
+claimed by comment before work started.
 
-PR #4 — the branch-driven run: label transitions from `review` to `changes-requested` to `merge-queue`, the claim and release around the review stage, the rejected same-account approval, and the merge.
+PR #4 --- the branch-driven run: label transitions from `review` to
+`changes-requested` to `merge-queue`, the claim and release around the
+review stage, the rejected same-account approval, and the merge.
 
 ### Observation
 
-A real repository change was taken through the Open Mercato workflow using pipeline skills. GitHub labels represented workflow states, and dedicated skills handled review, autofix, re-review, merge queue, and merge. Claiming is not uniform across the skills: `om-auto-review-pr` claimed the PR with an assignee, the `in-progress` label, and a claim comment, and released the claim when its stage finished, while `om-open-pr` and `om-approve-merge-pr` acted on the PR without taking the lock at all. The claim is the mechanism intended to keep concurrent agents off the same PR, although no contention actually occurred during these runs.
+A real repository change was taken through the Open Mercato workflow
+using pipeline skills. GitHub labels represented workflow states, and
+dedicated skills handled review, autofix, re-review, merge queue, and
+merge. Claiming is not uniform across the skills: `om-auto-review-pr`
+claimed the PR with an assignee, the `in-progress` label, and a claim
+comment, and released the claim when its stage finished, while
+`om-open-pr` and `om-approve-merge-pr` acted on the PR without taking
+the lock at all. The claim is the mechanism intended to keep concurrent
+agents off the same PR, although no contention actually occurred during
+these runs.
 
 ### Conclusion
 
-The Open Mercato pipeline is not one monolithic agent workflow. It is composed of specialized skills that perform individual SDLC stages and coordinate through shared repository state, primarily GitHub issues, PRs, claims, and labels.
+The Open Mercato pipeline is not one monolithic agent workflow. It is
+composed of specialized skills that perform individual SDLC stages and
+coordinate through shared repository state, primarily GitHub issues,
+PRs, claims, and labels.
 
-This allows work to move between agents and skills while the repository and tracker remain the shared source of workflow state.
+This allows work to move between agents and skills while the repository
+and tracker remain the shared source of workflow state.
 
-## Finding 005 — Issue orchestration is explicit and resumable
+## Finding 005 --- Issue orchestration is explicit and resumable
 
-`om-auto-fix-issue` acts as a high-level flow runner for a single issue-driven session. It does not implement every SDLC stage itself; instead, it orchestrates specialized companion skills and controls routing, sequencing, worktree lifecycle, concurrency, handoffs, failure cleanup, and reporting.
+`om-auto-fix-issue` acts as a high-level flow runner for a single
+issue-driven session. It does not implement every SDLC stage itself;
+instead, it orchestrates specialized companion skills and controls
+routing, sequencing, worktree lifecycle, concurrency, handoffs, failure
+cleanup, and reporting.
 
-Skills communicate through explicit contracts such as machine-readable reference lines, control markers, structured previous-step outputs, and tracker state. The process can stop cleanly and later resume from durable repository/tracker state rather than depending on one continuous agent session.
+Skills communicate through explicit contracts such as machine-readable
+reference lines, control markers, structured previous-step outputs, and
+tracker state. The process can stop cleanly and later resume from
+durable repository/tracker state rather than depending on one continuous
+agent session.
 
 This creates a layered model:
 
 `flow runner → specialized skills → repo/tracker state`
 
-The orchestration layer coordinates the workflow while individual skills retain narrow responsibilities and remain independently runnable.
+The orchestration layer coordinates the workflow while individual skills
+retain narrow responsibilities and remain independently runnable.
 
----
+------------------------------------------------------------------------
 
-## Finding 006 — Feature design is a separate autonomous lifecycle
+## Finding 006 --- Feature design is a separate autonomous lifecycle
 
 ### Question
 
-After autonomous issue orchestration, does Open Mercato treat feature design as just another implementation step, or as its own lifecycle?
+After autonomous issue orchestration, does Open Mercato treat feature
+design as just another implementation step, or as its own lifecycle?
 
 ### Evidence
 
-Lesson 6 used `om-auto-write-spec` with a plain feature brief for a Learning Lab Status capability.
+Lesson 6 used `om-auto-write-spec` with a plain feature brief for a
+Learning Lab Status capability.
 
-The skill created an isolated `spec/lab-status-check` branch, wrote `.ai/specs/2026-08-13-lab-status-check.md`, and opened PR #9 as a design-only PR. No feature code was implemented in that PR.
+The skill created an isolated `spec/lab-status-check` branch, wrote
+`.ai/specs/2026-08-13-lab-status-check.md`, and opened PR #9 as a
+design-only PR. No feature code was implemented in that PR.
 
-`om-spec-writing` produced the specification in autonomous mode, including resolved assumptions, architecture, edge cases, phasing, and an implementation plan.
+`om-spec-writing` produced the specification in autonomous mode,
+including resolved assumptions, architecture, edge cases, phasing, and
+an implementation plan.
 
 ### Observation
 
-The feature moved through a complete design lifecycle before implementation began:
+The feature moved through a complete design lifecycle before
+implementation began:
 
 `feature brief → autonomous spec → spec PR → review → human decisions → spec amendment → approved spec on main`
 
-The spec PR remained explicitly design-only, and the implementation was left for a separate follow-on lifecycle.
+The spec PR remained explicitly design-only, and the implementation was
+left for a separate follow-on lifecycle.
 
 ### Conclusion
 
-Open Mercato treats feature specification as a first-class, independently reviewable engineering artifact rather than as hidden reasoning inside an implementation run.
+Open Mercato treats feature specification as a first-class,
+independently reviewable engineering artifact rather than as hidden
+reasoning inside an implementation run.
 
-The lifecycle separates **design state** from **implementation state**, allowing the design to be reviewed, amended, merged, and referenced before any code is written.
+The lifecycle separates **design state** from **implementation state**,
+allowing the design to be reviewed, amended, merged, and referenced
+before any code is written.
 
----
+------------------------------------------------------------------------
 
-## Finding 007 — Autonomous design is reversible and human-overridable
+## Finding 007 --- Autonomous design is reversible and human-overridable
 
 ### Question
 
-What happens when an autonomous spec is technically valid but the human disagrees with its product or implementation decisions?
+What happens when an autonomous spec is technically valid but the human
+disagrees with its product or implementation decisions?
 
 ### Evidence
 
-The first autonomous version of the Lab Status spec selected a POSIX shell script and a broader diagnostic scope.
+The first autonomous version of the Lab Status spec selected a POSIX
+shell script and a broader diagnostic scope.
 
-An architectural review found several correctness issues, but it did not reject those product decisions.
+An architectural review found several correctness issues, but it did not
+reject those product decisions.
 
 Human review then explicitly changed two decisions:
 
-- use Windows PowerShell 5.1 instead of POSIX `sh`,
-- reduce Phase 1 to the smallest useful Learning Lab Status capability.
+-   use Windows PowerShell 5.1 instead of POSIX `sh`,
+-   reduce Phase 1 to the smallest useful Learning Lab Status
+    capability.
 
-`om-spec-writing` amended the existing spec in place and regenerated the affected architecture, contracts, risks, phasing, and implementation plan.
+`om-spec-writing` amended the existing spec in place and regenerated the
+affected architecture, contracts, risks, phasing, and implementation
+plan.
 
 ### Observation
 
 Autonomous defaults were not treated as final authority.
 
-The design could be narrowed and redirected after review without discarding the spec lifecycle or starting over. The revised spec preserved an audit trail of the original autonomous decisions and the later human overrides.
+The design could be narrowed and redirected after review without
+discarding the spec lifecycle or starting over. The revised spec
+preserved an audit trail of the original autonomous decisions and the
+later human overrides.
 
 ### Conclusion
 
-Open Mercato autonomy is designed around **documented, reversible assumptions**, not irreversible agent decisions.
+Open Mercato autonomy is designed around **documented, reversible
+assumptions**, not irreversible agent decisions.
 
 A useful mental model is:
 
 `autonomous proposal → explicit assumptions → review → human override → amended durable artifact`
 
-Human judgement remains a first-class control point, especially for scope and environment-specific decisions that architectural review alone may not identify.
+Human judgement remains a first-class control point, especially for
+scope and environment-specific decisions that architectural review alone
+may not identify.
 
----
+------------------------------------------------------------------------
 
-## Finding 008 — Runtime repository state can correct documented assumptions
+## Finding 008 --- Runtime repository state can correct documented assumptions
 
 ### Question
 
-When repository documentation and the actual checkout disagree, which one should drive the design?
+When repository documentation and the actual checkout disagree, which
+one should drive the design?
 
 ### Evidence
 
-During the Lab Status spec amendment, repository probing showed that the 13 discovery entries under `.claude/skills/` were NTFS `Junction` entries in the Windows checkout, even though the repository documentation consistently described them as symlinks.
+During the Lab Status spec amendment, repository probing showed that the
+13 discovery entries under `.claude/skills/` were NTFS `Junction`
+entries in the Windows checkout, even though the repository
+documentation consistently described them as symlinks.
 
-A design that accepted only `SymbolicLink` would therefore have reported a healthy lab as broken.
+A design that accepted only `SymbolicLink` would therefore have reported
+a healthy lab as broken.
 
-The final spec was changed to accept both `SymbolicLink` and `Junction` and to verify that each discovery entry resolves to the matching `.agents/skills/<name>` directory in the current repository.
+The final spec was changed to accept both `SymbolicLink` and `Junction`
+and to verify that each discovery entry resolves to the matching
+`.agents/skills/<name>` directory in the current repository.
 
 ### Observation
 
-The spec-writing/review process used actual repository state to challenge a documented assumption and changed the design accordingly.
+The spec-writing/review process used actual repository state to
+challenge a documented assumption and changed the design accordingly.
 
 ### Conclusion
 
-Repository documentation is an important source of architectural intent, but runtime and filesystem observations remain authoritative for actual behavior.
+Repository documentation is an important source of architectural intent,
+but runtime and filesystem observations remain authoritative for actual
+behavior.
 
 For feature design, Open Mercato's process can be understood as:
 
@@ -216,19 +286,23 @@ For feature design, Open Mercato's process can be understood as:
 
 rather than treating documentation alone as unquestionable truth.
 
----
+------------------------------------------------------------------------
 
-## Finding 009 — Spec implementation uses a thin router and a separate execution engine
+## Finding 009 --- Spec implementation uses a thin router and a separate execution engine
 
-**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+**Evidence:** Experiment 004 --- Autonomous spec implementation
+lifecycle
 
-`om-auto-implement-spec` did not directly perform the feature implementation.
+`om-auto-implement-spec` did not directly perform the feature
+implementation.
 
-It resolved the approved specification, checked whether an implementation already existed, and selected the appropriate downstream engine.
+It resolved the approved specification, checked whether an
+implementation already existed, and selected the appropriate downstream
+engine.
 
 For a fresh implementation the observed handoff was:
 
-```text
+``` text
 approved spec
     ↓
 om-auto-implement-spec
@@ -242,41 +316,47 @@ none found
 om-auto-create-pr
 ```
 
-`om-auto-create-pr` then owned the implementation machinery: execution planning, worktree isolation, incremental implementation, validation, Progress tracking, PR lifecycle, and downstream review.
+`om-auto-create-pr` then owned the implementation machinery: execution
+planning, worktree isolation, incremental implementation, validation,
+Progress tracking, PR lifecycle, and downstream review.
 
 This establishes a separation between:
 
-```text
+``` text
 spec resolution / routing
 ```
 
 and:
 
-```text
+``` text
 implementation execution
 ```
 
-The orchestration layer does not need to duplicate the execution machinery it routes into.
+The orchestration layer does not need to duplicate the execution
+machinery it routes into.
 
----
+------------------------------------------------------------------------
 
-## Finding 010 — Approved design is translated into a durable execution artifact before code
+## Finding 010 --- Approved design is translated into a durable execution artifact before code
 
-**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+**Evidence:** Experiment 004 --- Autonomous spec implementation
+lifecycle
 
 The approved specification was not consumed only as prompt context.
 
-`om-auto-create-pr` used the specification's `Implementation Plan` to generate a five-Step execution plan.
+`om-auto-create-pr` used the specification's `Implementation Plan` to
+generate a five-Step execution plan.
 
-Before implementation code was committed, the plan itself became the first durable commit on the implementation branch:
+Before implementation code was committed, the plan itself became the
+first durable commit on the implementation branch:
 
-```text
+``` text
 7c22dd7 docs(runs): add execution plan for lab-status-check
 ```
 
 The observed transition was therefore:
 
-```text
+``` text
 approved specification
         ↓
 Implementation Plan
@@ -288,21 +368,26 @@ durable execution plan
 implementation
 ```
 
-This creates an explicit boundary between **design intent** and **execution state**.
+This creates an explicit boundary between **design intent** and
+**execution state**.
 
-The specification describes what should be built and the approved design constraints. The execution plan represents how that approved design is being carried out in a particular implementation run.
+The specification describes what should be built and the approved design
+constraints. The execution plan represents how that approved design is
+being carried out in a particular implementation run.
 
----
+------------------------------------------------------------------------
 
-## Finding 011 — Resumability is built from durable execution state, not only agent memory
+## Finding 011 --- Resumability is built from durable execution state, not only agent memory
 
-**Evidence:** Experiment 004 — Autonomous spec implementation lifecycle
+**Evidence:** Experiment 004 --- Autonomous spec implementation
+lifecycle
 
-The fresh implementation run continuously persisted execution state outside the active agent invocation.
+The fresh implementation run continuously persisted execution state
+outside the active agent invocation.
 
 Observed durable state included:
 
-```text
+``` text
 implementation branch
 execution-plan commit
 incremental implementation commits
@@ -312,21 +397,22 @@ remote pushes
 implementation PR
 ```
 
-Implementation work was committed incrementally, and completion of the implementation phase was separately recorded:
+Implementation work was committed incrementally, and completion of the
+implementation phase was separately recorded:
 
-```text
+``` text
 eda21c4 docs(runs): mark lab-status-check Phase 1 complete
 ```
 
 After review produced an additional fix, Progress was updated again:
 
-```text
+``` text
 fdf642b docs(runs): record the review autofix commit
 ```
 
 The resulting model is:
 
-```text
+``` text
 execution plan
     +
 Progress state
@@ -340,19 +426,23 @@ implementation PR
 durable implementation state
 ```
 
-This provides the architectural foundation for a resumable implementation lifecycle without relying solely on the context of one running agent.
+This provides the architectural foundation for a resumable
+implementation lifecycle without relying solely on the context of one
+running agent.
 
-The actual resume path through `om-auto-continue-pr` was **not tested in Experiment 004**, so this finding does not claim that resume execution itself has been observed.
+The actual resume path through `om-auto-continue-pr` was **not tested in
+Experiment 004**, so this finding does not claim that resume execution
+itself has been observed.
 
----
+------------------------------------------------------------------------
 
-## Finding 012 — Design and implementation are separate but linked lifecycles
+## Finding 012 --- Design and implementation are separate but linked lifecycles
 
 **Evidence:** Experiments 003 and 004
 
 Lesson 6 produced the approved design on a design-only PR:
 
-```text
+``` text
 feature intent
     ↓
 autonomous specification
@@ -368,9 +458,10 @@ spec PR #9
 main
 ```
 
-Lesson 7 consumed that approved artifact and created a separate implementation lifecycle:
+Lesson 7 consumed that approved artifact and created a separate
+implementation lifecycle:
 
-```text
+``` text
 approved spec on main
     ↓
 om-auto-implement-spec
@@ -386,16 +477,17 @@ The implementation did not reuse or mutate the spec PR branch.
 
 Instead:
 
-```text
+``` text
 PR #9 = design artifact
 PR #10 = implementation artifact
 ```
 
-The two lifecycles remained linked through the specification path and PR cross-references.
+The two lifecycles remained linked through the specification path and PR
+cross-references.
 
 The combined observed lifecycle is therefore:
 
-```text
+``` text
 FEATURE INTENT
       ↓
 ────────────────────────
@@ -433,19 +525,25 @@ review
 implementation PR
 ```
 
-Open Mercato therefore treats approved design and implementation as **separate autonomous lifecycles connected by durable handoff artifacts**, rather than as one continuous opaque agent run.
+Open Mercato therefore treats approved design and implementation as
+**separate autonomous lifecycles connected by durable handoff
+artifacts**, rather than as one continuous opaque agent run.
 
----
+------------------------------------------------------------------------
 
-## Finding 013 — `om-auto-continue-pr` reconstructs and resumes unfinished PR work
+## Finding 013 --- `om-auto-continue-pr` reconstructs and resumes unfinished PR work
 
-**Evidence:** Lesson 8 — documented inspection of `om-auto-continue-pr`, `references/claim-pr.md`, and `references/worktree-setup.md`
+**Evidence:** Lesson 8 --- documented inspection of
+`om-auto-continue-pr`, `references/claim-pr.md`, and
+`references/worktree-setup.md`
 
-`om-auto-continue-pr` accepts an existing PR number as its primary entry point and reconstructs the implementation context required to continue that PR.
+`om-auto-continue-pr` accepts an existing PR number as its primary entry
+point and reconstructs the implementation context required to continue
+that PR.
 
 The documented normal resume path is:
 
-```text
+``` text
 PR number
     ↓
 claim / concurrency check
@@ -463,18 +561,22 @@ first unchecked Step
 continue implementation
 ```
 
-The skill does not create a fresh implementation branch. It restores the existing PR head in an isolated worktree and continues the existing execution plan.
+The skill does not create a fresh implementation branch. It restores the
+existing PR head in an isolated worktree and continues the existing
+execution plan.
 
 The resume point is selected at **Step granularity**:
 
-```text
+``` text
 [x] completed Step
 [x] completed Step
 [ ] first pending Step  ← resume point
 [ ] later Step
 ```
 
-Execution then continues phase-by-phase using the same implementation, validation, Progress-update, review, and finalization discipline as `om-auto-create-pr`.
+Execution then continues phase-by-phase using the same implementation,
+validation, Progress-update, review, and finalization discipline as
+`om-auto-create-pr`.
 
 ### Conclusion
 
@@ -482,7 +584,7 @@ Execution then continues phase-by-phase using the same implementation, validatio
 
 Its role can be summarized as:
 
-```text
+``` text
 om-auto-create-pr
         ↓
 creates implementation state
@@ -498,21 +600,25 @@ continues from first pending Step
 finishes PR
 ```
 
-This behavior is **documented and inspected in Lesson 8 but has not been runtime-tested in the Learning Lab**.
+This behavior is **documented and inspected in Lesson 8 but has not been
+runtime-tested in the Learning Lab**.
 
----
+------------------------------------------------------------------------
 
-## Finding 014 — Resume state is reconstructed from multiple durable surfaces
+## Finding 014 --- Resume state is reconstructed from multiple durable surfaces
 
-**Evidence:** Lesson 8 — documented inspection of `om-auto-continue-pr`, `references/claim-pr.md`, and `references/worktree-setup.md`
+**Evidence:** Lesson 8 --- documented inspection of
+`om-auto-continue-pr`, `references/claim-pr.md`, and
+`references/worktree-setup.md`
 
-Lesson 7 showed that autonomous implementation persists execution state outside the active agent invocation.
+Lesson 7 showed that autonomous implementation persists execution state
+outside the active agent invocation.
 
 Lesson 8 clarified how the resume contract uses those artifacts.
 
 The documented state model is:
 
-```text
+``` text
 PR
 = resume entry point and coordination surface
 
@@ -532,13 +638,16 @@ assignee + in-progress label + claim comments
 = concurrency / ownership state
 ```
 
-Before continuing implementation, `om-auto-continue-pr` reconstructs both execution state and ownership state.
+Before continuing implementation, `om-auto-continue-pr` reconstructs
+both execution state and ownership state.
 
-It resolves the plan from the PR, restores an isolated worktree from the existing remote PR head, finds the first unchecked Progress Step, and cross-checks the last recorded completed Step SHA against Git history.
+It resolves the plan from the PR, restores an isolated worktree from the
+existing remote PR head, finds the first unchecked Progress Step, and
+cross-checks the last recorded completed Step SHA against Git history.
 
 The documented worktree restoration path is:
 
-```text
+``` text
 existing PR
     ↓
 headRefName
@@ -548,20 +657,21 @@ origin/<PR-head>
 temporary isolated worktree
 ```
 
-This means normal resume reconstruction depends on durable remote state rather than the previous invocation's local filesystem state.
+This means normal resume reconstruction depends on durable remote state
+rather than the previous invocation's local filesystem state.
 
 ### Conclusion
 
 Open Mercato resumability is not simply:
 
-```text
+``` text
 read Progress
 → continue coding
 ```
 
 The documented model is closer to:
 
-```text
+``` text
 coordination state
         +
 execution plan
@@ -579,23 +689,29 @@ select resume point
 continue
 ```
 
-Lesson 7 observed the creation of much of this durable state. Lesson 8 documented how `om-auto-continue-pr` is designed to consume it.
+Lesson 7 observed the creation of much of this durable state. Lesson 8
+documented how `om-auto-continue-pr` is designed to consume it.
 
-The actual resume reconstruction path remains **not runtime-tested in the Learning Lab**.
+The actual resume reconstruction path remains **not runtime-tested in
+the Learning Lab**.
 
----
+------------------------------------------------------------------------
 
-## Finding 015 — PR adoption normalizes external or undocumented PRs into the standard resume contract
+## Finding 015 --- PR adoption normalizes external or undocumented PRs into the standard resume contract
 
-**Evidence:** Lesson 8 — documented inspection of `references/adopt-pr.md`
+**Evidence:** Lesson 8 --- documented inspection of
+`references/adopt-pr.md`
 
-`om-auto-continue-pr` is not limited to PRs created by `om-auto-create-pr`.
+`om-auto-continue-pr` is not limited to PRs created by
+`om-auto-create-pr`.
 
-When an existing PR has no usable execution plan, the skill can **adopt** it rather than treating missing pipeline metadata as a terminal error.
+When an existing PR has no usable execution plan, the skill can
+**adopt** it rather than treating missing pipeline metadata as a
+terminal error.
 
 The documented adoption path is:
 
-```text
+``` text
 existing PR
     ↓
 no usable Tracking plan
@@ -615,7 +731,7 @@ ordinary resume machinery
 
 The evidence sweep can use:
 
-```text
+``` text
 PR title / body / task lists
 comments
 review feedback
@@ -629,9 +745,11 @@ repository conventions
 
 Adoption therefore acts as a normalization layer.
 
-Instead of building a separate execution mechanism for non-pipeline PRs, it converts them into the same durable representation expected by the normal resume engine:
+Instead of building a separate execution mechanism for non-pipeline PRs,
+it converts them into the same durable representation expected by the
+normal resume engine:
 
-```text
+``` text
 arbitrary PR state
         ↓
 ADOPTION
@@ -641,31 +759,46 @@ execution plan + Progress
 standard om-auto-continue-pr lifecycle
 ```
 
-The same mechanism can repair a malformed or missing `## Progress` section without replacing the rest of an existing plan.
+The same mechanism can repair a malformed or missing `## Progress`
+section without replacing the rest of an existing plan.
 
-For an interactive run, documented `ask` mode can commit and publish the reconstructed plan, release the claim, clean up the worktree, and stop for human confirmation before implementation. This leaves the PR in a durable state that can later be re-entered through the normal resume path.
+For an interactive run, documented `ask` mode can commit and publish the
+reconstructed plan, release the claim, clean up the worktree, and stop
+for human confirmation before implementation. This leaves the PR in a
+durable state that can later be re-entered through the normal resume
+path.
 
 ### Conclusion
 
-Open Mercato's resume architecture is not restricted to work originally created by its own implementation engine.
+Open Mercato's resume architecture is not restricted to work originally
+created by its own implementation engine.
 
-PR adoption provides an adapter from external or incomplete PR state into the standard execution-plan contract, after which the ordinary resume machinery can take over.
+PR adoption provides an adapter from external or incomplete PR state
+into the standard execution-plan contract, after which the ordinary
+resume machinery can take over.
 
 Adoption was **inspected but not runtime-tested in Lesson 8**.
 
----
+------------------------------------------------------------------------
 
-## Finding 016 — PR autopilot is a state-driven orchestration layer
+## Finding 016 --- PR autopilot is a state-driven orchestration layer
 
-**Evidence:** Lesson 9 — documented inspection of `om-pr-autopilot`, `references/diagnose.md`, `references/state-matrix.md`, `references/rules.md`, `references/report-templates.md`, and `references/agentic-setup.md`
+**Evidence:** Lesson 9 --- documented inspection of `om-pr-autopilot`,
+`references/diagnose.md`, `references/state-matrix.md`,
+`references/rules.md`, `references/report-templates.md`, and
+`references/agentic-setup.md`
 
-`om-pr-autopilot` provides a single orchestration entry point for an existing open PR.
+`om-pr-autopilot` provides a single orchestration entry point for an
+existing open PR.
 
-It does not implement review, fixes, CI repair, QA, continuation, or merge itself. Instead, it first reconstructs a normalized view of the PR and then decides which specialized `om-*` capabilities should run and in what order.
+It does not implement review, fixes, CI repair, QA, continuation, or
+merge itself. Instead, it first reconstructs a normalized view of the PR
+and then decides which specialized `om-*` capabilities should run and in
+what order.
 
 The documented lifecycle is:
 
-```text
+``` text
 existing open PR
         ↓
 agentic preflight
@@ -689,9 +822,10 @@ stop / merge-ready / explicit merge
 publish PR + session report
 ```
 
-Diagnosis considers multiple independent dimensions of PR state, including:
+Diagnosis considers multiple independent dimensions of PR state,
+including:
 
-```text
+``` text
 identity / repository
 PR ownership and draft state
 plan progress
@@ -706,9 +840,10 @@ claim state
 
 Classification is not a one-time selection of a single skill.
 
-The state matrix is evaluated top-to-bottom, and one PR can match multiple rows. This produces an ordered lifecycle chain such as:
+The state matrix is evaluated top-to-bottom, and one PR can match
+multiple rows. This produces an ordered lifecycle chain such as:
 
-```text
+``` text
 unfinished implementation
         ↓
 continue implementation
@@ -722,11 +857,14 @@ QA
 merge-ready
 ```
 
-After delegated steps, the autopilot re-reads relevant PR signals because one capability may satisfy several later conditions. The remaining chain can therefore shrink or change as the PR state changes.
+After delegated steps, the autopilot re-reads relevant PR signals
+because one capability may satisfy several later conditions. The
+remaining chain can therefore shrink or change as the PR state changes.
 
-The orchestration also distinguishes technical capability from authority:
+The orchestration also distinguishes technical capability from
+authority:
 
-```text
+``` text
 PUSHABLE
 = can this identity technically push to the branch?
 
@@ -734,19 +872,31 @@ DRIVABLE
 = is this identity permitted to autonomously modify this PR?
 ```
 
-This allows the same technical PR state to route differently depending on ownership and policy. For example, another author's PR can be reviewed and handed off rather than automatically modified.
+This allows the same technical PR state to route differently depending
+on ownership and policy. For example, another author's PR can be
+reviewed and handed off rather than automatically modified.
 
-Autonomy is similarly bounded. Ordinary reversible decisions are made without requiring a human in the loop, while explicit gates such as claim conflicts and `⚠ NEEDS HUMAN CONFIRMATION` stop execution. Merge is also intentionally excluded from default autonomous execution: the normal endpoint is `merge-ready`, and actual merge requires `--allow-merge`.
+Autonomy is similarly bounded. Ordinary reversible decisions are made
+without requiring a human in the loop, while explicit gates such as
+claim conflicts and `⚠ NEEDS HUMAN CONFIRMATION` stop execution. Merge
+is also intentionally excluded from default autonomous execution: the
+normal endpoint is `merge-ready`, and actual merge requires
+`--allow-merge`.
 
-The orchestration is repository-aware rather than GitHub-hard-coded. Configuration, tracker operations, labels, repository instructions, and optional repo-local skill extensions are resolved during agentic preflight. Tracker access is performed through named operations defined by the configured tracker descriptor.
+The orchestration is repository-aware rather than GitHub-hard-coded.
+Configuration, tracker operations, labels, repository instructions, and
+optional repo-local skill extensions are resolved during agentic
+preflight. Tracker access is performed through named operations defined
+by the configured tracker descriptor.
 
 ### Conclusion
 
-`om-pr-autopilot` establishes a higher PR orchestration layer above the specialized PR skills.
+`om-pr-autopilot` establishes a higher PR orchestration layer above the
+specialized PR skills.
 
 Its responsibility is:
 
-```text
+``` text
 observe state
     ↓
 normalize state
@@ -762,11 +912,12 @@ adapt
 report
 ```
 
-while the delegated skills retain responsibility for the actual implementation, review, fix, QA, CI, and merge work.
+while the delegated skills retain responsibility for the actual
+implementation, review, fix, QA, CI, and merge work.
 
 A useful architectural model is therefore:
 
-```text
+``` text
                  om-pr-autopilot
                         │
           state diagnosis + policy
@@ -784,25 +935,33 @@ A useful architectural model is therefore:
                    merge-ready
 ```
 
-This makes `om-pr-autopilot` best understood as a **state-driven dispatcher/orchestrator with policy guards**.
+This makes `om-pr-autopilot` best understood as a **state-driven
+dispatcher/orchestrator with policy guards**.
 
-It exhibits state-machine-like behavior because execution repeatedly transitions between observed PR states, but describing it formally as a state machine remains an architectural interpretation rather than terminology established by the inspected skill documentation.
+It exhibits state-machine-like behavior because execution repeatedly
+transitions between observed PR states, but describing it formally as a
+state machine remains an architectural interpretation rather than
+terminology established by the inspected skill documentation.
 
-This finding is **documented and inspected in Lesson 9 but has not been runtime-tested in the Learning Lab**.
+This finding is **documented and inspected in Lesson 9 but has not been
+runtime-tested in the Learning Lab**.
 
----
+------------------------------------------------------------------------
 
-## Finding 017 — Fresh implementation engine selection is deterministic and separate from loop run-mode classification
+## Finding 017 --- Fresh implementation engine selection is deterministic and separate from loop run-mode classification
 
-**Evidence:** Lesson 10 — documented inspection of `om-auto-implement-spec`, `om-auto-create-pr`, `references/engine-selection.md`, and `om-auto-create-pr-loop`
+**Evidence:** Lesson 10 --- documented inspection of
+`om-auto-implement-spec`, `om-auto-create-pr`,
+`references/engine-selection.md`, and `om-auto-create-pr-loop`
 
-For a fresh spec implementation, `om-auto-implement-spec` delegates to `om-auto-create-pr`.
+For a fresh spec implementation, `om-auto-implement-spec` delegates to
+`om-auto-create-pr`.
 
 `om-auto-create-pr` owns the flat-vs-loop engine decision.
 
 The documented routing rule is deterministic:
 
-```text
+``` text
 --loop
 OR
 drafted plan Steps > engine.loopStepThreshold
@@ -812,33 +971,40 @@ om-auto-create-pr-loop
 
 The default threshold is:
 
-```text
+``` text
 engine.loopStepThreshold = 20
 ```
 
 The count is based on Steps, not Phases.
 
-Nothing else selects the loop engine. UI work, subjective complexity, or the possibility that a run may not finish in one pass are not routing signals.
+Nothing else selects the loop engine. UI work, subjective complexity, or
+the possibility that a run may not finish in one pass are not routing
+signals.
 
-When the Step threshold triggers the handoff, the plain engine's drafted Progress-format plan is discarded before it is written or committed. The loop engine receives the original brief/spec and creates its own run-folder plan format.
+When the Step threshold triggers the handoff, the plain engine's drafted
+Progress-format plan is discarded before it is written or committed. The
+loop engine receives the original brief/spec and creates its own
+run-folder plan format.
 
-This means engine selection happens before durable execution artifacts are committed.
+This means engine selection happens before durable execution artifacts
+are committed.
 
-Inside `om-auto-create-pr-loop`, a separate classification then chooses between:
+Inside `om-auto-create-pr-loop`, a separate classification then chooses
+between:
 
-```text
+``` text
 Simple run
 ```
 
 and:
 
-```text
+``` text
 Spec-implementation run
 ```
 
 These are two different decisions:
 
-```text
+``` text
 LEVEL 1
 flat engine vs loop engine
 
@@ -849,11 +1015,12 @@ Simple vs Spec-implementation contract
 
 ### Conclusion
 
-Open Mercato separates **engine routing** from **execution-contract classification**.
+Open Mercato separates **engine routing** from **execution-contract
+classification**.
 
 A useful model is:
 
-```text
+``` text
 fresh implementation
         ↓
 om-auto-create-pr
@@ -869,17 +1036,20 @@ plain OR loop
       Simple / Spec-implementation
 ```
 
-This routing behavior is **documented**. Lesson 10 runtime-tested only the explicit `--loop` path, not automatic threshold routing.
+This routing behavior is **documented**. Lesson 10 runtime-tested only
+the explicit `--loop` path, not automatic threshold routing.
 
----
+------------------------------------------------------------------------
 
-## Finding 018 — Loop execution uses a different durable state model from the plain implementation engine
+## Finding 018 --- Loop execution uses a different durable state model from the plain implementation engine
 
-**Evidence:** Experiment 005 — Loop implementation engine and durable execution protocol
+**Evidence:** Experiment 005 --- Loop implementation engine and durable
+execution protocol
 
-The plain implementation engine observed in Lesson 7 persisted resumable execution state primarily through:
+The plain implementation engine observed in Lesson 7 persisted resumable
+execution state primarily through:
 
-```text
+``` text
 single execution-plan file
 ## Progress checklist
 commit SHAs
@@ -889,7 +1059,7 @@ implementation PR
 
 In Lesson 10, the loop engine used a richer durable state model:
 
-```text
+``` text
 run folder/
     ├── PLAN.md
     ├── HANDOFF.md
@@ -900,17 +1070,22 @@ run folder/
 
 `PLAN.md` carries the authoritative Tasks state.
 
-Implementation Steps were committed individually, and checkpoint activity created additional durable execution-state commits.
+Implementation Steps were committed individually, and checkpoint
+activity created additional durable execution-state commits.
 
-A checkpoint fired during the six-Step Lab Report implementation, proving that checkpoint-based verification is part of the runtime execution model rather than only a documented design.
+A checkpoint fired during the six-Step Lab Report implementation,
+proving that checkpoint-based verification is part of the runtime
+execution model rather than only a documented design.
 
 ### Conclusion
 
-`om-auto-create-pr-loop` is not simply a larger version of `om-auto-create-pr`.
+`om-auto-create-pr-loop` is not simply a larger version of
+`om-auto-create-pr`.
 
-It uses a different **durable execution protocol** intended to make long-running implementation progress explicit and reconstructable:
+It uses a different **durable execution protocol** intended to make
+long-running implementation progress explicit and reconstructable:
 
-```text
+``` text
 execution plan
     +
 Step state
@@ -926,23 +1101,27 @@ checkpoint evidence
 durable loop execution state
 ```
 
-The key architectural difference is therefore not only how much work is performed, but **how execution state is represented and persisted**.
+The key architectural difference is therefore not only how much work is
+performed, but **how execution state is represented and persisted**.
 
 This behavior is **runtime observed in Lesson 10**.
 
----
+------------------------------------------------------------------------
 
-## Finding 019 — Loop checkpoints batch verification and execution-state updates
+## Finding 019 --- Loop checkpoints batch verification and execution-state updates
 
-**Evidence:** Experiment 005 and Lesson 10 inspection of `references/checkpoint-pass.md`
+**Evidence:** Experiment 005 and Lesson 10 inspection of
+`references/checkpoint-pass.md`
 
-The Lab Report loop run contained six implementation Steps and produced a real checkpoint during execution.
+The Lab Report loop run contained six implementation Steps and produced
+a real checkpoint during execution.
 
-The loop contract does not create a verification artifact for every Step.
+The loop contract does not create a verification artifact for every
+Step.
 
 Instead, normal implementation progress is kept lean:
 
-```text
+``` text
 Step
     ↓
 implementation
@@ -952,9 +1131,10 @@ one commit
 Tasks state update
 ```
 
-and periodically batches verification and handoff state into a checkpoint:
+and periodically batches verification and handoff state into a
+checkpoint:
 
-```text
+``` text
 multiple Steps
     ↓
 checkpoint
@@ -966,37 +1146,46 @@ checkpoint evidence
 checkpoint commit
 ```
 
-This reduces per-Step ceremony while still creating durable recovery points.
+This reduces per-Step ceremony while still creating durable recovery
+points.
 
 ### Conclusion
 
-The loop engine combines **fine-grained implementation commits** with **coarser-grained verification checkpoints**.
+The loop engine combines **fine-grained implementation commits** with
+**coarser-grained verification checkpoints**.
 
 A useful mental model is:
 
-```text
+``` text
 Step-level execution granularity
         +
 checkpoint-level verification granularity
 ```
 
-The existence of checkpoint execution is **runtime observed in Lesson 10**. The full set of checkpoint trigger rules remains documented rather than exhaustively runtime-tested.
+The existence of checkpoint execution is **runtime observed in Lesson
+10**. The full set of checkpoint trigger rules remains documented rather
+than exhaustively runtime-tested.
 
----
+------------------------------------------------------------------------
 
-## Finding 020 — Linked design and implementation PRs can be finalized as a coordinated merge pair
+## Finding 020 --- Linked design and implementation PRs can be finalized as a coordinated merge pair
 
-**Evidence:** Lesson 10 — runtime execution of `om-approve-merge-pr` for implementation PR #12 and linked spec PR #11
+**Evidence:** Lesson 10 --- runtime execution of `om-approve-merge-pr`
+for implementation PR #12 and linked spec PR #11
 
-During finalization of the Lab Report feature, `om-approve-merge-pr` discovered that implementation PR #12 was linked to spec PR #11.
+During finalization of the Lab Report feature, `om-approve-merge-pr`
+discovered that implementation PR #12 was linked to spec PR #11.
 
-The skill did not silently merge both PRs just because the relationship existed.
+The skill did not silently merge both PRs just because the relationship
+existed.
 
-Instead, it surfaced the relationship and required an explicit human decision. After the user chose to merge both, the implementation PR was merged first and the spec PR second.
+Instead, it surfaced the relationship and required an explicit human
+decision. After the user chose to merge both, the implementation PR was
+merged first and the spec PR second.
 
 The observed flow was:
 
-```text
+``` text
 implementation PR #12
         +
 linked spec PR #11
@@ -1016,24 +1205,29 @@ MERGEABLE / CLEAN
 merge spec PR #11
 ```
 
-A particularly important behavior was that the second PR was not assumed to remain safe after the first merge changed `main`.
+A particularly important behavior was that the second PR was not assumed
+to remain safe after the first merge changed `main`.
 
-GitHub briefly reported PR #11 mergeability as `UNKNOWN` while recomputing. `om-approve-merge-pr` waited for the state to settle, re-checked it, confirmed `CLEAN`, and only then merged the spec PR.
+GitHub briefly reported PR #11 mergeability as `UNKNOWN` while
+recomputing. `om-approve-merge-pr` waited for the state to settle,
+re-checked it, confirmed `CLEAN`, and only then merged the spec PR.
 
 The resulting squash merge commits were:
 
-```text
+``` text
 PR #12 → 10f9456
 PR #11 → e96339a
 ```
 
 ### Conclusion
 
-Open Mercato can treat linked design and implementation PRs as a coordinated finalization unit without collapsing them into one atomic operation.
+Open Mercato can treat linked design and implementation PRs as a
+coordinated finalization unit without collapsing them into one atomic
+operation.
 
 The observed model is:
 
-```text
+``` text
 discover relationship
         ↓
 request merge authority
@@ -1049,9 +1243,10 @@ validate against new state
 merge second PR
 ```
 
-This reinforces two architectural principles already visible elsewhere in the skills:
+This reinforces two architectural principles already visible elsewhere
+in the skills:
 
-```text
+``` text
 AUTONOMY
 ≠
 UNBOUNDED AUTHORITY
@@ -1059,15 +1254,493 @@ UNBOUNDED AUTHORITY
 
 and:
 
-```text
+``` text
 previously observed state
 ≠
 current authoritative state
 ```
 
-The skill can discover relationships and coordinate the merge sequence, but the human retains authority over whether the linked PRs should actually be merged.
+The skill can discover relationships and coordinate the merge sequence,
+but the human retains authority over whether the linked PRs should
+actually be merged.
 
-At the same time, each state-changing action is followed by fresh observation rather than assuming that the remaining PR is still mergeable.
+At the same time, each state-changing action is followed by fresh
+observation rather than assuming that the remaining PR is still
+mergeable.
 
-This behavior was **runtime observed in Lesson 10** with implementation PR #12 and linked spec PR #11.
+This behavior was **runtime observed in Lesson 10** with implementation
+PR #12 and linked spec PR #11.
 
+------------------------------------------------------------------------
+
+## Finding 021 --- Autonomous QA is a layered runtime-verification architecture
+
+### Question
+
+Does Open Mercato treat autonomous QA as one monolithic test skill, or
+as a set of separate runtime-verification responsibilities?
+
+### Evidence
+
+Lesson 11 inspected `om-auto-qa-pr`, `om-prepare-test-env`, their
+references, and the configured browser descriptor.
+
+`om-auto-qa-pr` documents a QA orchestration flow that derives
+verification scope and scenarios, obtains a runnable environment through
+`om-prepare-test-env`, drives the configured browser provider, and
+produces QA evidence.
+
+`om-prepare-test-env` owns environment discovery, provisioning,
+lifecycle, and the environment descriptor rather than the QA scenario
+itself.
+
+The browser provider is resolved through a descriptor contract exposing
+operations such as:
+
+``` text
+open
+snapshot
+interact
+assert
+screenshot
+close
+```
+
+### Observation
+
+The documented architecture separates three responsibilities:
+
+``` text
+om-auto-qa-pr
+    ↓
+QA orchestration
+    ↓
+┌──────────────────────┬─────────────────────┐
+│ om-prepare-test-env  │ browser provider    │
+│ environment lifecycle│ browser interaction │
+└──────────┬───────────┴──────────┬──────────┘
+           ↓                      ↓
+      test-env.json           real browser
+           └──────────┬───────────┘
+                      ↓
+                  real runtime
+                      ↓
+                  QA evidence
+```
+
+`om-auto-qa-pr` does not need to know how the application is started or
+how a particular browser implementation is installed and invoked.
+
+### Conclusion
+
+Open Mercato's autonomous QA capability is a **layered
+runtime-verification architecture**, not a single test runner.
+
+The documented responsibility boundaries are:
+
+``` text
+QA orchestration
+        ≠
+environment provisioning
+        ≠
+browser implementation
+```
+
+This architecture was **documented and inspected in Lesson 11**. A
+complete browser-driven `om-auto-qa-pr` run was not runtime-tested in
+the Learning Lab.
+
+------------------------------------------------------------------------
+
+## Finding 022 --- Test-environment discovery can be compiled into reusable executable knowledge
+
+### Question
+
+Does `om-prepare-test-env` rediscover how to run an application on every
+invocation?
+
+### Evidence
+
+Lesson 11 inspection of `om-prepare-test-env` and its generation
+references documented a two-stage model.
+
+For a repository with a runnable application, the generation path
+discovers how to build, start, stop, and verify the environment and then
+generates platform-appropriate entrypoints such as:
+
+``` text
+.ai/scripts/test-env-up.ps1
+.ai/scripts/test-env-down.ps1
+```
+
+The generated entrypoint is then verified through cold and warm runs.
+Later invocations can use the generated entrypoint instead of repeating
+the full discovery process.
+
+The skill also documents repair behavior in which failures found during
+later runs are fixed in the generated script and the script is rerun.
+
+### Observation
+
+The intended transition is:
+
+``` text
+agent discovery
+      ↓
+understand repository runtime
+      ↓
+generate deterministic entrypoint
+      ↓
+verify cold + warm
+      ↓
+future runs execute the entrypoint
+```
+
+This converts repository-specific runtime knowledge discovered by an
+agent into ordinary executable artifacts.
+
+The Learning Lab itself has no runnable application, so Lesson 11 did
+**not** generate `test-env-up.ps1` or `test-env-down.ps1` and did not
+observe cold/warm reuse.
+
+### Conclusion
+
+`om-prepare-test-env` can be understood as an **environment compiler**:
+
+``` text
+discovered runtime knowledge
+        ↓
+generated executable knowledge
+        ↓
+reusable deterministic environment lifecycle
+```
+
+The generation and reuse model is **documented**, while successful
+script generation and cold-to-warm reuse remain **not runtime-tested in
+the Learning Lab**.
+
+------------------------------------------------------------------------
+
+## Finding 023 --- `test-env.json` is the shared runtime-environment contract
+
+### Question
+
+How do QA and integration-test capabilities consume a prepared
+environment without knowing how that environment was created?
+
+### Evidence
+
+Lesson 11 inspection of the environment-descriptor contract showed that
+`om-prepare-test-env` writes `.ai/qa/test-env.json`.
+
+The descriptor can expose environment state and connection information
+such as:
+
+``` text
+baseUrl
+services
+credential references
+browser provider
+test runner
+start / stop scripts
+platform
+startedByThisRepo
+```
+
+Both `om-auto-qa-pr` and `om-integration-tests` are documented as
+consumers of the prepared environment.
+
+During the Learning Lab runtime experiment, `om-prepare-test-env`
+actually wrote `.ai/qa/test-env.json`. The descriptor recorded the
+configured browser provider as `agent-browser`, the Windows platform,
+and the absence of a runnable application.
+
+### Observation
+
+The environment layer owns **how** the environment is discovered and
+managed, while consumers receive a normalized description of **what
+runtime is available**:
+
+``` text
+om-prepare-test-env
+        ↓
+   test-env.json
+        ↓
+┌────────────────────┬──────────────────────┐
+│ om-auto-qa-pr      │ om-integration-tests │
+└────────────────────┴──────────────────────┘
+```
+
+The runtime experiment also showed that configuration participates in
+this contract: the Lab's configured `browser.provider = agent-browser`
+appeared in the generated descriptor.
+
+### Conclusion
+
+`test-env.json` is a **shared runtime boundary** between environment
+provisioning and runtime-verification consumers.
+
+This allows QA and integration-test skills to consume environment state
+without duplicating repository-specific startup logic.
+
+The contract is **documented**, and creation of a `test-env.json`
+descriptor plus propagation of the configured browser provider were
+**runtime observed in Lesson 11**.
+
+------------------------------------------------------------------------
+
+## Finding 024 --- No runnable application is a valid environment-discovery outcome
+
+### Question
+
+What does `om-prepare-test-env` do when repository discovery finds no
+application that should be brought up?
+
+### Evidence
+
+Lesson 11 ran `om-prepare-test-env` against `om-skills-learning-lab`.
+
+Repository inspection found no application code or common
+runnable-application definition:
+
+``` text
+no package.json
+no Dockerfile
+no compose file
+no Makefile
+no application manifest
+no .github/workflows/
+```
+
+The repository's own guidance also states that it has no source tree,
+test suite, or application code.
+
+The skill identified the self-contained `learning-map/*.html` files as a
+possible browsable artifact but asked for a human decision rather than
+silently turning them into a served application.
+
+The selected target was:
+
+``` text
+No app — record the gap
+```
+
+The resulting `.ai/qa/test-env.json` contained:
+
+``` text
+status            = no-app
+mode              = none
+baseUrl           = null
+startedByThisRepo = false
+startScript       = null
+stopScript        = null
+browser.provider  = agent-browser
+browser.installed = false
+testRunner.name   = none
+platform          = win32
+```
+
+No environment scripts were generated and no server or browser provider
+was started.
+
+### Observation
+
+The observed runtime path was:
+
+``` text
+repository discovery
+        ↓
+no runnable application
+        ↓
+human target decision
+        ↓
+do not fabricate a server
+        ↓
+do not fabricate a baseUrl
+        ↓
+write negative environment state
+        ↓
+status = no-app
+baseUrl = null
+```
+
+The configured `agent-browser` provider was also deliberately left
+uninstalled because there was no application for it to drive.
+
+### Conclusion
+
+Absence of a runnable application is a **valid environment-discovery
+result**, not automatically a provisioning failure.
+
+The runtime contract can explicitly communicate that consumers must not
+attach to an environment:
+
+``` text
+no applicable runtime
+        ↓
+explicit descriptor state
+        ↓
+downstream skills can stop honestly
+```
+
+This `no-app` behavior was **runtime observed in Lesson 11**.
+
+------------------------------------------------------------------------
+
+## Finding 025 --- QA evidence and durable regression tests are separate runtime-verification capabilities
+
+### Question
+
+Are `om-auto-qa-pr` and `om-integration-tests` two names for the same
+test-execution capability?
+
+### Evidence
+
+Lesson 11 inspection showed different documented responsibilities.
+
+`om-auto-qa-pr` derives a QA scenario for a change, drives the real
+application through the browser-provider abstraction, and produces
+evidence such as:
+
+``` text
+screenshots
+report.md
+report.json
+PASS / FAIL
+```
+
+`om-integration-tests` can run existing integration/E2E tests, but it
+can also explore the real application, author new executable tests,
+execute them, and analyze failures.
+
+It preserves the repository's existing test framework rather than
+replacing it with the browser provider used for agent exploration.
+
+### Observation
+
+The two capabilities share runtime infrastructure but produce different
+kinds of engineering assets:
+
+``` text
+                prepared real runtime
+                        │
+             ┌──────────┴──────────┐
+             ↓                     ↓
+      om-auto-qa-pr        om-integration-tests
+             ↓                     ↓
+       QA evidence          executable tests
+             ↓                     ↓
+ "does it work now?"      durable regression asset
+```
+
+The browser provider and repository test runner are also separate
+concepts:
+
+``` text
+browser provider
+= agent interaction with the live application
+
+test runner
+= repository-native execution of durable tests
+```
+
+### Conclusion
+
+Open Mercato separates **change-oriented QA evidence** from **durable
+automated regression coverage**.
+
+`om-auto-qa-pr` is primarily an autonomous QA/evidence capability, while
+`om-integration-tests` is a test-engineering capability covering test
+authoring, execution, and failure analysis.
+
+This separation is **documented and inspected in Lesson 11**. Neither a
+complete browser QA run nor integration-test authoring against a
+runnable application was runtime-tested in the Learning Lab.
+
+------------------------------------------------------------------------
+
+## Finding 026 --- Environment discovery can persist durable repo-local knowledge
+
+### Question
+
+When environment discovery reaches a stable repository-specific
+conclusion, does that knowledge have to be rediscovered on every future
+invocation?
+
+### Evidence
+
+The Lesson 11 runtime experiment concluded that `om-skills-learning-lab`
+has no runnable application.
+
+In addition to the ignored runtime descriptor, `om-prepare-test-env`
+created the tracked repo-local extension:
+
+``` text
+.ai/skills/om-prepare-test-env/SKILL.md
+```
+
+The file records:
+
+``` text
+the no-application conclusion
+supporting repository evidence
+machine/tooling facts
+the chosen PowerShell flavor
+instructions for QA consumers
+browser-provider deferral
+explicit re-attempt triggers
+```
+
+The re-attempt triggers include changes such as adding an application
+manifest, Docker/Compose configuration, a CI workflow that documents a
+run recipe, changing the relevant `AGENTS.md` state, or deliberately
+deciding to serve `learning-map/` as an HTTP target.
+
+### Observation
+
+The runtime produced two different artifacts with different lifetimes:
+
+``` text
+.ai/qa/test-env.json
+        ↓
+current generated runtime state
+        ↓
+gitignored
+
+.ai/skills/om-prepare-test-env/SKILL.md
+        ↓
+durable repository knowledge
+        ↓
+tracked source artifact
+```
+
+The repo-local skill extension preserves not only a conclusion but also
+the evidence behind it and the conditions that should invalidate it.
+
+This creates a different durable-state pattern from the loop execution
+artifacts observed in Lesson 10.
+
+### Conclusion
+
+Open Mercato can persist **discovered repository knowledge** so future
+agent runs do not need to repay the same discovery cost.
+
+A broader durable-state model now visible across Lessons 10--11 is:
+
+``` text
+loop PLAN / HANDOFF / checkpoints
+→ durable execution state
+
+generated test-env scripts
+→ durable executable environment knowledge
+  [documented, not generated in this Lab]
+
+repo-local SKILL.md
+→ durable discovered repository knowledge
+
+test-env.json
+→ current generated runtime state
+```
+
+Creation of the repo-local `om-prepare-test-env` extension and its
+evidence/re-attempt contract was **runtime observed in Lesson 11**.

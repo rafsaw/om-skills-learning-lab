@@ -667,3 +667,252 @@ Not tested:
 ◌ stale-lock recovery
 ```
 
+---
+
+## Experiment 006 — QA environment discovery and no-app boundary
+
+### Goal
+
+Test how `om-prepare-test-env` consumes the repository's QA-related configuration and observe its runtime behavior when the repository has no runnable application.
+
+The experiment was intentionally scoped to environment discovery and QA configuration rather than a full browser-driven QA run.
+
+The main question was:
+
+```text
+agentic.config.json
+        ↓
+om-prepare-test-env
+        ↓
+can it produce an honest runtime contract
+for this repository?
+```
+
+### Starting state
+
+The Learning Lab configuration already contained:
+
+```text
+paths.qa         = .ai/qa
+paths.scripts    = .ai/scripts
+browser.provider = agent-browser
+qaGate           = false
+```
+
+The repository itself had no application runtime.
+
+A recursive check found no common application or environment definitions:
+
+```text
+no package.json
+no *.csproj / *.sln
+no Dockerfile
+no docker-compose*.yml / compose*.yml
+no pyproject.toml / requirements.txt
+no Cargo.toml
+```
+
+The repository also had no `.github/workflows/` directory.
+
+`AGENTS.md` and `README.md` both documented that the Learning Lab contains no application source tree or test suite.
+
+The only browsable artifacts were the self-contained Learning Map HTML files under:
+
+```text
+learning-map/
+```
+
+### Run
+
+`om-prepare-test-env` performed repository discovery and reported the runtime facts it found.
+
+It identified that there was no actual application to bring up, but also noticed that the self-contained Learning Map HTML files could technically be served over HTTP.
+
+Rather than silently inventing a target, the skill surfaced an explicit choice:
+
+```text
+There is no app in this repo. What should the generated test environment actually bring up?
+
+1. Static server for learning-map/
+2. Static server for repo root
+3. No app — record the gap
+```
+
+The selected answer was:
+
+```text
+No app — record the gap
+```
+
+The skill then asked which script flavor should be used if environment scripts were ever generated for this repository.
+
+The selected answer was:
+
+```text
+PowerShell .ps1
+```
+
+This matched the repository's existing Windows PowerShell tooling and the documented PowerShell 5.1 execution convention.
+
+### Observations
+
+The run completed with:
+
+```text
+no environment applicable
+```
+
+and explicitly treated that conclusion as a valid discovery result rather than a provisioning failure.
+
+No environment scripts were generated:
+
+```text
+.ai/scripts/test-env-up.ps1    → not created
+.ai/scripts/test-env-down.ps1  → not created
+```
+
+No server was started.
+
+No readiness probe was run.
+
+No base URL was fabricated.
+
+The skill wrote:
+
+```text
+.ai/qa/test-env.json
+```
+
+with the observed state:
+
+```text
+status            = no-app
+mode              = none
+baseUrl           = null
+startedByThisRepo = false
+startScript       = null
+stopScript        = null
+services          = []
+credentials       = []
+testRunner.name   = none
+platform          = win32
+```
+
+The configured browser provider propagated into the descriptor:
+
+```text
+browser.provider  = agent-browser
+browser.installed = false
+```
+
+`agent-browser` was deliberately not installed because there was no application for it to drive.
+
+This avoided downloading and provisioning browser tooling that had no runtime target.
+
+The descriptor therefore acted as an explicit negative environment contract:
+
+```text
+status = no-app
+baseUrl = null
+        ↓
+runtime consumers must not attach
+```
+
+The skill also created a tracked repo-local extension:
+
+```text
+.ai/skills/om-prepare-test-env/SKILL.md
+```
+
+That file persisted the discovery result so future runs do not have to repeat the same repository analysis.
+
+It recorded:
+
+```text
+the no-application conclusion
+supporting repository evidence
+machine/tooling facts
+PowerShell 5.1 constraints
+the chosen .ps1 flavor
+instructions for QA consumers
+browser-provider deferral
+explicit re-attempt triggers
+```
+
+The re-attempt triggers include adding a real application manifest, Docker/Compose setup, CI workflow, changing the relevant `AGENTS.md` state, or deliberately deciding to serve `learning-map/` as a browser QA target.
+
+The repository validation gate:
+
+```text
+git diff --check
+```
+
+passed.
+
+### Result
+
+Confirmed that `om-prepare-test-env` consumes the repository's QA environment configuration and can produce an honest runtime contract even when no runnable application exists.
+
+The observed runtime path was:
+
+```text
+agentic.config.json
+        ↓
+om-prepare-test-env
+        ↓
+repository discovery
+        ↓
+no runnable application
+        ↓
+explicit human target decision
+        ↓
+no fake server
+no fake baseUrl
+no fake readiness
+        ↓
+test-env.json
+status = no-app
+baseUrl = null
+```
+
+The experiment also confirmed that environment discovery can persist repository-specific knowledge through a repo-local skill extension instead of forcing future runs to repeat the same discovery.
+
+Observed in this experiment:
+
+```text
+● om-prepare-test-env repository discovery
+● consumption of the configured QA path and browser provider
+● explicit no-app decision boundary
+● PowerShell .ps1 flavor selection for this Windows repository
+● no generated environment scripts when no application exists
+● no server or readiness probe when there is no runtime target
+● test-env.json written with status=no-app and baseUrl=null
+● browser.provider=agent-browser propagated into the descriptor
+● browser provider deliberately left uninstalled
+● repo-local .ai/skills/om-prepare-test-env/SKILL.md created
+● repository-specific evidence and re-attempt triggers persisted
+● git diff --check passed
+```
+
+Documented but not exercised:
+
+```text
+○ generated test-env-up.ps1 / test-env-down.ps1
+○ cold-run environment generation
+○ warm-run environment reuse
+○ build-cache behavior
+○ browser-provider ensure-installed / doctor success path
+```
+
+Not tested:
+
+```text
+◌ real runnable application boot
+◌ real agent-browser open / snapshot / interact / assert
+◌ full om-auto-qa-pr runtime scenario
+◌ screenshot evidence and report PASS / FAIL
+◌ qaGate=true merge-blocking behavior
+◌ self-QA label mutation
+◌ om-integration-tests authoring against a real application
+```
+
