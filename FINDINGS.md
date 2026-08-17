@@ -2561,9 +2561,9 @@ dry-run-would-have 0
 
 The skill did not treat "nothing to do" as a failure.
 
-It verified that authoritative merged work and tracker state were already
-consistent and produced a reconciliation report showing that no mutation
-was required.
+It verified that authoritative merged work and tracker state were
+already consistent and produced a reconciliation report showing that no
+mutation was required.
 
 The runtime model was:
 
@@ -2693,8 +2693,7 @@ om-auto-update-changelog
   --dry-run
 ```
 
-against the same 10 real merged PRs used by
-`om-close-fixed-issues`.
+against the same 10 real merged PRs used by `om-close-fixed-issues`.
 
 The skill:
 
@@ -2716,8 +2715,8 @@ The resulting draft contained:
 1 Contributor
 ```
 
-The run also carried through the authoritative Issue relationship for
-PR #8 as:
+The run also carried through the authoritative Issue relationship for PR
+#8 as:
 
 ``` text
 (fixes #7)
@@ -3075,3 +3074,118 @@ execute every discovered action
 The usefulness of dry-run as a post-merge learning strategy was
 **runtime observed in Lesson 15**.
 
+------------------------------------------------------------------------
+
+## Finding 044 --- `om-merge-buddy` separates PR portfolio visibility from individual-PR execution
+
+### Question
+
+Where does `om-merge-buddy` sit relative to PR skills such as
+`om-pr-autopilot`, `om-auto-fix-pr`, and `om-approve-merge-pr`?
+
+### Evidence
+
+Lesson 16 inspected `om-merge-buddy` and then runtime-tested it against
+the Learning Lab's natural repository state.
+
+At runtime the repository contained:
+
+``` text
+0 open PRs
+```
+
+The skill still resolved and reported the repository-level readiness
+context:
+
+``` text
+Labels gate: enabled
+QA gate: disabled (qaGate: false)
+```
+
+It then returned:
+
+``` text
+Ready to Merge  0
+Almost Ready    0
+Blocked         0
+```
+
+The report also noticed local uncommitted installation work:
+
+``` text
+skills-lock.json modified
+.agents/skills/om-merge-buddy/ untracked
+```
+
+but explicitly treated that work as outside the skill's scope.
+
+It suggested `om-check-and-commit` or `om-auto-create-pr` as possible
+next actions without invoking either capability.
+
+The inspected skill contract documents that, when open PRs exist,
+readiness is computed from signals including review state, required CI,
+mergeability / merge state, blocking labels, and the configured QA gate.
+
+### Observation
+
+The runtime boundary was:
+
+``` text
+Human
+  ↓ INVOKE
+om-merge-buddy
+  ↓
+scan repository-wide open PR queue
+  ↓
+evaluate merge-readiness context
+  ↓
+Ready / Almost Ready / Blocked report
+  ↓
+✕ HUMAN GATE
+  ↓
+optional individual-PR action
+```
+
+`om-merge-buddy` did not create a PR, modify a PR, add labels, claim
+work, repair a PR, or merge anything.
+
+This differs from the one-PR action layer:
+
+``` text
+om-pr-autopilot
+om-auto-fix-pr
+om-approve-merge-pr
+```
+
+which operates after a particular PR has been selected for action.
+
+### Conclusion
+
+`om-merge-buddy` is a **Merge Readiness Visibility / PR Portfolio
+Triage** capability.
+
+Its responsibility is:
+
+``` text
+observe the open PR portfolio
+        ↓
+compute / summarize readiness
+        ↓
+support a human choice
+```
+
+rather than:
+
+``` text
+select one PR
+        ↓
+repair / orchestrate / merge it
+```
+
+The repository-wide read-only scan, empty-queue report, gate-context
+reporting, non-mutation behavior, and treatment of local work as out of
+scope were **runtime observed in Lesson 16**.
+
+The actual classification of real PRs into `Ready`, `Almost Ready`, and
+`Blocked` remains **documented but not runtime-tested**, because the
+Learning Lab had no open PRs during the experiment.

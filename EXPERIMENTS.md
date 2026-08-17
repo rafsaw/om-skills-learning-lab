@@ -1722,8 +1722,8 @@ Not tested:
 ### Goal
 
 Observe how `om-close-fixed-issues` reconciles real merged PR history
-against GitHub Issue state and determine whether the Learning Lab has any
-stale fixed Issues that require post-merge cleanup.
+against GitHub Issue state and determine whether the Learning Lab has
+any stale fixed Issues that require post-merge cleanup.
 
 The experiment was deliberately run in:
 
@@ -1738,7 +1738,7 @@ No synthetic Issue or PR was created for the experiment.
 
 ### Starting state
 
-The Learning Lab already had real merged PR history from Lessons 1–14.
+The Learning Lab already had real merged PR history from Lessons 1--14.
 
 The repository had no `CHANGELOG.md`, so the skill's default:
 
@@ -1950,8 +1950,8 @@ The run used an explicit release window and version:
 --version 0.1.0
 ```
 
-This avoided manufacturing a release artifact while still exercising
-the skill's release-window, categorization, attribution, and draft
+This avoided manufacturing a release artifact while still exercising the
+skill's release-window, categorization, attribution, and draft
 generation logic.
 
 ### Starting state
@@ -2212,3 +2212,168 @@ Not tested:
 ◌ whether the generated 0.1.0 narrative would be accepted unchanged
 ```
 
+------------------------------------------------------------------------
+
+## Experiment 011 --- Empty-queue PR portfolio triage with `om-merge-buddy`
+
+### Goal
+
+Touch the runtime behavior of `om-merge-buddy` without manufacturing
+synthetic pull requests.
+
+The experiment was intentionally small because the Learning Lab does not
+currently have a large PR queue. The goal was to verify the skill's
+repository-wide, read-only boundary and observe its behavior when there
+is naturally nothing to triage.
+
+### Starting state
+
+The repository had:
+
+``` text
+0 open PRs
+```
+
+The installed configuration exposed:
+
+``` text
+labels gate = enabled
+qaGate      = false
+```
+
+The skill installation itself had left local uncommitted work:
+
+``` text
+skills-lock.json modified
+.agents/skills/om-merge-buddy/ untracked
+```
+
+Those changes were not on a PR.
+
+### Run
+
+The skill was invoked with no PR number or additional target:
+
+``` text
+om-merge-buddy
+```
+
+It queried the repository's open PR set and reported:
+
+``` text
+gh pr list --state open returned an empty set
+```
+
+The resulting report was:
+
+``` text
+Merge Buddy Report — 2026-08-17
+
+Ready to Merge  0
+Almost Ready    0
+Blocked         0
+```
+
+The skill explicitly concluded that there was nothing to triage.
+
+### Observations
+
+Even with an empty queue, the runtime exposed the intended scope.
+
+The skill operated at repository / portfolio level rather than requiring
+a single PR as input.
+
+It reported the active readiness-gate context:
+
+``` text
+Labels gate: enabled
+QA gate: disabled
+```
+
+It did not:
+
+``` text
+create a PR
+modify a PR
+apply labels
+claim work
+commit local changes
+merge anything
+```
+
+The skill also noticed the local uncommitted installation changes but
+correctly classified them as outside merge-queue scope.
+
+It suggested:
+
+``` text
+om-check-and-commit
+or
+om-auto-create-pr
+```
+
+as possible next actions if the human wanted to ship that local work,
+but it did not invoke either skill.
+
+### Observed flow
+
+``` text
+Human
+  ↓ INVOKE
+om-merge-buddy
+  ↓
+scan all open PRs
+  ↓
+0 open PRs
+  ↓
+Ready 0 / Almost Ready 0 / Blocked 0
+  ↓
+report local non-PR work as out of scope
+  ↓
+STOP
+```
+
+### Result
+
+Confirmed the read-only portfolio boundary of `om-merge-buddy` and its
+natural empty-queue behavior.
+
+The experiment provides enough runtime evidence to classify the
+capability as explored for the Learning Lab without creating artificial
+PR volume merely to exercise every classification branch.
+
+Observed in this experiment:
+
+``` text
+● repository-wide invocation with no PR number
+● open-PR discovery
+● natural empty-queue handling
+● Ready 0 / Almost Ready 0 / Blocked 0 report
+● labels-gate context surfaced
+● qaGate=false context surfaced
+● no repository or tracker mutation
+● local uncommitted work recognized as outside PR-queue scope
+● downstream skills suggested but not automatically invoked
+```
+
+Documented but not exercised:
+
+``` text
+○ classification of a real PR as Ready
+○ classification of a real PR as Almost Ready
+○ classification of a real PR as Blocked
+○ pending CI as the only minor blocker
+○ blocking-label behavior against a real PR
+○ qaGate=true readiness behavior
+```
+
+Not tested:
+
+``` text
+◌ multi-PR portfolio triage
+◌ large merge queue
+◌ human selection of a PR from the report followed by downstream action
+```
+
+The deeper classification paths are intentionally deferred until the
+Learning Lab naturally has open PR work worth triaging.

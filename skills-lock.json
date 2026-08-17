@@ -97,6 +97,12 @@
       "skillPath": "skills/om-integration-tests/SKILL.md",
       "computedHash": "54e9f34103e3866af185cf59ccb5b0d1b5ee31c9d185b2d4de71890bce96af77"
     },
+    "om-merge-buddy": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-merge-buddy/SKILL.md",
+      "computedHash": "543d0a8059d0f36b3c0e5404edaa034cd950a645d961951dc2bebc1e915cdf53"
+    },
     "om-open-pr": {
       "source": "open-mercato/skills",
       "sourceType": "github",

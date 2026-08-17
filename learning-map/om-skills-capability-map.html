@@ -107,7 +107,7 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
 <header>
   <div class="eyebrow">Open Mercato Skills Learning Lab</div>
   <h1>Capability Map</h1>
-  <div class="subtitle">Version 7 · A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
+  <div class="subtitle">Version 8 · A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
   <div class="legend">
     <span class="chip"><span class="dot obs">●</span> Observed</span>
     <span class="chip"><span class="dot doc">○</span> Documented</span>
@@ -134,7 +134,7 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
       <div class="node">POST-MERGE<br><span class="small">release docs + tracker reconcile</span></div>
     </div>
     <div class="cross">
-      <span>Brainstorm may route to Issue / Spec / direct PR — or build nothing</span><span>Post-merge branches into release narrative + tracker reconciliation</span><span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
+      <span>Brainstorm may route to Issue / Spec / direct PR — or build nothing</span><span>Post-merge branches into release narrative + tracker reconciliation</span><span>PR Portfolio Triage / Merge Buddy</span><span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
     </div>
   </div>
 </section>
@@ -392,7 +392,25 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
     They are <strong>siblings, not a sequence</strong>. The changelog skill delegates to <code>om-auto-create-pr</code> only in a real run; our dry-run intentionally stopped before mutation.
   </div></div>
 
-  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 6 · Pipeline learning loop</div>
+  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 6 · PR portfolio visibility → human-selected action</div>
+  <svg class="seq-svg" viewBox="0 0 1080 600" role="img" aria-label="Merge Buddy portfolio visibility and human-selected downstream action"><defs>
+    <marker id="a6mb" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d3dde8"/></marker>
+    <marker id="c6mb" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8bd49c"/></marker></defs>
+    <rect class="participant participant-human" x="30" y="28" width="150" height="58" rx="10"/><text class="ptitle" x="105" y="51">Human</text><text class="psub" x="105" y="70">you / operator</text>
+    <rect class="participant" x="245" y="28" width="175" height="58" rx="10"/><text class="ptitle" x="332" y="51">om-merge-buddy</text><text class="psub" x="332" y="70">read-only portfolio</text>
+    <rect class="participant" x="485" y="28" width="165" height="58" rx="10"/><text class="ptitle" x="567" y="51">Open PR Queue</text><text class="psub" x="567" y="70">tracker state</text>
+    <rect class="participant" x="715" y="28" width="330" height="58" rx="10"/><text class="ptitle" x="880" y="51">Individual PR skills</text><text class="psub" x="880" y="70">autopilot · fix · approve/merge</text>
+    <line class="life human-life" x1="105" y1="86" x2="105" y2="560"/><line class="life" x1="332" y1="86" x2="332" y2="560"/><line class="life" x1="567" y1="86" x2="567" y2="560"/><line class="life" x1="880" y1="86" x2="880" y2="560"/>
+    <line class="msg" x1="105" y1="165" x2="332" y2="165" marker-end="url(#a6mb)"/><text class="label" x="218" y="151">INVOKE · om-merge-buddy</text>
+    <line class="msg" x1="332" y1="225" x2="567" y2="225" marker-end="url(#a6mb)"/><text class="label" x="449" y="211">scan all open PRs</text>
+    <rect x="255" y="265" width="155" height="90" rx="8" fill="#142334" stroke="#31557b"/><text class="tiny" x="332" y="287" text-anchor="middle">review + CI</text><text class="tiny" x="332" y="308" text-anchor="middle">mergeability + labels</text><text class="tiny" x="332" y="329" text-anchor="middle">QA gate</text><text class="tiny" x="332" y="350" text-anchor="middle">classify portfolio</text>
+    <line class="msg artifact" x1="332" y1="395" x2="105" y2="395" marker-end="url(#c6mb)"/><text class="label label-artifact" x="218" y="381">REPORT · Ready / Almost / Blocked</text>
+    <line class="stop" x1="77" y1="440" x2="133" y2="440"/><rect class="gate" x="150" y="421" width="485" height="52" rx="9"/><text class="gate-title" x="169" y="442">✕ HUMAN GATE</text><text class="gate-text" x="285" y="442">Choose whether any individual PR should be acted on.</text>
+    <line class="msg" x1="105" y1="520" x2="880" y2="520" marker-end="url(#a6mb)"/><text class="label" x="492" y="506">OPTIONAL HUMAN INVOKE · one-PR action skill</text>
+  </svg>
+  <div class="seq-note"><strong>Lesson 16 runtime:</strong> the natural queue contained 0 open PRs, so the observed report returned Ready 0 / Almost Ready 0 / Blocked 0. The important boundary was still visible: <code>om-merge-buddy</code> scanned repository-wide PR state read-only, did not create or mutate work, treated local uncommitted skill-installation changes as out of scope, and only suggested possible downstream skills. The detailed three-way classification remains documented rather than runtime-observed.</div></div>
+
+  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 7 · Pipeline learning loop</div>
   <svg class="seq-svg" viewBox="0 0 920 610" role="img" aria-label="Pipeline retro feedback loop"><defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d3dde8"/></marker><marker id="c5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8bd49c"/></marker></defs>
     <rect class="participant participant-human" x="35" y="28" width="150" height="58" rx="10"/><text class="ptitle" x="110" y="51">Human</text><text class="psub" x="110" y="70">you / operator</text>
     <rect class="participant" x="245" y="28" width="175" height="58" rx="10"/><text class="ptitle" x="332" y="51">om-pipeline-retro</text><text class="psub" x="332" y="70">read-only analysis</text>
@@ -465,9 +483,10 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
       <ul class="skills"><li><span class="doc">○</span> om-auto-fix-pr</li></ul>
       <div class="purpose">existing PR → review + CI + QA → merge-ready</div><div class="evidence">Includes CI stabilization</div>
     </div>
-    <div class="card"><div class="card-top"><div><div class="num">11</div><h3>Merge Queue / Readiness Visibility</h3></div><span class="status">UNEXPLORED</span></div>
-      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li></ul>
-      <div class="purpose">open PRs → Ready / Almost Ready / Blocked</div>
+    <div class="card"><div class="card-top"><div><div class="num">11</div><h3>Merge Readiness Visibility / PR Portfolio Triage</h3></div><span class="status">EXPLORED · LIMITED</span></div>
+      <ul class="skills"><li><span class="obs">●</span> om-merge-buddy</li></ul>
+      <div class="purpose">all open PRs → evaluate review + CI + mergeability + labels + QA gate → Ready / Almost Ready / Blocked portfolio view</div>
+      <div class="evidence">Evidence: Lesson 16 — runtime-tested on the natural empty queue (0 open PRs). Observed read-only repository-wide scan, gate-aware report, zero mutation, and local uncommitted work correctly treated as outside merge-queue scope. READY / ALMOST READY / BLOCKED classification rules are documented but were not exercised against real open PRs.</div>
     </div>
     <div class="card"><div class="card-top"><div><div class="num">12</div><h3>Merge Execution</h3></div><span class="status">EXPLORED</span></div>
       <ul class="skills"><li><span class="obs">●</span> om-approve-merge-pr</li></ul>
@@ -510,15 +529,15 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
   <div class="next">
     <div class="card hero">
       <div class="star">★</div>
-      <h3>Merge Queue / Readiness Visibility</h3>
-      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li></ul>
-      <div class="purpose">Post-merge lifecycle is now runtime-observed. A strong next discovery is the still-unexplored pre-merge portfolio view: how open PRs are classified as Ready / Almost Ready / Blocked across the queue.</div>
+      <h3>Choose a New Capability Family</h3>
+      <div class="purpose">Lesson 16 closed the merge-queue visibility gap at the level useful for this lab. Prefer the next lesson to discover genuinely new architecture rather than manufacture PR volume just to exercise Merge Buddy classification.</div>
+      <div class="evidence">Merge Buddy stays learned but shallow: useful portfolio visibility exists, while deeper READY / ALMOST READY / BLOCKED runtime testing is intentionally deferred until a natural multi-PR queue exists.</div>
     </div>
     <div class="card">
       <h3>Alternatives</h3>
       <ul class="skills"><li><span class="doc">○</span> om-pr-autopilot</li><li><span class="doc">○</span> om-auto-fix-pr</li><li><span class="doc">○</span> om-create-skill</li></ul>
       <div class="purpose">Deepen PR-state orchestration, merge-readiness stabilization, or inspect the meta-level skill-authoring capability.</div>
-      <div class="small" style="margin-top:12px">Parked: CI-heavy stabilization · UX stack · full browser-driven QA · implementation of Issue #13 · execution of Lesson 14 handoff brief</div>
+      <div class="small" style="margin-top:12px">Deferred until naturally useful: deeper om-merge-buddy queue classification · CI-heavy stabilization · UX stack · full browser-driven QA · implementation of Issue #13 · execution of Lesson 14 handoff brief</div>
     </div>
   </div>
 </section>
