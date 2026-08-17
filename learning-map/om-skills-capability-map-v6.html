@@ -107,7 +107,7 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
 <header>
   <div class="eyebrow">Open Mercato Skills Learning Lab</div>
   <h1>Capability Map</h1>
-  <div class="subtitle">A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
+  <div class="subtitle">Version 6 · A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
   <div class="legend">
     <span class="chip"><span class="dot obs">●</span> Observed</span>
     <span class="chip"><span class="dot doc">○</span> Documented</span>
@@ -122,7 +122,9 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
   <div class="flowbox">
     <div class="flow">
       <div class="node">IDEA</div><div class="arrow">→</div>
-      <div class="node">INTAKE</div><div class="arrow">→</div>
+      <div class="node">BRAINSTORM<br><span class="small">shape + route</span></div><div class="arrow">→</div>
+      <div class="node">✕ HUMAN GATE</div><div class="arrow">→</div>
+      <div class="node">INTAKE / SPEC / IMPLEMENT</div><div class="arrow">→</div>
       <div class="node">SPEC</div><div class="arrow">→</div>
       <div class="node">IMPLEMENT</div><div class="arrow">→</div>
       <div class="node">REVIEW</div><div class="arrow">→</div>
@@ -132,7 +134,7 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
       <div class="node">POST-MERGE</div>
     </div>
     <div class="cross">
-      <span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
+      <span>Brainstorm may route to Issue / Spec / direct PR — or build nothing</span><span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
     </div>
   </div>
 </section>
@@ -143,6 +145,94 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
   <div class="flowbox" style="margin-bottom:14px"><div class="eyebrow">Interaction legend</div><div class="cross">
     <span><strong>HUMAN ACTION</strong> — you write, choose, review or approve</span><span><strong>INVOKE</strong> — you explicitly start a skill</span><span><strong style="color:#8fc7ff">DELEGATES</strong> — autonomous skill → skill handoff</span><span><strong style="color:#8bd49c">ARTIFACT</strong> — durable result returns</span><span><strong style="color:#e4bd78">✕ HUMAN GATE</strong> — automation stops for your decision</span>
   </div></div>
+
+
+  <div class="seq-svg-wrap" style="margin-bottom:14px"><div class="eyebrow">Sequence 0 · Idea shaping / routing → downstream delivery</div>
+  <svg class="seq-svg" viewBox="0 0 1180 900" role="img" aria-label="Idea shaping and routing with human-controlled downstream PR creation"><defs>
+    <marker id="a0" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d3dde8"/></marker>
+    <marker id="b0" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8fc7ff"/></marker>
+    <marker id="c0" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8bd49c"/></marker></defs>
+
+    <rect class="participant participant-human" x="25" y="28" width="155" height="58" rx="10"/>
+    <text class="ptitle" x="102" y="51">Human</text><text class="psub" x="102" y="70">idea + authority</text>
+
+    <rect class="participant" x="255" y="28" width="180" height="58" rx="10"/>
+    <text class="ptitle" x="345" y="51">om-brainstorm</text><text class="psub" x="345" y="70">shape + route</text>
+
+    <rect class="participant" x="515" y="28" width="170" height="58" rx="10"/>
+    <text class="ptitle" x="600" y="51">challenger</text><text class="psub" x="600" y="70">subagent</text>
+
+    <rect class="participant" x="765" y="28" width="190" height="58" rx="10"/>
+    <text class="ptitle" x="860" y="51">handoff brief</text><text class="psub" x="860" y="70">durable artifact</text>
+
+    <rect class="participant" x="995" y="28" width="165" height="58" rx="10"/>
+    <text class="ptitle" x="1077" y="51">om-auto-create-pr</text><text class="psub" x="1077" y="70">downstream skill</text>
+
+    <line class="life human-life" x1="102" y1="86" x2="102" y2="860"/>
+    <line class="life" x1="345" y1="86" x2="345" y2="860"/>
+    <line class="life" x1="600" y1="86" x2="600" y2="860"/>
+    <line class="life" x1="860" y1="86" x2="860" y2="860"/>
+    <line class="life" x1="1077" y1="86" x2="1077" y2="860"/>
+
+    <rect class="human-note" x="32" y="112" width="140" height="56" rx="8"/>
+    <text class="human-note-text" x="102" y="135">HUMAN ACTION</text>
+    <text class="human-note-text" x="102" y="153">bring rough idea</text>
+
+    <line class="msg" x1="102" y1="205" x2="345" y2="205" marker-end="url(#a0)"/>
+    <text class="label" x="223" y="191">INVOKE · om-brainstorm</text>
+
+    <rect x="260" y="235" width="170" height="105" rx="8" fill="#142334" stroke="#31557b"/>
+    <text class="tiny" x="345" y="257" text-anchor="middle">repo / tracker reality</text>
+    <text class="tiny" x="345" y="278" text-anchor="middle">clarification</text>
+    <text class="tiny" x="345" y="299" text-anchor="middle">alternatives</text>
+    <text class="tiny" x="345" y="320" text-anchor="middle">incl. build nothing</text>
+
+    <line class="msg delegate" x1="345" y1="385" x2="600" y2="385" marker-end="url(#b0)"/>
+    <text class="label label-delegate" x="472" y="371">DELEGATES · challenger</text>
+
+    <line class="msg" x1="600" y1="435" x2="345" y2="435" marker-end="url(#a0)"/>
+    <text class="label" x="472" y="421">critique / counter-evidence</text>
+
+    <rect x="260" y="465" width="170" height="58" rx="8" fill="#142334" stroke="#31557b"/>
+    <text class="tiny" x="345" y="488" text-anchor="middle">routing recommendation</text>
+    <text class="tiny" x="345" y="509" text-anchor="middle">+ proposed Next:</text>
+
+    <line class="stop" x1="74" y1="563" x2="130" y2="563"/>
+    <rect class="gate" x="145" y="542" width="495" height="52" rx="9"/>
+    <text class="gate-title" x="164" y="563">✕ HUMAN GATE #1</text>
+    <text class="gate-text" x="164" y="582">Confirm direction and allow brainstorm to write the handoff brief?</text>
+
+    <line class="msg" x1="102" y1="635" x2="345" y2="635" marker-end="url(#a0)"/>
+    <text class="label" x="223" y="621">CONFIRM ROUTING</text>
+
+    <line class="msg artifact" x1="345" y1="685" x2="860" y2="685" marker-end="url(#c0)"/>
+    <text class="label label-artifact" x="602" y="671">ARTIFACT · brief file</text>
+
+    <line class="msg artifact" x1="345" y1="725" x2="102" y2="725" marker-end="url(#c0)"/>
+    <text class="label label-artifact" x="223" y="711">REPORT · Next: + Brief:</text>
+
+    <rect class="gate" x="145" y="755" width="570" height="58" rx="9"/>
+    <text class="gate-title" x="164" y="777">✕ HUMAN GATE #2</text>
+    <text class="gate-text" x="164" y="797">Accept the recommendation and actually start the downstream delivery skill?</text>
+
+    <line class="msg" x1="102" y1="840" x2="1077" y2="840" marker-end="url(#a0)"/>
+    <text class="label" x="590" y="826">HUMAN INVOKE · om-auto-create-pr "... — brief: &lt;path&gt;"</text>
+
+    <line class="msg artifact" x1="1077" y1="875" x2="102" y2="875" marker-end="url(#c0)"/>
+    <text class="label label-artifact" x="590" y="862">ARTIFACT · IMPLEMENTATION / DOCUMENTATION PR</text>
+  </svg>
+
+  <div class="seq-note">
+    <strong>Memory hook:</strong> <code>om-brainstorm</code> shapes and routes, but it does not execute the route.
+    After HUMAN GATE #1 it may write the brief and emit machine-readable <code>Next:</code> / <code>Brief:</code>.
+    Then control returns to the human. HUMAN GATE #2 decides whether to actually invoke the recommended downstream skill.
+    In Lesson 14 the observed recommendation was:
+    <code>Next: om-auto-create-pr "Fix stale skill-coverage facts in AGENTS.md and README and make the v16 learning map the lab's orientation surface — brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md"</code>
+    with
+    <code>Brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md</code>.
+    The PR creation step shown after Gate #2 is the <strong>next lifecycle</strong>; it was not executed in Lesson 14.
+  </div>
+  </div>
 
   <div class="seq-svg-wrap"><div class="eyebrow">Sequence 1 · Feature path</div>
   <svg class="seq-svg" viewBox="0 0 1120 690" role="img" aria-label="Feature path sequence diagram"><defs>
@@ -261,8 +351,10 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
 
   <div class="zone-title">B · Core Delivery</div>
   <div class="grid">
-    <div class="card"><div class="card-top"><div><div class="num">02</div><h3>Idea Shaping / Routing</h3></div><span class="status">UNEXPLORED</span></div>
-      <ul class="skills"><li><span class="doc">○</span> om-brainstorm</li></ul><div class="purpose">idea/problem → decide what should happen next</div>
+    <div class="card"><div class="card-top"><div><div class="num">02</div><h3>Idea Shaping / Routing</h3></div><span class="status">EXPLORED</span></div>
+      <ul class="skills"><li><span class="obs">●</span> om-brainstorm</li></ul>
+      <div class="purpose">rough idea / question → clarify → compare alternatives → challenge → human-confirmed routing decision</div>
+      <div class="evidence">Evidence: Lesson 14 / Experiment 008 — repo-first clarification, real build-nothing outcome, challenger changed the preferred direction, handoff brief + machine-readable <code>Next:</code>, downstream skill not auto-invoked</div>
     </div>
     <div class="card"><div class="card-top"><div><div class="num">03</div><h3>Issue Intake / Readiness</h3></div><span class="status">PARTIAL</span></div>
       <ul class="skills"><li><span class="obs">●</span> om-prepare-issue</li><li><span class="doc">○</span> om-auto-manage-issues</li><li><span class="doc">○</span> om-followup-issue-from-pr</li></ul>
@@ -340,15 +432,15 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
   <div class="next">
     <div class="card hero">
       <div class="star">★</div>
-      <h3>Idea Shaping / Routing</h3>
-      <ul class="skills"><li><span class="doc">○</span> om-brainstorm</li></ul>
-      <div class="purpose">Pipeline Retro is now runtime-observed. A strong next discovery is the opposite end of the lifecycle: how a raw idea or problem is shaped and routed before an Issue or Spec exists.</div>
+      <h3>Post-Merge Lifecycle</h3>
+      <ul class="skills"><li><span class="doc">○</span> om-auto-update-changelog</li><li><span class="doc">○</span> om-close-fixed-issues</li></ul>
+      <div class="purpose">Idea shaping is now runtime-observed. A strong next discovery is the still-unexplored post-merge side: how merged work becomes release documentation and authoritative tracker reconciliation.</div>
     </div>
     <div class="card">
       <h3>Alternatives</h3>
-      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li><li><span class="doc">○</span> om-auto-update-changelog</li><li><span class="doc">○</span> om-close-fixed-issues</li></ul>
-      <div class="purpose">Explore release-manager visibility or the still-unexplored post-merge lifecycle.</div>
-      <div class="small" style="margin-top:12px">Parked: CI-heavy stabilization · UX stack · full browser-driven QA · implementation of Issue #13</div>
+      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li><li><span class="doc">○</span> om-pr-autopilot</li><li><span class="doc">○</span> om-auto-fix-pr</li></ul>
+      <div class="purpose">Explore release-manager visibility, PR-state orchestration, or merge-readiness stabilization.</div>
+      <div class="small" style="margin-top:12px">Parked: CI-heavy stabilization · UX stack · full browser-driven QA · implementation of Issue #13 · execution of Lesson 14 handoff brief</div>
     </div>
   </div>
 </section>

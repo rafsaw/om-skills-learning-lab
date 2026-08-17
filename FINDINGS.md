@@ -2213,3 +2213,287 @@ human authority over backlog creation and implementation priority.
 
 The two-gate boundary was **runtime observed in Lesson 13**. Execution
 of Issue #13 was intentionally not tested.
+
+------------------------------------------------------------------------
+
+## Finding 033 --- `om-brainstorm` shapes the problem before routing delivery
+
+### Question
+
+Does `om-brainstorm` mainly elaborate a proposed solution, or can it
+change the problem definition before any Issue, Spec, implementation, or
+PR exists?
+
+### Evidence
+
+Lesson 14 runtime-tested `om-brainstorm` with the real Learning Lab
+question:
+
+``` text
+Should the Learning Lab have a simple dashboard or status summary?
+```
+
+Before recommending work, the skill inspected the repository and tracker
+and found existing status surfaces including `lab-status.ps1`,
+`lab-report.ps1`, the Learning Map, and existing Issues.
+
+The conversation then reframed the problem twice.
+
+The initial framing was:
+
+``` text
+we may need a dashboard
+```
+
+The first reframing was:
+
+``` text
+we may lack a reliable source of truth for learning status
+```
+
+After further repository inspection and the challenger step, the final
+diagnosis became:
+
+``` text
+the coverage record already exists in the Learning Map
+        ↓
+the real problem is stale facts + poor discoverability
+```
+
+### Observation
+
+`om-brainstorm` did not accept the proposed artifact as the problem
+definition.
+
+It used repository evidence, clarification questions, alternatives, and
+challenge to reduce uncertainty before selecting a delivery route.
+
+### Conclusion
+
+`om-brainstorm` is an **idea-shaping and routing capability**, not a
+feature-generation shortcut.
+
+Its observed role is:
+
+``` text
+rough idea / question
+        ↓
+clarify the actual need
+        ↓
+inspect existing reality
+        ↓
+compare alternatives
+        ↓
+challenge the leading direction
+        ↓
+select the smallest justified route
+```
+
+This behavior was **runtime observed in Lesson 14**.
+
+------------------------------------------------------------------------
+
+## Finding 034 --- The challenger step is a real decision-quality gate, not ceremonial critique
+
+### Question
+
+Can the challenger materially change the preferred direction?
+
+### Evidence
+
+During Lesson 14, the conversation initially converged on creating:
+
+``` text
+LEARNING-STATUS.md
+```
+
+as a manually maintained source of truth.
+
+The challenger forced a deeper check of:
+
+``` text
+learning-map/om-skills-learning-map-v16.html
+```
+
+That inspection showed that the map already carried the same
+`OBSERVED / DOCUMENTED / NOT TESTED` evidence model, per-skill coverage,
+and learning gaps that the proposed new file was intended to hold.
+
+The agent explicitly acknowledged that its earlier diagnosis had been
+partly wrong and withdrew the previously favored new-file design.
+
+### Observation
+
+The challenger did not merely list generic risks.
+
+It attacked a key premise, demanded evidence from the repository, and
+caused the preferred solution to be abandoned.
+
+The winning direction changed from:
+
+``` text
+create a new status source
+```
+
+to:
+
+``` text
+keep the existing Learning Map as the coverage source
+and fix stale navigation / facts around it
+```
+
+### Conclusion
+
+The challenger is a **decision-quality gate** whose purpose is to test
+the strongest current direction against overlooked evidence and
+assumptions.
+
+A useful observed model is:
+
+``` text
+leading direction
+        ↓
+DELEGATES → challenger
+        ↓
+attack assumptions / inspect counter-evidence
+        ↓
+direction survives OR changes
+```
+
+In Lesson 14 the direction **changed**, so the challenger behavior is
+runtime observed rather than merely documented.
+
+------------------------------------------------------------------------
+
+## Finding 035 --- `build nothing` is a genuine brainstorm outcome
+
+### Question
+
+Does `om-brainstorm` assume that every idea should become a new artifact
+or implementation?
+
+### Evidence
+
+The Lesson 14 brainstorm considered several possible solutions:
+
+``` text
+derived status from EXPERIMENTS.md
+table inside AGENTS.md
+new LEARNING-STATUS.md
+new dashboard / HTML artifact
+reuse the existing Learning Map
+do nothing / build nothing
+```
+
+The final decision rejected the proposed dashboard and rejected a new
+status file.
+
+The only remaining work was a small documentation correction because
+`AGENTS.md` and `README.md` contained stale or misleading facts.
+
+### Observation
+
+The original proposed product did not survive the brainstorm.
+
+`build nothing` won for the new status/dashboard capability, while a
+smaller existing-information repair remained justified.
+
+### Conclusion
+
+`om-brainstorm` can legitimately conclude that the proposed capability
+should **not be built**.
+
+Its routing objective is therefore not:
+
+``` text
+idea → choose how to implement it
+```
+
+but closer to:
+
+``` text
+idea
+  ↓
+is new work justified?
+  ├─ no → build nothing / minimal correction
+  └─ yes → choose an appropriate downstream capability
+```
+
+This behavior was **runtime observed in Lesson 14**.
+
+------------------------------------------------------------------------
+
+## Finding 036 --- Brainstorm routing stops at a human-controlled handoff boundary
+
+### Question
+
+After `om-brainstorm` selects a downstream capability, does it execute
+that capability automatically?
+
+### Evidence
+
+Lesson 14 classified the final work as a small, well-understood
+documentation change and recommended:
+
+``` text
+Next: om-auto-create-pr "Fix stale skill-coverage facts in AGENTS.md and README and make the v16 learning map the lab's orientation surface — brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md"
+```
+
+Before writing the handoff brief, the skill asked the human to confirm
+the proposed resolution and command.
+
+After confirmation it wrote:
+
+``` text
+.ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md
+```
+
+and ended with machine-readable:
+
+``` text
+Next: ...
+Brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md
+```
+
+It explicitly returned control to the human and did **not** invoke
+`om-auto-create-pr`.
+
+### Observation
+
+The observed boundary was:
+
+``` text
+Human
+  ↓ INVOKE
+om-brainstorm
+  ↓
+clarification + alternatives
+  ↓
+DELEGATES → challenger
+  ↓
+routing recommendation
+  ↓
+✕ HUMAN GATE
+confirm direction?
+  ↓ YES
+ARTIFACT: handoff brief
+  ↓
+Next: downstream capability
+  ↓
+STOP
+```
+
+The `Next:` line described the recommended next capability; it was not
+an automatic delegation.
+
+### Conclusion
+
+`om-brainstorm` separates **autonomous reasoning and routing** from
+**authority to begin delivery**.
+
+The handoff brief is the durable bridge between those lifecycles, while
+the human retains control over whether the recommended downstream skill
+is ever invoked.
+
+This human-gated handoff and non-execution of `om-auto-create-pr` were
+**runtime observed in Lesson 14**.

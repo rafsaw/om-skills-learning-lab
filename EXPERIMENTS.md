@@ -1486,3 +1486,231 @@ Not tested:
 ◌ whether declared-outcome coverage improves after that change
 ◌ whether future second passes move from unexplained to clean/hard-recovery classifications
 ```
+
+------------------------------------------------------------------------
+
+## Experiment 008 --- Idea shaping and routing with `om-brainstorm`
+
+### Goal
+
+Observe how `om-brainstorm` handles a real but still ambiguous Learning
+Lab idea before Issue, Spec, implementation, or PR work begins.
+
+The starting question was:
+
+``` text
+Should our Open Mercato Skills Learning Lab have a simple dashboard
+or status summary?
+```
+
+The experiment was intentionally scoped to:
+
+``` text
+clarification
+→ alternatives
+→ challenger
+→ routing
+→ handoff brief
+→ HUMAN GATE
+```
+
+No downstream delivery skill was to be executed unless it added new
+evidence about `om-brainstorm`.
+
+### Starting state
+
+The repository already contained several partially overlapping status
+surfaces:
+
+``` text
+.ai/scripts/lab-status.ps1
+.ai/scripts/lab-report.ps1
+learning-map/om-skills-learning-map-v16.html
+FINDINGS.md
+EXPERIMENTS.md
+```
+
+The brainstorm was invoked in Polish and was allowed to inspect the
+repository and tracker before asking questions.
+
+### What happened
+
+1.  `om-brainstorm` inspected the repository before asking for more
+    detail.
+2.  It identified the existing status scripts and Learning Map and
+    checked that there was no existing dashboard Issue.
+3.  It asked what concrete moment created the need for a dashboard.
+4.  The human clarified the real need: after a break, quickly understand
+    which capabilities were actually exercised, which were only
+    documented/installed, and what the current learning direction is.
+5.  The skill inspected the available evidence and initially diagnosed a
+    source-of-truth problem.
+6.  It compared two status-maintenance models: manually maintained
+    evidence vs status derived from `EXPERIMENTS.md`.
+7.  The human chose manual evidence because
+    `OBSERVED / DOCUMENTED / NOT TESTED` requires semantic judgement and
+    cannot safely be inferred from mentions alone.
+8.  The conversation then compared where that truth should live,
+    including a new `LEARNING-STATUS.md` and `AGENTS.md`.
+9.  A new `LEARNING-STATUS.md` became the leading direction.
+10. The challenger step tested that direction against repository
+    evidence and found that
+    `learning-map/om-skills-learning-map-v16.html` already contained the
+    same three-state evidence model, per-skill coverage, and learning
+    gaps.
+11. The agent explicitly corrected its earlier diagnosis and abandoned
+    the new-file direction.
+12. The final choice was to keep the Learning Map as the coverage source
+    and make the smallest correction needed around discoverability and
+    stale facts.
+13. The original dashboard/status artifact was therefore not built.
+14. The remaining work was classified as a small documentation change
+    suitable for direct `om-auto-create-pr` routing rather than a new
+    specification lifecycle.
+15. Before writing the handoff, `om-brainstorm` asked for explicit human
+    confirmation of the resolution and proposed command.
+16. After confirmation it wrote:
+
+``` text
+.ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md
+```
+
+17. The final output exposed the downstream route in machine-readable
+    form:
+
+``` text
+Next: om-auto-create-pr "Fix stale skill-coverage facts in AGENTS.md and README and make the v16 learning map the lab's orientation surface — brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md"
+Brief: .ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md
+```
+
+18. `om-auto-create-pr` was **not** invoked. Control returned to the
+    human.
+
+### Key observation: the problem changed
+
+The brainstorm did not merely refine a dashboard feature.
+
+The problem moved through:
+
+``` text
+"maybe build a dashboard"
+        ↓
+"maybe create a reliable learning-status source"
+        ↓
+challenger + repository evidence
+        ↓
+"the source already exists;
+stale facts and discoverability are the real problem"
+```
+
+This was the central value of the experiment.
+
+### Alternatives and `build nothing`
+
+The conversation considered:
+
+``` text
+status derived from EXPERIMENTS.md
+status table inside AGENTS.md
+new LEARNING-STATUS.md
+new dashboard / HTML artifact
+reuse the existing Learning Map
+do nothing / build nothing
+```
+
+The final outcome deliberately created **no new status/dashboard
+artifact**.
+
+`build nothing` therefore survived as a real decision for the proposed
+new capability. Only the smaller documentation correction remained
+justified.
+
+### Challenger behavior
+
+The challenger materially changed the decision.
+
+Before challenge:
+
+``` text
+preferred direction = create LEARNING-STATUS.md
+```
+
+After challenge:
+
+``` text
+preferred direction = do not create another source of truth
+```
+
+The challenger found repository evidence that contradicted a key premise
+of the earlier reasoning and caused the agent to acknowledge and correct
+its own diagnosis.
+
+### Human gate and handoff
+
+The observed end of the brainstorm was:
+
+``` text
+IDEA / QUESTION
+      ↓
+Human → INVOKE
+      ↓
+om-brainstorm
+      ↓
+clarification
+      ↓
+alternatives
+      ↓
+DELEGATES → challenger
+      ↓
+routing recommendation
+      ↓
+✕ HUMAN GATE
+      ↓
+ARTIFACT: handoff brief
+      ↓
+Next: om-auto-create-pr
+      ↓
+STOP
+```
+
+The downstream skill was recommended, not automatically delegated.
+
+### Result
+
+Confirmed that `om-brainstorm` is an **idea-shaping and routing
+capability** operating before the normal delivery lifecycle.
+
+The experiment showed that it can challenge the proposed solution,
+change its own diagnosis when repository evidence contradicts it,
+consider `build nothing`, select a smaller route, create a durable
+handoff brief, and stop at a human-controlled boundary before delivery.
+
+Observed in this experiment:
+
+``` text
+● repository-first inspection
+● tracker reality check
+● clarification before solution selection
+● one-at-a-time conversational decision making
+● exploration of multiple alternatives
+● manual-vs-derived source-of-truth comparison
+● real build-nothing / minimal-change outcome
+● challenger step materially changing the preferred direction
+● agent correcting its earlier diagnosis
+● routing to a small direct implementation/documentation path
+● explicit HUMAN GATE before handoff finalization
+● durable handoff brief creation
+● machine-readable Next: output
+● machine-readable Brief: output
+● downstream om-auto-create-pr not automatically invoked
+```
+
+Not tested:
+
+``` text
+◌ routing from om-brainstorm to om-prepare-issue
+◌ routing from om-brainstorm to om-auto-write-spec
+◌ routing from om-brainstorm to om-spec-writing
+◌ execution of the recommended om-auto-create-pr handoff
+◌ whether the documentation correction solves orientation after a future break
+```

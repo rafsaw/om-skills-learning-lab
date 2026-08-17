@@ -503,29 +503,34 @@ body.full-reference #deep-reference{display:block}
     <div class="eyebrow">OM Skills Learning Lab · Visual memory map</div>
     <h1>Open Mercato <span>Skills</span><br>Learning Map</h1>
     <div class="subtitle">
-      Szybka mapa pamięci: jak repo, tracker state, durable spec artifacts i wyspecjalizowane skills składają się w agentic SDLC.
-      V14 zachowuje Lessons 1–9 i dodaje Lesson 10: runtime-observed <code>om-auto-create-pr-loop</code>.
-      Fresh implementation nadal wchodzi przez <code>om-auto-create-pr</code>; <code>--loop</code> albo plan przekraczający
-      <code>engine.loopStepThreshold</code> (default 20 Steps) routuje do loop engine. Loop używa innego durable execution contract:
-      run folder, <code>PLAN.md</code> z Tasks state, <code>HANDOFF.md</code>, <code>NOTIFY.md</code>, 1 Step ↔ 1 commit,
-      checkpoint verification i final gate. Experiment 005 wymusił <code>--loop</code> na realnym 6-Step feature i zaobserwował ten model na PR #12.
+      Szybka mapa pamięci: jak repo, tracker state, durable spec artifacts, implementation engines i runtime QA składają się w agentic SDLC.
+      V17 zachowuje Lessons 1–13 i dodaje Lesson 14: Idea Shaping / Routing przez om-brainstorm.
+      <code>om-auto-qa-pr</code> orkiestruje change-oriented UI QA, <code>om-prepare-test-env</code> oddziela environment lifecycle,
+      <code>test-env.json</code> jest shared runtime contractem, browser provider ukrywa implementation szczegóły, a
+      <code>om-integration-tests</code> zamienia runtime observation w durable executable tests.
+      Experiment 006 runtime-observed ważną boundary: Learning Lab nie ma runnable app, więc zamiast fake servera powstał
+      jawny <code>status=no-app</code> / <code>baseUrl=null</code> i repo-local durable discovery knowledge.
+      Lesson 12 zbudowała osobny lekki Capability Map dla całej kolekcji, Lesson 13 runtime-observed feedback loop:
+      <code>finished runs → om-pipeline-retro → quantified rework / telemetry gaps → HUMAN GATE → om-prepare-issue → improvement Issue</code>. Lesson 14 domknęła początek lifecycle: <code>rough idea → om-brainstorm → repo/tracker evidence → alternatives → challenger → HUMAN GATE → handoff brief → Next:</code>. Runtime pokazał też, że poprawnym wynikiem brainstormu może być <code>build nothing</code> dla proponowanego produktu.
       Nadal są dwie warstwy: 30-second Quick Map oraz Full Reference z runbookiem, gates, evidence i process gaps.
     </div>
   </div>
   <div class="meta">
-    Version: v14 · Lesson 10 loop execution<br>
-    Focus: quick recall · design → flat/loop implementation → PR orchestration · full reference<br>
-    Repo state: <code>main</code> · Lesson 10 experiment complete<br>
-    Updated: 2026-08-15
+    Version: v17 · Lesson 14 idea shaping / routing + brainstorm runtime<br>
+    Focus: idea shaping → routing → delivery → runtime verification → pipeline observability → continuous improvement<br>
+    Repo state: <code>main</code> · Lesson 14 Experiment 008 complete · brainstorm handoff brief created · downstream execution intentionally not started<br>
+    Updated: 2026-08-17
   </div>
 </header>
 
 <div class="banner">
-  <strong>Najważniejsza korekta po Lesson 10:</strong> fresh implementation ma teraz dwa poznane execution contracts.
-  <code>om-auto-create-pr</code> jest default flat engine; tylko explicit <code>--loop</code> albo plan z liczbą Steps
-  większą niż <code>engine.loopStepThreshold</code> (default 20) wybiera <code>om-auto-create-pr-loop</code>.
-  Loop nie jest „tym samym silnikiem więcej razy”: runtime PR #12 pokazał <strong>run folder → PLAN/Tasks → Step-level commits →
-  checkpoint → HANDOFF/NOTIFY → final gate</strong>. Finalizacja pokazała też, że <code>om-approve-merge-pr</code> wykrył linked spec PR #11, poprosił człowieka o zgodę na merge pary, zmergował #12, ponownie sprawdził #11 po zmianie <code>main</code>, a dopiero potem zmergował #11. Interruption/resume przez <code>om-auto-continue-pr-loop</code> nadal nie był testowany.
+  <strong>Najważniejsza korekta po Lesson 14:</strong> pipeline zaczyna się wcześniej niż Issue albo Spec.
+  <code>om-brainstorm</code> jest repo-aware <strong>idea-shaping and routing capability</strong>: najpierw sprawdza istniejącą rzeczywistość,
+  doprecyzowuje problem, porównuje alternatywy i deleguje challenge obecnego kierunku. W runtime Lesson 14 challenger zmienił preferowane rozwiązanie:
+  zamiast nowego <code>LEARNING-STATUS.md</code> pozostawiliśmy istniejący Learning Map jako source of truth.
+  Dla proponowanego dashboardu wygrało <strong>build nothing</strong>; pozostała tylko mała korekta stale facts / discoverability.
+  Po <strong>✕ HUMAN GATE</strong> skill zapisał handoff brief i zwrócił machine-readable <code>Next: om-auto-create-pr ...</code>,
+  ale <strong>nie uruchomił downstream delivery</strong>.
 </div>
 <div class="mode-switch" role="group" aria-label="Learning map view">
   <button class="mode-btn active" id="quick-mode" type="button" aria-pressed="true">Quick Map</button>
@@ -534,6 +539,7 @@ body.full-reference #deep-reference{display:block}
 </div>
 
 <nav class="nav">
+  <a href="#lesson14">Idea Shaping</a>
   <a href="#mindset">Mindset</a>
   <a href="#foundation">Foundation</a>
   <a href="#config">Config Model</a>
@@ -559,6 +565,9 @@ body.full-reference #deep-reference{display:block}
   <a href="#lesson8">Lesson 8</a>
   <a href="#lesson9">Lesson 9</a>
   <a href="#lesson10">Lesson 10</a>
+  <a href="#lesson11">Lesson 11</a>
+  <a href="#lesson12">Lesson 12</a>
+  <a href="#lesson13">Lesson 13</a>
   <a href="#next">Next</a>
 </nav>
 
@@ -578,8 +587,8 @@ body.full-reference #deep-reference{display:block}
 
 <section class="quick-shell" id="quick-map">
   <div class="quick-head">
-    <div><h2>Quick Map — 30-second memory refresh</h2><p>Najpierw przypomnij sobie system: foundation, issue orchestration, feature design, fresh implementation z wyborem flat vs loop oraz PR autopilot dla istniejącego PR. Szczegóły są niżej w Full Reference.</p></div>
-    <div class="quick-badge">Lessons 1–10 · current model + loop execution</div>
+    <div><h2>Quick Map — 30-second memory refresh</h2><p>Najpierw przypomnij sobie system: foundation, delivery lifecycles, runtime QA/testing, PR orchestration oraz feedback loop, który analizuje historię pipeline'u i tworzy improvement backlog dopiero po human gate.</p></div>
+    <div class="quick-badge">Lessons 1–13 · delivery + observability</div>
   </div>
   <div class="quick-body">
     <div class="arch-title">Foundation — zanim zacznie płynąć praca</div>
@@ -682,6 +691,9 @@ body.full-reference #deep-reference{display:block}
           <div class="relay" style="color:var(--blue)">L8: existing PR → resume engine reconstructs durable execution state</div>
           <div class="relay" style="color:var(--purple)">L9: unknown PR state → autopilot diagnoses + routes + chains specialized skills</div>
           <div class="relay" style="color:var(--green)">L10: fresh implementation → flat/loop engine routing → durable loop execution</div>
+          <div class="relay" style="color:var(--blue)">L11: change → QA orchestrator → shared test env → browser evidence / durable tests</div>
+          <div class="relay" style="color:var(--purple)">L12: 36 skills → 17 capability groups → lightweight Capability Map</div>
+          <div class="relay" style="color:var(--amber)">L13: finished runs → pipeline retro → HUMAN GATE → improvement Issue</div>
           <p style="margin:0;color:var(--muted);font-size:11px;line-height:1.55">Autonomy is layered: orchestrators compose narrow skills, while durable artifacts, tracker state, policy guards and explicit human gates remain control points.</p>
         </div>
         <div class="quick-card quick-next">
@@ -735,6 +747,30 @@ body.full-reference #deep-reference{display:block}
       Memory cue: <code>fresh run → engine routing → loop → durable Steps + checkpoints → linked merge finalization</code>.
     </div>
 
+    <div class="callout" style="border-left-color:var(--blue);background:rgba(113,184,255,.05)">
+      <strong>Lesson 11 runtime QA discovery + Experiment 006:</strong>
+      <code>om-auto-test</code> nie istnieje; właściwy graph został odkryty przez <code>om-auto-qa-pr</code>,
+      <code>om-prepare-test-env</code> i <code>om-integration-tests</code>. Dokumentacja pokazuje layered QA:
+      orchestration → environment contract → browser adapter → evidence / durable tests.
+      Runtime w tym Labie potwierdził config consumption i boundary <code>no-app</code>:
+      <code>.ai/qa/test-env.json</code> dostał <code>status=no-app</code>, <code>baseUrl=null</code>,
+      <code>browser.provider=agent-browser</code>, ale browser nie został niepotrzebnie zainstalowany.
+      Repo-local <code>.ai/skills/om-prepare-test-env/SKILL.md</code> zachował discovery + re-attempt triggers.
+      Memory cue: <code>QA orchestration ≠ environment provisioning ≠ browser implementation ≠ durable regression test</code>.
+    </div>
+
+
+    <div class="callout" style="border-left-color:var(--amber);background:rgba(244,189,98,.05)">
+      <strong>Lesson 13 runtime retro + Experiment 007:</strong>
+      <code>om-pipeline-retro</code> przeanalizował 10 finished PRs z 30-day window; 9 miało usable agent markers.
+      Classifier zwrócił <strong>7 clean single pass</strong>, <strong>0 hard recovery</strong>, <strong>0 loop checkpoints</strong> i
+      <strong>2 second pass, cause not stated</strong>. Median clean run = <code>1.0h</code>; unexplained second passes kosztowały
+      <code>1.1h</code> beyond baseline. Declared <code>Outcome:</code> coverage = <strong>0%</strong>.
+      Retro pozostał read-only i zatrzymał się na <strong>✕ HUMAN GATE</strong>. Po explicit YES
+      <code>om-prepare-issue</code> utworzył Issue #13 z repo-specific analysis, compatibility notes, implementation guidance oraz
+      <code>bug / priority-medium / risk-high</code>. Improvement nie został wykonany.
+      Memory cue: <code>observe → quantify → rank → HUMAN GATE → prepare backlog → HUMAN GATE → optional delivery</code>.
+    </div>
 
     <div class="mental-map">
       <div class="mental-map-head">
@@ -764,9 +800,18 @@ body.full-reference #deep-reference{display:block}
           <div class="mental-node observed"><b>om-auto-review-pr</b><span>review / handoff capability</span></div>
         </div>
         <div class="mental-arrow">→</div>
+        <div class="mental-split">
+          <div class="mental-split-label">runtime verification layer</div>
+          <div class="mental-node documented"><b>om-auto-qa-pr</b><span>change-oriented QA evidence</span></div>
+          <div class="mental-node observed"><b>om-prepare-test-env</b><span>● no-app discovery · ○ runnable env compiler</span></div>
+          <div class="mental-node documented"><b>om-integration-tests</b><span>durable E2E/integration test assets</span></div>
+        </div>
+        <div class="mental-arrow">→</div>
         <div class="mental-node merge"><b>om-approve-merge-pr</b><span>merge gates + linked PR discovery + human authority</span></div>
+        <div class="mental-arrow">→</div>
+        <div class="mental-node observed"><b>om-pipeline-retro</b><span>finished runs → rework evidence → improvement opportunity</span></div>
       </div>
-      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → flat/loop build → PR capability → merge gates → linked finalization</code>. Lesson 10 adds the implementation-engine boundary: flat is default; loop is earned by <code>--loop</code> or Step threshold and persists richer execution state.</div>
+      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → build → review/QA → merge → observe pipeline → improve</code>. Lesson 13 closes the loop: pipeline history becomes quantified evidence, but tracker mutation and execution remain separate human-controlled decisions.</div>
     </div>
 
     <div class="feature-quick">
@@ -880,6 +925,25 @@ body.full-reference #deep-reference{display:block}
             </div>
           </div>          
 
+          <div class="feature-handoff">reviewed change may enter runtime verification</div>
+
+          <div class="feature-band">
+            <div class="feature-title"><b>Runtime QA / testing layer</b><span>○ architecture documented · ● no-app boundary observed · Lesson 11</span></div>
+            <div class="feature-flow">
+              <div class="feature-node documented"><b>om-auto-qa-pr</b><span>derive QA scenario from change</span></div>
+              <div class="feature-arrow">→</div>
+              <div class="feature-node observed"><b>om-prepare-test-env</b><span>env lifecycle; Lab observed no-app outcome</span></div>
+              <div class="feature-arrow">→</div>
+              <div class="feature-node observed"><b>test-env.json</b><span>shared contract · status/baseUrl/browser</span></div>
+              <div class="feature-arrow">→</div>
+              <div class="feature-node documented"><b>browser provider</b><span>open / snapshot / interact / assert / screenshot</span></div>
+              <div class="feature-arrow">→</div>
+              <div class="feature-node documented"><b>QA evidence</b><span>screenshots + report.md/json</span></div>
+              <div class="feature-arrow">→</div>
+              <div class="feature-node documented"><b>om-integration-tests</b><span>durable executable regression tests</span></div>
+            </div>
+          </div>
+
           <div class="feature-note">Memory cue: <code>PR #9/#11 = design artifacts</code> · <code>PR #10 = flat implementation</code> · <code>PR #12 = loop implementation</code> · <code>#12 → #11 linked merge pair</code> · <code>resume reconstructs state</code> · <code>autopilot diagnoses before routing</code>.</div>
         </div>
 
@@ -891,6 +955,7 @@ body.full-reference #deep-reference{display:block}
             <div class="line"><b>Plan</b><span>Execution plan is committed before feature code.</span></div>
             <div class="line"><b>Progress</b><span><code>## Progress</code> + commit SHAs create durable resumability state.</span></div>
             <div class="line"><b>PR</b><span>Draft PR appears early, then becomes ready after validation and review.</span></div>
+            <div class="line"><b>QA</b><span><code>om-auto-qa-pr</code> produces change evidence; <code>om-prepare-test-env</code> owns environment; <code>om-integration-tests</code> owns durable tests.</span></div>
           </div>
 
           <div class="feature-cue">
@@ -898,14 +963,14 @@ body.full-reference #deep-reference{display:block}
             <div class="line"><b>Resume</b><span><code>om-auto-continue-pr</code> is installed and deeply inspected: claim → plan → worktree → Progress → SHA → first pending Step. Still ○ documented / ◌ runtime not tested.</span></div>
             <div class="line"><b>Autopilot</b><span><code>om-pr-autopilot</code> is installed and deeply inspected: 10 signals → State Report → matrix → dynamic chain. Still ○ documented / ◌ runtime not tested.</span></div>
             <div class="line"><b>Loop</b><span><code>om-auto-create-pr-loop</code> is now ● observed on PR #12; only <code>om-auto-continue-pr-loop</code> remains runtime-untested.</span></div>
-            <div class="line"><b>Untested</b><span>actual interruption/resume, autopilot runtime routing, real claim conflict / force takeover, loop continuation, and automatic threshold-triggered loop routing.</span></div>
+            <div class="line"><b>Untested</b><span>actual interruption/resume, autopilot runtime routing, real claim conflict / force takeover, loop continuation, automatic threshold routing, real browser QA PASS/FAIL, cold/warm test-env reuse and integration-test authoring against a runnable app.</span></div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="coverage">
-      <div class="coverage-head"><h3>Current Coverage Map</h3><span>Po Lesson 10 znamy observed issue/design/flat/loop lifecycles oraz documented PR-state orchestration ponad wyspecjalizowanymi PR skills.</span></div>
+      <div class="coverage-head"><h3>Current Coverage Map</h3><span>Po Lesson 13 znamy observed delivery lifecycles, QA no-app boundary oraz runtime-observed pipeline retro → improvement backlog handoff.</span></div>
       <div class="coverage-flow">
         <div class="cov-node observed"><div class="cov-name">auto-fix-issue</div><div class="cov-state">● observed<br>problem orchestration</div></div>
         <div class="cov-node observed"><div class="cov-name">auto-write-spec</div><div class="cov-state">● observed<br>brief → spec PR</div></div>
@@ -915,11 +980,16 @@ body.full-reference #deep-reference{display:block}
         <div class="cov-node observed"><div class="cov-name">plan + Progress</div><div class="cov-state">● observed<br>durable execution</div></div>
         <div class="cov-node observed"><div class="cov-name">PR #10</div><div class="cov-state">● observed<br>draft → ready</div></div>
         <div class="cov-node observed"><div class="cov-name">create-pr-loop</div><div class="cov-state">● observed<br>durable loop execution</div></div>
+        <div class="cov-node documented"><div class="cov-name">auto-qa-pr</div><div class="cov-state">○ documented<br>QA orchestrator</div></div>
+        <div class="cov-node observed"><div class="cov-name">prepare-test-env</div><div class="cov-state">● no-app observed<br>○ runnable env docs</div></div>
+        <div class="cov-node documented"><div class="cov-name">integration-tests</div><div class="cov-state">○ documented<br>durable test assets</div></div>
         <div class="cov-node documented"><div class="cov-name">continue / autopilot</div><div class="cov-state">○ documented<br>◌ runtime untested</div></div>
+        <div class="cov-node observed"><div class="cov-name">pipeline-retro</div><div class="cov-state">● observed<br>runs → improvement evidence</div></div>
+        <div class="cov-node observed"><div class="cov-name">prepare-issue #13</div><div class="cov-state">● observed<br>retro → durable backlog</div></div>
       </div>
-      <div class="coverage-caption">Knowledge coverage after Lesson 10: both flat and loop fresh implementation are runtime-observed. Resume engines and PR autopilot are documented but runtime-untested. Automatic threshold routing, interruption/resume, autopilot runtime routing and claim collision remain untested.</div>
+      <div class="coverage-caption">Knowledge coverage after Lesson 13: flat and loop fresh implementation are runtime-observed; QA layering is documented; environment discovery/no-app contract is runtime-observed. Pipeline retro + human-gated improvement handoff are now observed. Full browser QA, generated env scripts + cold/warm reuse, integration-test authoring, resume/autopilot runtime and claim collision remain untested.</div>
     </div>
-    <div class="quick-only-note">Chcesz szczegóły? Przełącz na <strong>Full Reference</strong> u góry — wszystkie sekcje V5 są zachowane.</div>
+    <div class="quick-only-note">Chcesz szczegóły? Przełącz na <strong>Full Reference</strong> u góry — wszystkie sekcje Full Reference są zachowane i rozszerzone o Lesson 11.</div>
   </div>
 </section>
 <div class="full-divider">Full Reference — complete reference</div>
@@ -1056,6 +1126,8 @@ body.full-reference #deep-reference{display:block}
     </div>
     <div class="callout">
       <strong>Rule of thumb:</strong> deskryptor mówi <em>jak</em> wykonać daną klasę operacji, a <code>agentic.config.json</code> mówi <em>którego</em> deskryptora i <em>jakich zasad</em> używać w tym repo.
+      <strong>● Lesson 11:</strong> Experiment 006 potwierdził realne consumption <code>paths.qa=.ai/qa</code> i
+      <code>browser.provider=agent-browser</code>: oba pojawiły się w wygenerowanym <code>test-env.json</code>.
     </div>
   </div>
 </section>
@@ -1066,7 +1138,7 @@ body.full-reference #deep-reference{display:block}
       <h2>1. Big Picture — system, nie pojedynczy agent</h2>
       <p>Skills działają na wspólnym stanie repozytorium i trackera. To on pozwala kolejnym etapom przejmować pracę.</p>
     </div>
-    <div class="section-kicker">Findings 003–020</div>
+    <div class="section-kicker">Findings 003–032</div>
   </div>
   <div class="section-body hero-grid">
     <div class="arch-card">
@@ -1115,7 +1187,11 @@ body.full-reference #deep-reference{display:block}
         <div class="state-row"><div class="k">Ownership</div><div class="v">assignee + in-progress + claim comments</div></div>
         <div class="state-row"><div class="k">Execution</div><div class="v">flat: plan + Progress · loop: run folder + PLAN/Tasks + HANDOFF + NOTIFY + checkpoints · worktree · branch · commits · draft PR</div></div>
         <div class="state-row"><div class="k">PR orchestration</div><div class="v">○ PR State Report · state matrix · dynamic delegated chain</div></div>
+        <div class="state-row"><div class="k">Runtime QA</div><div class="v">○ om-auto-qa-pr · ●/○ om-prepare-test-env · test-env.json · browser provider · ○ om-integration-tests</div></div>
+        <div class="state-row"><div class="k">QA artifacts</div><div class="v">○ screenshots + report.md/json · ● no-app descriptor · ● repo-local environment discovery skill</div></div>
         <div class="state-row"><div class="k">Delivery</div><div class="v">PR + review + QA + CI state</div></div>
+        <div class="state-row"><div class="k">Observability</div><div class="v">● om-pipeline-retro · finished PR markers · clean/rework classification · excess time · telemetry gaps</div></div>
+        <div class="state-row"><div class="k">Improvement backlog</div><div class="v">● HUMAN GATE → om-prepare-issue → Issue #13 · repo-aware analysis + labels + compatibility</div></div>
         <div class="state-row"><div class="k">Installed skills</div><div class="v">.agents/skills/ + skills-lock.json</div></div>
       </div>
     </div>
@@ -1331,6 +1407,12 @@ body.full-reference #deep-reference{display:block}
         <code>/om-auto-implement-spec &lt;spec-path&gt;</code>
         <p>● Lessons 7 + 10: resolver wybiera fresh <code>om-auto-create-pr</code>. Flat jest default; <code>--loop</code> lub plan ponad threshold routuje dalej do <code>om-auto-create-pr-loop</code>. PR #10 pokazał flat, PR #12 loop.</p>
       </div>
+      <div class="decision-card">
+        <div class="q">mam zakończone pipeline runs i chcę znaleźć rework</div>
+        <b>Pipeline observability</b>
+        <code>/om-pipeline-retro</code>
+        <p>● Lesson 13: read-only analysis → clean/recovery/unexplained classification → excess time → ranked cause → <strong>HUMAN GATE</strong>. Dopiero explicit YES może wywołać <code>om-prepare-issue</code>.</p>
+      </div>
     </div>
 
     <div class="arch-title" style="margin-top:26px">Pełny przebieg branch-driven — tak wyglądały PR #4 i PR #5</div>
@@ -1527,7 +1609,7 @@ body.full-reference #deep-reference{display:block}
             <td>Meta</td>
             <td>needs-qa · skip-qa · qa-approved · qa-self-verified · in-progress · ci-monitoring</td>
             <td>addytywne, ale <code>needs-qa</code> i <code>skip-qa</code> <strong>nigdy razem</strong>; <code>in-progress</code> i <code>ci-monitoring</code> stoją obok labela pipeline, bo to nie stan workflow</td>
-            <td>skille — poza <code>qa-approved</code>, którego automat nie nadaje nigdy</td>
+            <td>skille; <code>qa-approved</code> jest chronione i może powstać przez manual QA albo documented self-QA exception z evidence</td>
           </tr>
           <tr>
             <td>Priority</td>
@@ -1572,8 +1654,8 @@ body.full-reference #deep-reference{display:block}
       <div class="gate">
         <h3>QA gate <span class="state off">○ wyłączona</span></h3>
         <p><code>qaGate: false</code>, więc <code>needs-qa</code> jest tylko doradcze i nie zatrzyma merge'a.
-        Po włączeniu PR z <code>needs-qa</code> nie zmerguje się bez <code>qa-approved</code>, które nadaje wyłącznie tester
-        albo inżynier korzystający z wyjątku self-QA (z dowodem). Twarde blokady działają <em>zawsze</em>:
+        Po włączeniu PR z <code>needs-qa</code> nie zmerguje się bez <code>qa-approved</code>, które pochodzi z manual QA
+        albo documented self-QA exception z pełnym green runem i screenshot evidence. Lesson 11 nie testowała <code>qaGate=true</code>. Twarde blokady działają <em>zawsze</em>:
         <code>qa-failed</code>, <code>blocked</code>, <code>do-not-merge</code>.</p>
       </div>
       <div class="gate">
@@ -1620,6 +1702,14 @@ body.full-reference #deep-reference{display:block}
           <div class="w">autopilot merge boundary</div>
           <div class="d">○ Lesson 9: <code>om-pr-autopilot</code> domyślnie kończy chain na <strong>merge-ready</strong>. Faktyczny merge jest dozwolony dopiero z explicit <code>--allow-merge</code> i pozostaje odpowiedzialnością <code>om-approve-merge-pr</code>.</div>
         </div>
+        <div class="chk-row">
+          <div class="w">retro → issue</div>
+          <div class="d">● Lesson 13: <code>om-pipeline-retro</code> kończy read-only report i pyta, czy top cause ma stać się improvement Issue. Bez explicit YES nie ma tracker mutation.</div>
+        </div>
+        <div class="chk-row">
+          <div class="w">issue → execution</div>
+          <div class="d">● Lesson 13: po utworzeniu Issue #13 proces znowu się zatrzymał. <code>om-prepare-issue</code> przygotował backlog artifact, ale nie uruchomił implementation pipeline.</div>
+        </div>
       </div>
       <div class="claim-note">
         Zasada, którą warto zapamiętać: <strong>raportowanie jest wczesne, merge nigdy</strong>.
@@ -1636,7 +1726,7 @@ body.full-reference #deep-reference{display:block}
       <h2>5. Skills We Actually Know</h2>
       <p>Karty pokazują rolę skilla w systemie, a nie pełną dokumentację. Lista rośnie dopiero po realnym poznaniu danego skilla.</p>
     </div>
-    <div class="section-kicker">18+ installed · Lesson 10 loop engine observed</div>
+    <div class="section-kicker">21+ installed · Lesson 11 QA layer mapped</div>
   </div>
   <div class="section-body">
     <div class="filter-row">
@@ -1886,6 +1976,73 @@ body.full-reference #deep-reference{display:block}
         </dl>
         <div class="status documented">installed · ○ documented · ◌ runtime not tested</div>
       </article>
+
+      <article class="skill" data-kind="review" data-status="documented">
+        <h3>om-auto-qa-pr</h3>
+        <div class="role">Change-oriented UI QA orchestrator: scope from diff, real-browser scenario, evidence and conservative QA state handling.</div>
+        <dl>
+          <dt>Input</dt><dd>PR number in tracker mode or current worktree in local mode</dd>
+          <dt>Uses</dt><dd><code>om-prepare-test-env</code> + configured browser-provider descriptor; review-first gate in PR mode</dd>
+          <dt>Output</dt><dd>screenshots + <code>report.md</code> + <code>report.json</code> + PASS/FAIL/PARTIAL</dd>
+          <dt>Mutation</dt><dd>read-only on source; labels unchanged by default (<code>--evidence-only</code>)</dd>
+          <dt>Runtime</dt><dd>architecture inspected in Lesson 11; full browser-driven QA run not executed</dd>
+        </dl>
+        <div class="status documented">installed · ○ documented · ◌ full runtime QA not tested</div>
+      </article>
+
+      <article class="skill" data-kind="setup" data-status="observed">
+        <h3>om-prepare-test-env</h3>
+        <div class="role">Reusable environment provisioning / environment compiler with a shared descriptor contract.</div>
+        <dl>
+          <dt>Config</dt><dd><code>paths.scripts</code>, <code>paths.qa</code>, <code>browser.provider</code></dd>
+          <dt>Normal docs</dt><dd>discover once → generate up/down scripts → cold/warm verify → fast reusable entrypoint</dd>
+          <dt>Observed</dt><dd>Experiment 006 discovered no runnable app and wrote an honest negative descriptor</dd>
+          <dt>Descriptor</dt><dd><code>status=no-app</code>, <code>baseUrl=null</code>, provider <code>agent-browser</code>, platform <code>win32</code></dd>
+          <dt>Durable knowledge</dt><dd>created repo-local <code>.ai/skills/om-prepare-test-env/SKILL.md</code> with evidence + re-attempt triggers</dd>
+        </dl>
+        <div class="status observed">● no-app path observed · ○ runnable generation documented</div>
+      </article>
+
+      <article class="skill" data-kind="orchestration" data-status="observed">
+        <h3>om-brainstorm</h3>
+        <div class="role">Repo-aware idea shaping and routing before Issue / Spec / implementation exists.</div>
+        <dl>
+          <dt>Input</dt><dd>rough idea, question, proposed product or problem framing</dd>
+          <dt>Reads</dt><dd>repository reality, tracker state, existing artifacts and prior capabilities before proposing new work</dd>
+          <dt>Reasoning</dt><dd>clarification → alternatives → challenger subagent → revised recommendation</dd>
+          <dt>Valid outcome</dt><dd><code>build nothing</code> / minimal correction when existing capability already solves the proposed need</dd>
+          <dt>Boundary</dt><dd>explicit HUMAN GATE before durable handoff; writes brief + machine-readable <code>Next:</code>, then stops</dd>
+          <dt>Observed</dt><dd>Experiment 008: dashboard idea reframed to stale facts / discoverability; challenger overturned new <code>LEARNING-STATUS.md</code>; downstream <code>om-auto-create-pr</code> was recommended but not invoked</dd>
+        </dl>
+        <div class="status observed">● observed · Lesson 14</div>
+      </article>
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-pipeline-retro</h3>
+        <div class="role">Read-only pipeline observability / continuous-improvement analyzer over finished PR history.</div>
+        <dl>
+          <dt>Input</dt><dd>finished PR/runs in a time window; default 30 days observed</dd>
+          <dt>Reads</dt><dd>agent markers, timestamps, PR sizes, review/recovery signals, declared <code>Outcome:</code> markers</dd>
+          <dt>Classifies</dt><dd>clean single pass · hard recovery · loop checkpoints · second pass cause not stated</dd>
+          <dt>Cost</dt><dd>excess time beyond median clean-run baseline; multiple causes would split excess instead of double-counting</dd>
+          <dt>Boundary</dt><dd>read-only until explicit HUMAN GATE; optional handoff to <code>om-prepare-issue</code></dd>
+          <dt>Observed</dt><dd>Experiment 007: 10 finished PRs, 9 classifiable, 7 clean, 2 unexplained, 1.1h excess, 0% Outcome coverage</dd>
+        </dl>
+        <div class="status observed">● observed · Lesson 13</div>
+      </article>
+
+      <article class="skill" data-kind="mutation" data-status="documented">
+        <h3>om-integration-tests</h3>
+        <div class="role">Integration/E2E test engineering: explore live behavior, author executable tests, run suites and diagnose failures.</div>
+        <dl>
+          <dt>Environment</dt><dd>reuses validated <code>test-env.json</code>; provisions via <code>om-prepare-test-env</code> when needed</dd>
+          <dt>Discovery</dt><dd>preserves repository-native Playwright/Cypress/WDIO/etc. conventions</dd>
+          <dt>Authoring</dt><dd>explore first; write selectors/flows from observed runtime, not guesses</dd>
+          <dt>Output</dt><dd>durable executable regression tests + per-test failure analysis</dd>
+          <dt>Runtime</dt><dd>SKILL.md inspected in Lesson 11; no runnable app existed in this Lab</dd>
+        </dl>
+        <div class="status documented">installed · ○ documented · ◌ authoring/runtime not tested</div>
+      </article>
     </div>
   </div>
 </section>
@@ -1893,10 +2050,10 @@ body.full-reference #deep-reference{display:block}
 <section class="section" id="coverage">
   <div class="section-head">
     <div>
-      <h2>5a. Coverage gaps — what remains after loop-engine experiment</h2>
-      <p>Po Lesson 10 loop creation engine nie jest już runtime gapem. Flat i loop fresh execution są observed; otwarte pozostają loop continuation/resume, automatic threshold route, autopilot runtime i kilka specialized branches.</p>
+      <h2>5a. Coverage gaps — what remains after pipeline-retro discovery</h2>
+      <p>Po Lesson 13 Pipeline Observability nie jest już knowledge gapem: retro classification, rework-cost model i human-gated improvement handoff są runtime-observed. QA nadal ma real-app runtime gaps: znamy orchestrator, environment compiler, shared descriptor i integration-test boundary. Runtime gapem pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path.</p>
     </div>
-    <div class="section-kicker">repo coverage · post-Lesson 10</div>
+    <div class="section-kicker">repo coverage · post-Lesson 13</div>
   </div>
   <div class="section-body">
     <div class="table-wrap">
@@ -1912,14 +2069,17 @@ body.full-reference #deep-reference{display:block}
           <tr><td>--loop</td><td>● observed</td><td>Explicit flag forced loop handoff before Step counting; engine report was <code>steps: n/a, --loop: yes</code>.</td></tr>
           <tr><td>automatic threshold route / --force / claim collision</td><td>○ documented / ◌ not tested</td><td>Default threshold is 20 Steps; automatic &gt;20 routing and ownership collision/force takeover were not exercised.</td></tr>
           <tr><td>implementation from unmerged spec PR</td><td>● observed</td><td>Lesson 10: spec PR #11 was still open; the spec was materialized into the implementation worktree for reference and deliberately excluded from PR #12 diff.</td></tr>
-          <tr><td>om-auto-qa-pr</td><td>missing · ◌ not tested</td><td>Lesson 7 change was terminal/docs-only, so UI verification correctly reported <code>UI: n/a</code> and used <code>skip-qa</code>.</td></tr>
+          <tr><td>om-auto-qa-pr</td><td>installed · ○ documented / ◌ full runtime not tested</td><td>Lesson 11 resolved its architecture: review-first QA orchestrator → shared test env → browser-provider operations → screenshots/report evidence. No runnable app existed for a full run.</td></tr>
+          <tr><td>om-prepare-test-env</td><td>installed · ● no-app path observed / ○ runnable generation documented</td><td>Experiment 006 consumed the Lab config, discovered no app, wrote <code>test-env.json</code> with <code>status=no-app</code>/<code>baseUrl=null</code>, deferred browser install and persisted repo-local discovery knowledge.</td></tr>
+          <tr><td>om-integration-tests</td><td>installed · ○ documented / ◌ runtime not tested</td><td>Documented as test-authoring + execution + failure-analysis capability that preserves repo-native runner and reuses the shared test environment.</td></tr>
+          <tr><td>om-pipeline-retro</td><td>installed · ● observed</td><td>Experiment 007: 30-day read-only retro over 10 finished PRs; 9 classifiable; 7 clean, 2 unexplained second passes, 0 hard recoveries, 1.1h excess, 0% declared Outcome coverage; human-gated handoff to Issue #13 observed.</td></tr>
           <tr><td>CI / required checks / branch protection</td><td>◌ absent in lab</td><td>Repo still has only <code>git diff --check</code>; richer engine checks in Experiment 004 were run-specific, not repo-level gates.</td></tr>
-          <tr><td>om-auto-fix-pr / om-auto-qa-pr / other autopilot companions</td><td>partly missing</td><td>Lesson 9 exposed these as delegated capabilities in the routing matrix. The autopilot must stop and name a missing companion rather than improvise a replacement.</td></tr>
+          <tr><td>om-auto-fix-pr / other autopilot companions</td><td>partly missing</td><td>Lesson 9 exposed delegated capabilities in the routing matrix. Lesson 11 installed QA companions; remaining missing companions still require explicit installation rather than improvisation.</td></tr>
         </tbody>
       </table>
     </div>
     <div class="callout">
-      <strong>Correction after Lesson 10:</strong> the PR layer is not only a set of peer skills chosen manually by the operator. <code>om-pr-autopilot</code> is a documented higher-level dispatcher/orchestrator that chooses and sequences those capabilities from current PR state. It remains deliberately separate from the delegated skills and must not be promoted to observed.
+      <strong>Correction after Lesson 10:</strong> the architecture now has two higher-level orchestration layers: <code>om-pr-autopilot</code> diagnoses/routs existing PR state, while <code>om-auto-qa-pr</code> orchestrates change-oriented runtime evidence. Neither should be confused with the environment or browser implementation they delegate to.
     </div>
   </div>
 </section>
@@ -1963,7 +2123,7 @@ body.full-reference #deep-reference{display:block}
   <div class="section-head">
     <div>
       <h2>6a. Handoff Contract — references, execution markers, durable state</h2>
-      <p>Po Lessons 5–10 widać durable handoffs dla problem/Issue, design/spec, implementation execution i PR-state orchestration. Żaden nie wymaga „magicznej shared memory”.</p>
+      <p>Po Lessons 5–13 widać durable handoffs dla problem/Issue, design/spec, implementation execution i PR-state orchestration. Żaden nie wymaga „magicznej shared memory”.</p>
     </div>
     <div class="section-kicker">● durable handoffs observed · ○ PR State Report documented</div>
   </div>
@@ -1979,6 +2139,9 @@ body.full-reference #deep-reference{display:block}
           <div class="state-row"><div class="k">Progress</div><div class="v">flat: <code>## Progress</code> + SHAs; loop: <code>PLAN.md ## Tasks</code> + HANDOFF/NOTIFY + checkpoint state</div></div>
           <div class="state-row"><div class="k">PR diagnosis</div><div class="v">○ <code>PR State Report</code> normalizes 10 state signals before the autopilot's routing matrix consumes them</div></div>
           <div class="state-row"><div class="k">Cross-link</div><div class="v">spec/implementation PRs remain separate but linked. Lesson 10: #12 referenced #11; merge skill discovered the pair and coordinated #12 → re-check #11 → #11</div></div>
+          <div class="state-row"><div class="k">Runtime env</div><div class="v">● <code>test-env.json</code> carries current environment state; Experiment 006 recorded <code>status=no-app</code> / <code>baseUrl=null</code> instead of inventing a target</div></div>
+          <div class="state-row"><div class="k">Repo-local knowledge</div><div class="v">● <code>.ai/skills/om-prepare-test-env/SKILL.md</code> persisted discovery evidence + invalidation/re-attempt triggers</div></div>
+          <div class="state-row"><div class="k">Retro → backlog</div><div class="v">● ranked retro evidence + HUMAN GATE → <code>om-prepare-issue</code> → Issue #13 with repo-specific analysis, compatibility notes and SDLC classification</div></div>
         </div>
       </div>
       <div class="card">
@@ -1989,6 +2152,8 @@ body.full-reference #deep-reference{display:block}
           <div class="state-row"><div class="k">Long plan</div><div class="v"><code>--loop</code> route is ● observed; automatic Step-count-above-threshold route remains ○ documented / ◌ not tested</div></div>
           <div class="state-row"><div class="k">Conflict</div><div class="v"><code>--force</code> and claim-conflict protocol are documented; ◌ no collision occurred</div></div>
           <div class="state-row"><div class="k">Unmerged spec</div><div class="v">spec-PR materialization path documented; ◌ our approved spec was already on <code>main</code></div></div>
+          <div class="state-row"><div class="k">Full QA</div><div class="v">○ screenshots/report PASS/FAIL contract documented; ◌ no real app/browser scenario executed</div></div>
+          <div class="state-row"><div class="k">Env fast path</div><div class="v">○ generated up/down scripts + cold/warm reuse documented; ◌ Lab no-app outcome meant scripts were not generated</div></div>
         </div>
       </div>
     </div>
@@ -2004,7 +2169,7 @@ body.full-reference #deep-reference{display:block}
       <h2>7. What I Actually Observed</h2>
       <p>Oddzielamy rzeczy praktycznie zobaczone od tych tylko opisanych w dokumentacji. Numery są klikalne — każdy wiersz da się zweryfikować.</p>
     </div>
-    <div class="section-kicker">Lessons 1–10 · Experiments 001–005 · Findings 001–020 · PR #9 / #10 / #11 / #12</div>
+    <div class="section-kicker">Lessons 1–13 · Experiments 001–007 · Findings 001–032 · PR #9 / #10 / #11 / #12 + QA no-app runtime evidence</div>
   </div>
   <div class="section-body table-wrap">
     <table>
@@ -2067,6 +2232,20 @@ body.full-reference #deep-reference{display:block}
         <tr><td>Implementation from unmerged spec PR</td><td style="color:var(--green)">● observed</td><td>spec PR #11 materialized into implementation worktree</td><td>design stayed uncommitted on implementation branch; PR #12 referenced #11</td></tr>
         <tr><td>Linked implementation + spec merge coordination</td><td style="color:var(--green)">● observed</td><td>Lesson 10 · <code>om-approve-merge-pr</code> on PR #12 + linked PR #11</td><td>discover pair → human choice → merge #12 → re-check #11 → merge #11</td></tr>
         <tr><td>Post-merge revalidation</td><td style="color:var(--green)">● observed</td><td>PR #11 briefly <code>UNKNOWN</code> after #12 changed <code>main</code>, then re-checked <code>CLEAN</code></td><td>state-changing action invalidates stale assumptions; observe again before next mutation</td></tr>
+        <tr><td>QA architecture layering</td><td style="color:var(--blue)">○ documented</td><td>Lesson 11 inspection of <code>om-auto-qa-pr</code>, <code>om-prepare-test-env</code>, browser descriptor and <code>om-integration-tests</code></td><td>QA orchestration ≠ environment provisioning ≠ browser implementation ≠ durable regression test</td></tr>
+        <tr><td>QA config consumption</td><td style="color:var(--green)">● observed</td><td>Experiment 006 · <code>test-env.json</code></td><td><code>paths.qa=.ai/qa</code> and <code>browser.provider=agent-browser</code> reached the runtime descriptor</td></tr>
+        <tr><td>No-app environment contract</td><td style="color:var(--green)">● observed</td><td>Experiment 006 · <code>.ai/qa/test-env.json</code></td><td><code>status=no-app</code> + <code>baseUrl=null</code>; no fake server/readiness</td></tr>
+        <tr><td>Lazy browser provisioning on no-app path</td><td style="color:var(--green)">● observed</td><td>Experiment 006</td><td>configured <code>agent-browser</code> remained uninstalled because nothing could drive it</td></tr>
+        <tr><td>Durable repo-local environment knowledge</td><td style="color:var(--green)">● observed</td><td><code>.ai/skills/om-prepare-test-env/SKILL.md</code></td><td>discovery conclusion + machine facts + consumer rules + re-attempt triggers persisted</td></tr>
+        <tr><td>Full browser QA / env cold-warm / integration test authoring</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td>Lesson 11 contracts only</td><td>requires a real runnable application; this Lab intentionally did not fabricate one</td></tr>
+        <tr><td>Pipeline retro read-only analysis</td><td style="color:var(--green)">● observed</td><td>Experiment 007 · 10 finished PRs / 9 classifiable</td><td>finished history → classification + cost + telemetry gaps</td></tr>
+        <tr><td>Clean / unexplained classification</td><td style="color:var(--green)">● observed</td><td>7 clean · 2 second-pass cause not stated · 0 hard recovery</td><td>second pass does not imply recovery cause</td></tr>
+        <tr><td>Rework cost baseline</td><td style="color:var(--green)">● observed</td><td>median clean 1.0h · unexplained excess 1.1h</td><td>cost = time beyond clean-run baseline</td></tr>
+        <tr><td>Declared outcome observability gap</td><td style="color:var(--green)">● observed</td><td>0% <code>Outcome:</code> coverage</td><td>missing cause telemetry is itself a finding</td></tr>
+        <tr><td>Retro human gate</td><td style="color:var(--green)">● observed</td><td>retro stopped before tracker mutation</td><td>analysis autonomy ≠ authority to create backlog</td></tr>
+        <tr><td>Retro → om-prepare-issue handoff</td><td style="color:var(--green)">● observed</td><td>explicit YES → Issue #13</td><td>ranked evidence becomes repo-aware improvement artifact</td></tr>
+        <tr><td>Improvement issue enrichment</td><td style="color:var(--green)">● observed</td><td>Issue #13 + label rationale</td><td>dedupe + affected files + compatibility + verification + bug/priority/risk</td></tr>
+        <tr><td>Improvement execution boundary</td><td style="color:var(--green)">● observed</td><td>Issue #13 left unimplemented</td><td>discover improvement ≠ record improvement ≠ execute improvement</td></tr>
         <tr><td>Automatic threshold routing</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td><code>engine.loopStepThreshold</code> default 20</td><td>20 Steps stays flat; &gt;20 routes loop, but runtime not exercised</td></tr></tbody>
     </table>
   </div>
@@ -2169,9 +2348,9 @@ body.full-reference #deep-reference{display:block}
   <div class="section-head">
     <div>
       <h2>8a. Process gaps — repo coverage vs actual OM questions</h2>
-      <p>Lesson 10 zamknęła runtime gap dla loop creation engine i wcześniej Lesson 9 zamknęła knowledge gap „kto wybiera workflow dla nieznanego stanu PR”. Otwarty pozostaje runtime evidence oraz deeper specialized capabilities, ale nie każdy documented contract wymaga eksperymentu.</p>
+      <p>Lesson 13 zamknęła knowledge gap wokół Pipeline Observability / Continuous Improvement: znamy runtime classifier, cost model, read-only boundary i human-gated handoff. Lesson 11 zamknęła knowledge gap wokół QA architecture i dała runtime evidence dla environment discovery/no-app boundary. Otwarty pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path; nie każdy documented contract wymaga eksperymentu.</p>
     </div>
-    <div class="section-kicker">post-Lesson 10 correction</div>
+    <div class="section-kicker">post-Lesson 13 correction</div>
   </div>
   <div class="section-body">
     <div class="arch-title">A · Repo / coverage gaps — czego ten lab nadal nie przećwiczył</div>
@@ -2179,17 +2358,22 @@ body.full-reference #deep-reference{display:block}
     <div class="gap-item"><b>1b · PR autopilot runtime evidence</b><span><code>om-pr-autopilot</code> jest installed + ○ documented, ale nie wykonaliśmy nawet <code>--dry-run</code> na kontrolowanym PR. To świadomie nie blokuje Lesson 9: dokumentacja już rozstrzygnęła główne pytanie architektoniczne.</span></div>
     <div class="gap-item"><b>2 · Loop continuation / automatic threshold routing</b><span><code>om-auto-create-pr-loop</code> jest już ● observed. Nadal ◌ not tested są <code>om-auto-continue-pr-loop</code> oraz automatyczne przejście do loop przez plan &gt; <code>engine.loopStepThreshold</code>.</span></div>
     <div class="gap-item"><b>3 · Claim collision / --force</b><span>Fresh engine dokumentuje slot ownership przez plan/branch/PR signals, ale nie wywołaliśmy konkurencyjnego runu ani forced supersede.</span></div>
-    <div class="gap-item"><b>4 · UI QA + CI / branch protection</b><span>PR #10 był terminal/docs-only, więc <code>UI: n/a</code>. Repo nadal nie ma required checks ani branch protection; <code>git diff --check</code> jest jedynym configured gate.</span></div>
+    <div class="gap-item"><b>4 · Full browser QA on a real app</b><span>Lesson 11 mapped <code>om-auto-qa-pr</code> and its browser evidence contract, but the Lab has no runnable app. Experiment 006 intentionally recorded <code>no-app</code> instead of fabricating a server. Screenshots/report PASS/FAIL remain ◌ not tested.</span></div>
+    <div class="gap-item"><b>4b · Normal generated test-environment fast path</b><span><code>om-prepare-test-env</code> documents generated <code>test-env-up.ps1</code>/<code>down.ps1</code>, cold/warm verification and build-cache reuse. The no-app Lab could not exercise that path.</span></div>
+    <div class="gap-item"><b>4c · Integration-test authoring</b><span><code>om-integration-tests</code> is installed + ○ documented, but no live application existed to explore and convert into executable E2E/integration tests.</span></div>
+    <div class="gap-item"><b>4d · CI / branch protection</b><span>Repo nadal nie ma required checks ani branch protection; <code>git diff --check</code> jest jedynym configured gate.</span></div>
     <div class="gap-item"><b>5 · Implementation from unmerged spec PR</b><span>Lesson 10 zamknęła tę lukę: spec #11 nie był na <code>main</code>, został materialized do worktree jako reference-only i nie trafił do implementation diff.</span></div>
 
+    <div class="gap-item"><b>5b · Future retro after telemetry improvement</b><span>Issue #13 proposes machine-readable <code>Outcome: clean|recovered|blocked</code> markers already understood by the retro classifier. Because the Issue was intentionally not implemented, we have not tested whether future declared-outcome coverage rises above 0% or whether unexplained second passes move into clean/hard-recovery buckets.</span></div>
     <div class="arch-title" style="margin-top:24px">B · Actual OM process / documentation questions</div>
     <div class="gap-item"><b>6 · Runtime vs documented repo shape</b><span>Lesson 6 junction/symlink mismatch pozostaje ważnym przypomnieniem, że runtime evidence może korygować docs assumptions.</span></div>
     <div class="gap-item"><b>7 · Validation depth</b><span>Lesson 7 pokazała różnicę między repo-level gate (<code>git diff --check</code>) i bogatszym run-specific verification. Pytanie na przyszłość: które checks powinny zostać przeniesione do trwałego <code>validation.commands</code>?</span></div>
     <div class="gap-item"><b>8 · Same-account review semantics</b><span>PR #10 ponownie pokazał, że logiczny review verdict może być reprezentowany komentarzem/pipeline state, podczas gdy GitHub-native formal approval jest niemożliwy dla własnego PR.</span></div>
     <div class="gap-item"><b>9 · Durable execution-plan lifecycle</b><span>Plan + Progress są już ● observed jako foundation resumability. Nadal nie wiemy runtime'owo, jak dokładnie continuation parser wybiera następny Step po realnym interruption.</span></div>
+    <div class="gap-item"><b>10 · QA gate vs QA capability</b><span>Lesson 11 rozdzieliła te koncepty: <code>om-auto-qa-pr</code> opisuje HOW to verify, a <code>qaGate</code> decyduje WHETHER QA approval blocks progression. Lab ma <code>qaGate=false</code>; runtime <code>true</code> pozostaje nietestowany.</span></div>
 
     <div class="callout">
-      <strong>Usunięte z listy luk po Lesson 9:</strong> „jak wybrać następny PR workflow, gdy stan nie jest znany”. <code>om-pr-autopilot</code> dokumentuje diagnosis + routing matrix + dynamic chain. Runtime autopilota pozostaje opcjonalnym evidence upgrade, nie warunkiem zrozumienia architektury.
+      <strong>Usunięte z listy luk po Lesson 9:</strong> „jak wybrać następny PR workflow, gdy stan nie jest znany” oraz „jak OM rozdziela runtime QA, environment provisioning, browser tooling i durable tests”. Runtime autopilota i pełny QA pass pozostają opcjonalnymi evidence upgrades, nie warunkiem zrozumienia architektury.
     </div>
   </div>
 </section>
@@ -2220,7 +2404,7 @@ body.full-reference #deep-reference{display:block}
     </div>
     <div class="card">
       <h3>Open questions after Lesson 5</h3>
-      <p>Feature/spec route została odpowiedziana etapami: Lesson 6 zaobserwowała autonomous design lifecycle, a Lesson 7 fresh spec implementation. Nadal otwarte są resume/loop execution, real claim collision oraz QA/CI gates.</p>
+      <p>Feature/spec route została odpowiedziana etapami: Lesson 6 zaobserwowała autonomous design lifecycle, a Lesson 7 fresh spec implementation. Resume runtime i real claim collision pozostają otwarte; Lesson 11 wyjaśniła QA architecture, ale pełny real-app QA pass i CI gates nadal nie mają runtime evidence.</p>
     </div>
   </div>
 </section>
@@ -2309,7 +2493,7 @@ body.full-reference #deep-reference{display:block}
     </div>
     <div class="card">
       <h3>Fresh vs resume status</h3>
-      <p><code>om-auto-create-pr</code> = <strong>● observed</strong>. <code>om-auto-create-pr-loop</code> = <strong>○ documented / ◌ not tested</strong>. <code>om-auto-continue-pr</code> i <code>om-auto-continue-pr-loop</code> = <strong>○ documented / ◌ not tested</strong>.</p>
+      <p><code>om-auto-create-pr</code> = <strong>● observed</strong>. <code>om-auto-create-pr-loop</code> = <strong>● observed in Lesson 10</strong>. <code>om-auto-continue-pr</code> i <code>om-auto-continue-pr-loop</code> = <strong>○ documented / ◌ not tested</strong>.</p>
     </div>
     <div class="card">
       <h3>Evidence discipline: cleanup probe</h3>
@@ -2462,20 +2646,219 @@ body.full-reference #deep-reference{display:block}
   </div>
 </section>
 
+<section class="section" id="lesson11">
+  <div class="section-head">
+    <div>
+      <h2>15. Lesson 11 — Autonomous runtime QA / test-environment architecture</h2>
+      <p>Pytanie badawcze: jak Open Mercato organizuje runtime verification i gdzie rozdziela QA orchestration, environment provisioning, browser automation oraz durable tests?</p>
+    </div>
+    <div class="section-kicker">Experiment 006 · Findings 021–026 · ● no-app boundary observed</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>Entry-point hypothesis corrected · ● observed</h3>
+      <p>Początkowy kandydat <code>om-auto-test</code> nie istnieje w aktualnej kolekcji. Inventory wskazało <code>om-auto-qa-pr</code>, <code>om-prepare-test-env</code> i <code>om-integration-tests</code>; dopiero ich własne contracts zbudowały rzeczywisty QA model.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 021 — layered QA architecture · ○ documented</h3>
+      <p><code>om-auto-qa-pr</code> orkiestruje change-oriented QA: scope z diffu → scenario → real browser → evidence. Nie bootuje aplikacji sam. Environment lifecycle deleguje do <code>om-prepare-test-env</code>, a browser implementation do configured provider descriptor.</p>
+      <div class="next-chain"><code>change</code><span>→</span><code>QA orchestrator</code><span>→</span><code>shared env</code><span>→</span><code>browser adapter</code><span>→</span><code>evidence</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 022 — environment compiler · ○ documented</h3>
+      <p>Normalny runnable-app path ma być expensive once: discovery kompiluje repo-specific runtime knowledge do <code>test-env-up.ps1</code>/<code>down.ps1</code>, potem cold/warm verification udowadnia reuse. Kolejne runy wykonują deterministyczny entrypoint zamiast ponawiać reasoning.</p>
+      <div class="callout"><strong>Not observed here:</strong> Lab nie ma aplikacji, więc generated scripts i cold→warm reuse pozostają ◌ not tested.</div>
+    </div>
+    <div class="card">
+      <h3>Finding 023 — shared runtime contract · ○ + ●</h3>
+      <p><code>.ai/qa/test-env.json</code> oddziela HOW environment działa od WHAT runtime jest dostępny. QA i integration-test consumers czytają ten sam contract: <code>baseUrl</code>, services, credential references, browser provider, test runner i lifecycle state. Experiment 006 realnie zapisał descriptor i propagated <code>agent-browser</code> z configu.</p>
+    </div>
+    <div class="card">
+      <h3>Experiment 006 — no runnable app · ● observed</h3>
+      <p>Discovery nie znalazło package manifestu, Docker/Compose, Makefile, CI run recipe ani application source. Learning Map HTML jest self-contained i nie wymaga serwera. Skill zapytał o target; wybrano <code>No app — record the gap</code>, a script flavor zapisano jako PowerShell <code>.ps1</code>.</p>
+      <div class="next-chain"><code>discover repo</code><span>→</span><code>no app</code><span>→</span><code>human target choice</code><span>→</span><code>no fake runtime</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 024 — negative environment contract · ● observed</h3>
+      <p>Run zakończył się poprawnie bez servera i bez generated up/down scripts. <code>test-env.json</code> zawierał <code>status=no-app</code>, <code>mode=none</code>, <code>baseUrl=null</code>, <code>startedByThisRepo=false</code>, <code>browser.provider=agent-browser</code>, <code>browser.installed=false</code>, <code>testRunner=none</code>, <code>platform=win32</code>.</p>
+      <div class="callout"><strong>Memory hook:</strong> <code>state file is not permission to invent reality</code>. No app → consumers must not attach.</div>
+    </div>
+    <div class="card">
+      <h3>Finding 025 — evidence vs regression asset · ○ documented</h3>
+      <p><code>om-auto-qa-pr</code> odpowiada „czy ta zmiana działa teraz?” i produkuje screenshots + <code>report.md</code>/<code>report.json</code>. <code>om-integration-tests</code> odpowiada „jak zachować to zachowanie jako executable regression test?” — explore first, then author/run/analyze.</p>
+    </div>
+    <div class="card">
+      <h3>Browser provider ≠ repo test runner · ○ documented</h3>
+      <p><code>agent-browser.md</code> implementuje provider-neutral operations: ensure-installed, doctor, open, snapshot, interact, assert, screenshot, close. To adapter dla agent-driven exploration. Repo-native Playwright/Cypress/WDIO pozostaje osobnym <code>testRunner</code> dla durable suite.</p>
+    </div>
+    <div class="card">
+      <h3>QA capability ≠ QA gate</h3>
+      <p><code>om-auto-qa-pr</code> mówi <strong>HOW</strong> wykonać QA. <code>qaGate</code> mówi <strong>WHETHER</strong> QA approval blokuje progression. W tym Labie <code>qaGate=false</code>, więc QA jest dostępne, ale nie mandatory. <code>qaGate=true</code> nie był runtime-tested.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 026 — durable discovered knowledge · ● observed</h3>
+      <p>Po no-app discovery powstał tracked repo-local <code>.ai/skills/om-prepare-test-env/SKILL.md</code>. Zachował conclusion, supporting evidence, Windows/PowerShell machine facts, consumer rules i explicit re-attempt triggers. To inny durable-state pattern niż execution checkpoints.</p>
+      <div class="next-chain"><code>runtime state</code><span>≠</span><code>executable env knowledge</code><span>≠</span><code>repo-local discovered knowledge</code></div>
+    </div>
+    <div class="card">
+      <h3>Evidence boundary after Lesson 11</h3>
+      <p><strong>● Observed:</strong> config consumption, no-app decision boundary, negative descriptor, lazy browser deferral, repo-local discovery knowledge, PowerShell 5.1 platform constraints.</p>
+      <p style="margin-top:10px"><strong>○/◌:</strong> full browser QA PASS/FAIL, screenshots/report publication, generated env scripts, cold/warm reuse, build cache, <code>qaGate=true</code>, self-QA labels, integration-test authoring against a real app.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="lesson12">
+  <div class="section-head">
+    <div>
+      <h2>16. Lesson 12 — Capability taxonomy / map architecture</h2>
+      <p>Pytanie badawcze: jak przestać traktować rosnącą listę skills jako inventory i zacząć pamiętać Open Mercato przez capability groups oraz odpowiedzialności?</p>
+    </div>
+    <div class="section-kicker">36 skills · 17 capability groups · map architecture</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>Why the map changed</h3>
+      <p>Stary Learning Map stał się szczegółowym historycznym reference. Lesson 12 zbudowała osobny, lekki <strong>Capability Map</strong>, którego rolą jest szybka orientacja po 36 skills zgrupowanych w 17 capabilities, bez powtarzania całej historii eksperymentów.</p>
+    </div>
+    <div class="card">
+      <h3>Interaction grammar</h3>
+      <p>Nowy map language rozdziela pięć rzeczy:</p>
+      <div class="next-chain"><code>HUMAN ACTION</code><span>→</span><code>INVOKE</code><span>→</span><code>DELEGATES</code><span>→</span><code>ARTIFACT</code><span>→</span><code>✕ HUMAN GATE</code></div>
+      <p style="margin-top:10px">To zapobiega rysowaniu sibling capabilities jako fałszywej sekwencji i pomaga odróżnić autonomous handoff od operator decision.</p>
+    </div>
+    <div class="card">
+      <h3>Role of this Learning Map</h3>
+      <p>Learning Map pozostaje detailed memory/reference logiem dla Lessons i evidence. Capability Map jest szybszym architecture indexem. FINDINGS.md przechowuje durable conclusions, a EXPERIMENTS.md runtime evidence.</p>
+    </div>
+    <div class="card">
+      <h3>Lesson 12 boundary</h3>
+      <p>To była lekcja syntezy/taxonomy, nie nowy runtime capability experiment. Nie promuje żadnego nowego skilla do ● observed tylko dlatego, że został umieszczony na mapie.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="lesson13">
+  <div class="section-head">
+    <div>
+      <h2>17. Lesson 13 — Pipeline Observability / Continuous Improvement</h2>
+      <p>Pytanie badawcze: jak Open Mercato analizuje zakończone pipeline runs, mierzy koszt second passes, rozpoznaje braki telemetryczne i przekazuje wybrany improvement do backlogu bez automatycznego rozpoczynania delivery?</p>
+    </div>
+    <div class="section-kicker">Experiment 007 · Findings 027–032 · Issue #13</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>om-pipeline-retro runtime · ● observed</h3>
+      <p>Default 30-day window: <code>2026-07-18 → 2026-08-17</code>. Skill przeanalizował 10 finished PRs; 9 miało usable agent run markers. PR #1 predates pipeline markers i nie został wliczony do classifiable outcomes.</p>
+      <div class="next-chain"><code>10 finished</code><span>→</span><code>9 classifiable</code><span>→</span><code>7 clean</code><span>+</span><code>2 unexplained</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 027 — quantified improvement evidence · ●</h3>
+      <p>Retro nie jest zwykłym summary. Łączy marker history, timestamps i PR size z deterministic classification oraz timing baseline. Clean-run median wyniósł <code>1.0h</code>; dwa unexplained second passes kosztowały <code>1.1h</code> ponad baseline.</p>
+    </div>
+    <div class="card">
+      <h3>Classification result · ● observed</h3>
+      <p><strong>7/9 clean single pass (78%)</strong> · <strong>0 hard recovery</strong> · <strong>0 loop checkpoints</strong> · <strong>2/9 second pass, cause not stated (22%)</strong>. Brak formalnego hard-recovery signal oznaczał brak prawa do zgadywania przyczyny.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 028 — missing telemetry is a finding · ●</h3>
+      <p>Declared <code>Outcome:</code> coverage wyniosło <strong>0%</strong>. Pipeline history potrafił udowodnić, że second pass wystąpił, ale nie potrafił udowodnić dlaczego. Memory hook: <code>rework observed ≠ rework cause recorded</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Same-account review condition ≠ measured rework</h3>
+      <p>GitHub refusal <code>Can not approve your own pull request</code> pojawił się także na clean runs #8 i #12. Retro nie uznał samej obecności condition za recovery. Liczy tylko przypadki, gdzie additional pass faktycznie wystąpił i evidence pozwala związać go z cause.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 029 — read-only boundary · ●</h3>
+      <p>Po pełnym retro <code>git status --short</code> był pusty, a skill raportował brak tracker action. Run kończy się raportem i <strong>✕ HUMAN GATE</strong>: czy top cause ma stać się improvement Issue?</p>
+      <div class="next-chain"><code>analyze</code><span>→</span><code>report</code><span>→</span><code>✕ HUMAN GATE</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 030 — handoff enriches evidence · ●</h3>
+      <p>Po explicit YES <code>om-prepare-issue</code> utworzył Issue #13. Nie skopiował raportu: zrobił dedupe, repo-specific affected-area analysis, expected vs actual, root-cause hypothesis, file-level implementation guidance, compatibility check, verification plan i out-of-scope.</p>
+    </div>
+    <div class="card">
+      <h3>Issue #13 classification · ● observed</h3>
+      <p>Deferred improvement został sklasyfikowany jako <code>🐛 bug</code>, <code>🔹 priority-medium</code>, <code>⚠ risk-high</code>. Label rationale został zapisany osobnym consolidated commentem. Brak pipeline labels i <code>in-progress</code>, bo backlog item nie jest aktywnym PR-em.</p>
+    </div>
+    <div class="card">
+      <h3>Dedupe degradation · ● observed</h3>
+      <p>GitHub Search zwracał <code>503 Service Unavailable</code>. <code>om-prepare-issue</code> nie ukrył degradacji: fallbackował do pełnej enumeracji Issue history + open PRs. W małym Labie było to wystarczające i jawnie zaraportowane.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 031 — retro can improve future retro · ○ proposal / ◌ untested effect</h3>
+      <p>Issue #13 proponuje machine-readable <code>Outcome: clean|recovered|blocked</code> markers, które classifier już rozumie. To potencjalnie zamyka feedback loop: future delivery zapisuje lepszą telemetrykę → future retro klasyfikuje dokładniej. Efekt nie został przetestowany, bo Issue #13 nie implementowaliśmy.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 032 — two human-controlled lifecycle gates · ●</h3>
+      <p>Lesson 13 zaobserwowała dwie osobne granice authority:</p>
+      <div class="next-chain"><code>retro report</code><span>→</span><code>✕ create issue?</code><span>→</span><code>Issue #13</code><span>→</span><code>✕ execute?</code><span>→</span><code>STOP</code></div>
+      <p style="margin-top:10px">Discover improvement ≠ record improvement ≠ execute improvement.</p>
+    </div>
+    <div class="card">
+      <h3>Lesson 13 memory hook</h3>
+      <p><strong>Pipeline observability is a feedback loop above delivery:</strong></p>
+      <div class="next-chain"><code>finished runs</code><span>→</span><code>retro</code><span>→</span><code>ranked evidence</code><span>→</span><code>HUMAN GATE</code><span>→</span><code>prepare Issue</code><span>→</span><code>HUMAN GATE</code></div>
+      <div class="callout"><strong>Exercise boundary:</strong> Issue #13 remains an open backlog artifact. No implementation branch or improvement PR was created.</div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="next">
   <div class="section-head">
     <div>
-      <h2>15. Next Expansion — after Lesson 10</h2>
-      <p>Lesson 10 kończy się po controlled runtime experiment. Loop creation engine ma już wystarczający conceptual + observed model; nie rozszerzamy lekcji o interruption/resume tylko dla kompletności.</p>
+      <h2>18. Next Expansion — after Lesson 13</h2>
+      <p>Lesson 13 kończy się po pełnym retro → improvement backlog handoffie. Issue #13 zostaje celowo niewykonane, bo Lab ma uczyć capability, a nie naprawiać każdy wykryty problem. Następna lekcja powinna znów odsłonić nowy capability.</p>
     </div>
     <div class="section-kicker">next · prioritize new capability</div>
   </div>
   <div class="section-body">
     <div class="next">
       <h3>Learning rule for the next lesson</h3>
-      <p>Wybierz następny capability, który odsłoni nowy mechanizm Open Mercato. Flat i loop fresh implementation oraz linked spec/implementation finalization mają już runtime evidence; resume i PR autopilot mają wystarczająco dobry documented model na obecnym etapie. Następna lekcja powinna odsłonić nowy capability lub orchestration mechanism, nie powtarzać znany workflow.</p>
+      <p>Wybierz następny capability, który odsłoni nowy mechanizm Open Mercato. Flat/loop implementation, linked finalization, QA environment boundary oraz pipeline retro feedback loop mają już odpowiedni evidence level. Resume/autopilot oraz full real-app QA mają udokumentowane contracts, ale nie wymagają natychmiastowego eksperymentu. Następna lekcja powinna odsłonić nowy capability lub orchestration mechanism, nie powtarzać znany workflow.</p>
       <div class="next-chain"><code>new capability</code><span>→</span><code>inspect own contract</code><span>→</span><code>identify real knowledge gap</code><span>→</span><code>runtime only if it adds evidence</code></div>
       <div class="callout"><strong>Evidence rule:</strong> <code>○ documented</code> pozostaje odrębne od <code>● observed</code>, ale brak runtime nie jest sam w sobie luką lekcji. Eksperyment ma odpowiadać na pytanie, a nie służyć wyłącznie „odhaczeniu” skilla.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="lesson14">
+  <div class="section-head">
+    <div>
+      <h2>18. Lesson 14 — Idea Shaping / Routing</h2>
+      <p>Pytanie badawcze: czy Open Mercato potrafi zakwestionować sam pomysł przed delivery, wybrać „build nothing”, a jeśli ma zostać praca — przekazać ją dalej bez automatycznego uruchamiania downstream skilla?</p>
+    </div>
+    <div class="section-kicker">Experiment 008 · Findings 033–036 · om-brainstorm</div>
+  </div>
+  <div class="section-body grid-2">
+    <div class="card">
+      <h3>Runtime path · ● observed</h3>
+      <p>Start: <code>Should the Learning Lab have a simple dashboard or status summary?</code>. Brainstorm najpierw sprawdził repo i tracker, znalazł istniejące status surfaces i dopiero potem prowadził clarification / alternatives.</p>
+      <div class="next-chain"><code>rough idea</code><span>→</span><code>repo reality</code><span>→</span><code>clarify</code><span>→</span><code>alternatives</code><span>→</span><code>challenger</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 033 — shape the problem before routing</h3>
+      <p>Problem przeszedł od „potrzebujemy dashboardu” przez „może brakuje source of truth” do finalnego „coverage już istnieje; problemem są stale facts + discoverability”. Brainstorm nie traktuje proponowanego artifactu jako wymagania.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 034 — challenger is a real decision gate</h3>
+      <p>Leading direction <code>create LEARNING-STATUS.md</code> została podważona przez challenger. Głębsze sprawdzenie <code>learning-map/om-skills-learning-map-v16.html</code> wykazało, że istniejąca mapa już niesie OBSERVED / DOCUMENTED / NOT TESTED coverage. Preferowane rozwiązanie zostało wycofane.</p>
+      <div class="next-chain"><code>leading direction</code><span>→</span><code>DELEGATES: challenger</code><span>→</span><code>counter-evidence</code><span>→</span><code>direction changed</code></div>
+    </div>
+    <div class="card">
+      <h3>Finding 035 — build nothing is valid</h3>
+      <p>Dla nowego dashboard/status capability wygrało <code>build nothing</code>. Nie oznaczało to „nic nie rób”: pozostała mniejsza, uzasadniona korekta dokumentacji. Mental model: <code>is new work justified? no → build nothing / minimal correction; yes → route downstream</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Finding 036 — handoff is human-controlled</h3>
+      <p>Po wyborze małej docs correction brainstorm poprosił o potwierdzenie, zapisał <code>.ai/specs/briefs/2026-08-17-lab-orientation-doc-fixes.md</code> i zwrócił <code>Next: om-auto-create-pr ...</code>. To była rekomendacja, nie autonomous delegation.</p>
+      <div class="next-chain"><code>routing recommendation</code><span>→</span><code>✕ HUMAN GATE</code><span>→</span><code>handoff brief</code><span>→</span><code>Next:</code><span>→</span><code>STOP</code></div>
+    </div>
+    <div class="card">
+      <h3>New lifecycle boundary</h3>
+      <p>Po Lessons 13–14 widać dwa podobne human-controlled boundaries na przeciwnych końcach delivery: brainstorm oddziela <strong>decide what should exist</strong> od <strong>begin delivery</strong>; retro oddziela <strong>discover improvement</strong> od <strong>execute improvement</strong>.</p>
+      <div class="next-chain"><code>IDEA</code><span>→</span><code>BRAINSTORM</code><span>→</span><code>HUMAN</code><span>→</span><code>DELIVERY</code><span>→</span><code>RETRO</code><span>→</span><code>HUMAN</code></div>
     </div>
   </div>
 </section>
@@ -2483,9 +2866,9 @@ body.full-reference #deep-reference{display:block}
 </div><!-- /deep-reference -->
 <footer class="footer">
   <div>
-    OM Skills Learning Lab · visual memory map · v14<br>
-    Built from Lessons 1–10, Experiments 001–005, Findings 001–020, observed repo/GitHub behavior, Lesson 8 resume discovery, Lesson 9 PR-autopilot discovery and Lesson 10 loop-engine runtime experiment and linked PR merge finalization.<br>
-    Opisuje stan wiedzy po Lesson 10 experiment (2026-08-15): flat i loop fresh implementation oraz linked PR merge coordination są runtime-observed; continue-loop i PR-autopilot pozostają runtime-untested. Tekst normatywny procesu żyje w <code>SDLC.md</code> — ta mapa go nie zastępuje.
+    OM Skills Learning Lab · visual memory map · v17<br>
+    Built from Lessons 1–14, Experiments 001–008, Findings 001–036, observed repo/GitHub behavior, QA/environment discovery, Lesson 13 pipeline-retro evidence and Lesson 14 brainstorm runtime.<br>
+    Opisuje stan wiedzy po Lesson 14 (2026-08-17): flat/loop implementation, no-app QA-environment boundary, retro → improvement backlog handoff oraz idea → brainstorm → challenger → human-gated handoff są runtime-observed; full browser QA, cold/warm env reuse, integration-test authoring, continue-loop i PR-autopilot runtime pozostają untested. Tekst normatywny procesu żyje w <code>SDLC.md</code> — ta mapa go nie zastępuje.
   </div>
   <div style="text-align:right">
     Keep this file alive: update after each practical lesson.<br>
