@@ -85,6 +85,12 @@
       "skillPath": "skills/om-open-pr/SKILL.md",
       "computedHash": "02fcaf135aadb0c0db4c38d90608870a088b1a2ae56fb6b83916f752c4258c6f"
     },
+    "om-pipeline-retro": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-pipeline-retro/SKILL.md",
+      "computedHash": "2344b811d99b07b6348eda503e8bce03409cf5e167b79a0af3fbf9dce8c0dea7"
+    },
     "om-pr-autopilot": {
       "source": "open-mercato/skills",
       "sourceType": "github",
