@@ -1744,3 +1744,472 @@ test-env.json
 
 Creation of the repo-local `om-prepare-test-env` extension and its
 evidence/re-attempt contract was **runtime observed in Lesson 11**.
+
+------------------------------------------------------------------------
+
+## Finding 027 --- Pipeline retro turns finished delivery history into quantified improvement evidence
+
+### Question
+
+What does `om-pipeline-retro` actually produce from completed pipeline
+runs?
+
+### Evidence
+
+Lesson 13 runtime-tested `om-pipeline-retro` against the Learning Lab's
+real 30-day PR history.
+
+The skill examined 10 finished PRs. Nine carried usable agent run
+markers and were classified as:
+
+``` text
+7 clean single pass
+0 hard recovery
+0 loop checkpoints (by design)
+2 second pass, cause not stated
+```
+
+The clean-run median time to merge was 1.0h.
+
+The two unexplained second-pass runs accounted for 1.1h beyond that
+clean-run baseline.
+
+The retro also reported declared-outcome coverage of 0% because none of
+the nine classifiable runs contained an `Outcome:` line.
+
+### Observation
+
+The retro did more than count successful and unsuccessful PRs.
+
+It reconstructed historical execution signals, classified run shapes,
+established a clean-run timing baseline, measured excess time, and
+surfaced missing telemetry when the historical record could not justify
+a recovery classification.
+
+The observed model was:
+
+``` text
+finished PR history
+        ↓
+agent run markers + timestamps + size
+        ↓
+om-pipeline-retro
+        ↓
+run classification
+        +
+clean-run baseline
+        +
+second-pass cost
+        +
+observability gaps
+        ↓
+ranked improvement evidence
+```
+
+The classifier did not infer a hard-recovery cause merely because a
+second pass occurred.
+
+When the historical record lacked a qualifying cause, the run remained:
+
+``` text
+second pass, cause not stated
+```
+
+### Conclusion
+
+`om-pipeline-retro` is a **pipeline observability and
+improvement-analysis capability**, not simply a retrospective summary
+generator.
+
+It converts durable delivery history into quantified evidence about:
+
+``` text
+how often rework occurs
+what kind of rework is recorded
+how much measurable time second passes cost
+where pipeline telemetry is insufficient to explain the work
+```
+
+This behavior was **runtime observed in Lesson 13**.
+
+------------------------------------------------------------------------
+
+## Finding 028 --- Missing cause data is itself a first-class observability finding
+
+### Question
+
+What does `cause not recorded` mean in the retro model?
+
+### Evidence
+
+Lesson 13 found two PRs that ran `om-auto-review-pr` twice.
+
+Their histories did not contain a qualifying formal `CHANGES_REQUESTED`,
+merge conflict, interruption, declared recovery outcome, or another
+recorded hard-recovery signal.
+
+At the same time, declared-outcome coverage across the nine classifiable
+runs was:
+
+``` text
+0%
+```
+
+No run carried an `Outcome:` line.
+
+The retro therefore classified both second-pass runs as:
+
+``` text
+Second pass, cause not stated
+```
+
+rather than assigning an inferred hard-recovery cause.
+
+### Observation
+
+The pipeline history was sufficient to prove that extra work occurred,
+but insufficient to prove why it occurred.
+
+This creates an important distinction:
+
+``` text
+rework observed
+        ≠
+rework cause recorded
+```
+
+The retro treats that gap as useful evidence instead of hiding it
+through inference.
+
+The same GitHub self-review refusal appeared on clean runs as well as
+second-pass runs, which further demonstrated that the presence of a
+condition is not sufficient evidence that the condition caused
+measurable rework.
+
+### Conclusion
+
+In Open Mercato pipeline observability, **missing causal telemetry is
+itself a measurable result**.
+
+A useful evidence rule is:
+
+``` text
+historical signal proves extra pass
+        +
+historical record does not prove cause
+        ↓
+report unexplained rework
+        ↓
+do not promote inference to recorded fact
+```
+
+This directly supports the Lab's evidence discipline:
+
+``` text
+● observed behavior
+≠
+assumed explanation
+```
+
+This behavior was **runtime observed in Lesson 13**.
+
+------------------------------------------------------------------------
+
+## Finding 029 --- Pipeline retro is read-only until an explicit human improvement gate
+
+### Question
+
+Does `om-pipeline-retro` automatically turn its findings into tracker
+work?
+
+### Evidence
+
+After the Lesson 13 retro completed:
+
+``` powershell
+git status --short
+```
+
+returned no output.
+
+The retro explicitly reported that it had read the tracker and taken no
+tracker action.
+
+Its final step surfaced the top improvement opportunity and asked
+whether it should be filed through `om-prepare-issue`.
+
+The Issue was created only after the human explicitly answered:
+
+``` text
+Yes. File the top cause with om-prepare-issue.
+```
+
+### Observation
+
+The observed boundary was:
+
+``` text
+Human
+  ↓ INVOKE
+om-pipeline-retro
+  ↓
+read finished pipeline history
+  ↓
+analyze / classify / rank
+  ↓
+retro report
+  ↓
+✕ HUMAN GATE
+create improvement issue?
+```
+
+The analysis itself remained read-only.
+
+Tracker mutation belonged to a separate capability and required explicit
+human authorization.
+
+### Conclusion
+
+Open Mercato separates **autonomous diagnosis** from **authority to
+create improvement work**.
+
+`om-pipeline-retro` may autonomously inspect and rank pipeline problems,
+but it does not autonomously decide that a new backlog item should
+exist.
+
+This creates a clear control boundary:
+
+``` text
+observability
+        ↓
+recommendation
+        ↓
+✕ HUMAN GATE
+        ↓
+tracker mutation
+```
+
+The read-only boundary and the human gate were **runtime observed in
+Lesson 13**.
+
+------------------------------------------------------------------------
+
+## Finding 030 --- The retro-to-issue handoff enriches evidence instead of copying the report
+
+### Question
+
+What happens after a human approves the `om-pipeline-retro` handoff to
+`om-prepare-issue`?
+
+### Evidence
+
+In Lesson 13, the human approved the top retro cause for filing.
+
+`om-prepare-issue` then created Issue #13.
+
+The resulting Issue contained more than the retro report. It added:
+
+``` text
+duplicate checking
+repository-specific affected areas
+expected vs actual behavior
+root-cause hypothesis
+quantitative retro evidence
+file-level implementation guidance
+compatibility analysis
+verification guidance
+explicit out-of-scope work
+SDLC classification
+```
+
+The Issue classified the work as:
+
+``` text
+bug
+priority-medium
+risk-high
+```
+
+and persisted a separate label-rationale comment explaining why each
+label applied.
+
+No PR pipeline labels and no `in-progress` label were added because the
+Issue represented deferred backlog work rather than active execution.
+
+### Observation
+
+The handoff behaved as:
+
+``` text
+om-pipeline-retro
+        ↓
+ranked historical evidence
+        ↓
+✕ HUMAN GATE
+        ↓
+om-prepare-issue
+        ↓
+inspect current repository contracts
+        ↓
+transform evidence into actionable work
+        ↓
+Issue #13
+```
+
+This is not a simple serialization of the retro report.
+
+`om-prepare-issue` re-contextualized the finding against the current
+repository and produced an engineering-ready backlog artifact.
+
+### Conclusion
+
+The `om-pipeline-retro` → `om-prepare-issue` relationship is a
+**capability handoff from diagnosis to backlog preparation**.
+
+The first skill answers:
+
+``` text
+What recurring pipeline behavior is costing us?
+```
+
+The second turns the selected evidence into:
+
+``` text
+What exactly should be changed in this repository,
+how risky is it,
+and how could the change be verified?
+```
+
+This enrichment behavior was **runtime observed in Lesson 13**.
+
+------------------------------------------------------------------------
+
+## Finding 031 --- Continuous improvement can improve the telemetry consumed by future retros
+
+### Question
+
+Can the output of a pipeline retro improve the quality of future
+pipeline retros?
+
+### Evidence
+
+Lesson 13 reported:
+
+``` text
+declared-outcome coverage = 0%
+```
+
+Issue #13 proposed preserving a machine-readable verdict on the degraded
+self-review path using markers already recognized by the retro
+classifier:
+
+``` text
+Outcome: clean
+Outcome: recovered
+Outcome: blocked
+```
+
+The Issue analysis stated that the existing classifier already parses
+this marker family, so the proposed change would not require a
+classifier modification.
+
+The improvement itself was not implemented during Lesson 13.
+
+### Observation
+
+The proposed feedback relationship is:
+
+``` text
+delivery run
+        ↓
+machine-readable Outcome telemetry
+        ↓
+future om-pipeline-retro
+        ↓
+better historical classification
+        ↓
+better improvement evidence
+```
+
+This means the improvement backlog generated from observability evidence
+can target the observability mechanism itself.
+
+### Conclusion
+
+Open Mercato's pipeline-retro capability supports a genuine
+**continuous-improvement feedback loop** in which retrospective evidence
+can identify changes that improve the quality of future retrospective
+evidence.
+
+However, only the discovery and Issue preparation were observed.
+
+The effect of the proposed `Outcome:` markers on a later retro remains:
+
+``` text
+◌ NOT TESTED
+```
+
+because Issue #13 was deliberately not implemented as part of the Lesson
+13 exercise.
+
+------------------------------------------------------------------------
+
+## Finding 032 --- Improvement discovery and improvement execution are separate human-controlled lifecycles
+
+### Question
+
+After a retro finding becomes an improvement Issue, does the pipeline
+automatically execute that improvement?
+
+### Evidence
+
+Lesson 13 ended after `om-prepare-issue` created Issue #13.
+
+The Issue itself suggested possible pickup paths such as
+`om-auto-fix-issue`, but no implementation skill was invoked.
+
+No implementation branch or improvement PR was created.
+
+### Observation
+
+The complete observed boundary was:
+
+``` text
+finished delivery history
+        ↓
+om-pipeline-retro
+        ↓
+improvement evidence
+        ↓
+✕ HUMAN GATE
+        ↓
+om-prepare-issue
+        ↓
+improvement backlog artifact
+        ↓
+✕ HUMAN GATE
+        ↓
+STOP
+```
+
+The first gate controls whether evidence becomes backlog work.
+
+The second gate controls whether backlog work becomes active delivery.
+
+### Conclusion
+
+Open Mercato separates:
+
+``` text
+discover improvement
+        ≠
+record improvement
+        ≠
+execute improvement
+```
+
+This keeps continuous-improvement analysis autonomous while preserving
+human authority over backlog creation and implementation priority.
+
+The two-gate boundary was **runtime observed in Lesson 13**. Execution
+of Issue #13 was intentionally not tested.
