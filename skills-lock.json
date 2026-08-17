@@ -49,6 +49,12 @@
       "skillPath": "skills/om-auto-review-pr/SKILL.md",
       "computedHash": "30eaddba210ac4bac7bafa022859e4cc4bcbf5948d87b6d9f20342e8d489209f"
     },
+    "om-auto-update-changelog": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-auto-update-changelog/SKILL.md",
+      "computedHash": "d48806ca16f711361b2e31800989444a07af91153902311ef1f879746edfd749"
+    },
     "om-auto-write-spec": {
       "source": "open-mercato/skills",
       "sourceType": "github",
@@ -66,6 +72,12 @@
       "sourceType": "github",
       "skillPath": "skills/om-check-and-commit/SKILL.md",
       "computedHash": "c3fe0fb6a849f0d0e5fb306b6ee84bf0bab5f8901c1e898d354eb55d68915b63"
+    },
+    "om-close-fixed-issues": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-close-fixed-issues/SKILL.md",
+      "computedHash": "082d6a458fffa5ce87f9b8cda8194269e24c9d31a33976a275aff77ead13c132"
     },
     "om-code-review": {
       "source": "open-mercato/skills",

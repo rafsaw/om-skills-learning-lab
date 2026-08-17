@@ -1714,3 +1714,501 @@ Not tested:
 ◌ execution of the recommended om-auto-create-pr handoff
 ◌ whether the documentation correction solves orientation after a future break
 ```
+
+------------------------------------------------------------------------
+
+## Experiment 009 --- Post-merge tracker reconciliation with `om-close-fixed-issues`
+
+### Goal
+
+Observe how `om-close-fixed-issues` reconciles real merged PR history
+against GitHub Issue state and determine whether the Learning Lab has any
+stale fixed Issues that require post-merge cleanup.
+
+The experiment was deliberately run in:
+
+``` text
+--dry-run
+```
+
+so the tracker could be inspected without closing Issues, posting
+comments, changing labels, or changing assignees.
+
+No synthetic Issue or PR was created for the experiment.
+
+### Starting state
+
+The Learning Lab already had real merged PR history from Lessons 1–14.
+
+The repository had no `CHANGELOG.md`, so the skill's default:
+
+``` text
+--since last-release
+```
+
+could not resolve a release heading.
+
+The documented fallback therefore selected the last seven days:
+
+``` text
+2026-08-10 → 2026-08-17
+```
+
+Resolved runtime context was:
+
+``` text
+repo          = rafsaw/om-skills-learning-lab
+base branch   = main
+current user  = rafsaw
+labels        = enabled
+closeKeywords = []
+```
+
+### Run
+
+The invocation was:
+
+``` text
+/om-close-fixed-issues --dry-run
+```
+
+The window contained:
+
+``` text
+10 merged PRs
+0 closed-without-merge PRs
+0 drafts
+```
+
+The merged PRs were:
+
+``` text
+#1, #3, #4, #5, #6, #8, #9, #10, #11, #12
+```
+
+### Authoritative PR→Issue relationships
+
+The run found two authoritative closing relationships through
+`closingIssuesReferences`:
+
+``` text
+PR #8 → Issue #7
+PR #3 → Issue #2
+```
+
+For each pair the skill fetched the current Issue state before deciding
+what to do.
+
+Both Issues were already closed.
+
+The resulting audit rows were:
+
+``` text
+#8 → #7 → skipped: already CLOSED
+#3 → #2 → skipped: already CLOSED
+```
+
+### Bare references were not treated as authority
+
+The remaining eight PRs contained various `#N` references.
+
+The skill did not treat those references as permission to close Issues.
+
+Every mentioned number resolved either to:
+
+``` text
+a PR in the same repository
+```
+
+or:
+
+``` text
+an already-closed Issue
+```
+
+No mentioned number resolved to an open Issue requiring the
+unmatched-mentions diagnostic section.
+
+The final unmatched count was:
+
+``` text
+0
+```
+
+### No-op steady state
+
+The final counts were:
+
+``` text
+closed 0
+commented 0
+skipped 2
+unmatched-mentions 0
+dry-run-would-have 0
+```
+
+The report explicitly concluded that the window was genuinely quiet.
+
+The two authoritative close links had already been honored, most likely
+by GitHub's own close-on-merge semantics, so there was no tracker drift
+for the skill to repair.
+
+### Observed flow
+
+``` text
+Human
+  ↓ INVOKE
+om-close-fixed-issues --dry-run
+  ↓
+resolve repo / base / window
+  ↓
+enumerate recent PRs
+  ↓
+extract authoritative close links
+  ↓
+fetch Issue state
+  ↓
+#8 → #7 already CLOSED
+#3 → #2 already CLOSED
+  ↓
+bare #N references do not authorize mutation
+  ↓
+ARTIFACT: reconciliation report
+  ↓
+STOP
+```
+
+### Result
+
+Confirmed that `om-close-fixed-issues` acts as a post-merge tracker
+reconciliation capability rather than merely an automatic Issue closer.
+
+The Learning Lab's tracker was already in a consistent steady state, so
+the correct result was a no-op.
+
+Observed in this experiment:
+
+``` text
+● default last-release fallback to the last 7 days
+● repo/base/user context resolution
+● enumeration of 10 real merged PRs
+● 0 closed-unmerged PRs
+● authoritative PR→Issue extraction through closingIssuesReferences
+● PR #8 → Issue #7
+● PR #3 → Issue #2
+● fetch-before-action Issue-state verification
+● skip when Issue is already closed
+● bare #N mentions not treated as closure authority
+● genuine no-op reconciliation result
+● dry-run with no mutations
+● final per-pair reconciliation report
+```
+
+Documented but not exercised:
+
+``` text
+○ real automatic Issue close
+○ non-base-branch informational comment
+○ closed-without-merge informational comment
+○ superseded PR comment suffix
+○ do-not-close / blocked / in-progress skip
+○ unmatched open Issue mention reporting
+○ configured non-English closeKeywords
+○ claim / lock / release around an actual Issue close
+```
+
+Not tested:
+
+``` text
+◌ a real stale open Issue that should be closed
+◌ tracker mutation path
+◌ cross-repository reference handling in runtime
+```
+
+------------------------------------------------------------------------
+
+## Experiment 010 --- Release narrative generation with `om-auto-update-changelog`
+
+### Goal
+
+Observe how `om-auto-update-changelog` interprets the same real merged
+PR history used by Experiment 009, but as a release-documentation
+problem rather than a tracker-reconciliation problem.
+
+The experiment was intentionally run in:
+
+``` text
+--dry-run
+```
+
+so no `CHANGELOG.md`, branch, commit, or pull request would be created.
+
+The run used an explicit release window and version:
+
+``` text
+--since 2026-08-10
+--version 0.1.0
+```
+
+This avoided manufacturing a release artifact while still exercising
+the skill's release-window, categorization, attribution, and draft
+generation logic.
+
+### Starting state
+
+The repository had:
+
+``` text
+no CHANGELOG.md
+no Git tags
+10 real merged PRs in the selected window
+all 10 PRs targeted main
+```
+
+The invocation was:
+
+``` text
+/om-auto-update-changelog
+  --since 2026-08-10
+  --version 0.1.0
+  --dry-run
+```
+
+with reporting requested in Polish.
+
+### Release-window resolution
+
+The preferred reachability mode could not use a Git tag because:
+
+``` text
+git describe --tags → no tag
+```
+
+The skill surfaced the documented degraded mode and used:
+
+``` text
+baseRefName == main
+```
+
+inside the calendar window:
+
+``` text
+merged:>=2026-08-10
+merged:<=2026-08-17
+```
+
+Because all 10 PRs targeted `main`, this fallback selected the complete
+practical window for this repository.
+
+The run also confirmed that pagination did not silently truncate the
+result:
+
+``` text
+10 returned
+limit = 250
+```
+
+### Categorization
+
+The 10 PRs were categorized as:
+
+``` text
+Features
+    #12
+    #10
+
+Improvements
+    #4
+    #1
+
+Specs & Documentation
+    #11
+    #9
+    #8
+    #6
+    #5
+    #3
+```
+
+The resulting draft release entry was:
+
+``` text
+# 0.1.0 (2026-08-17)
+
+## Highlights
+<!-- TODO: Highlights — auto-update-changelog leaves this blank for the human author to fill in. -->
+
+## ✨ Features
+- Add lab-report Markdown report generator. (#12)
+- Add lab-status.ps1 session-readiness check. (#10)
+
+## 🛠️ Improvements
+- Vendor the five review and PR-pipeline skills. (#4)
+- Configure agent PR pipeline. (#1)
+
+## 📝 Specs & Documentation
+- Add spec for lab-report. (#11)
+- Lab status check. (#9)
+- Explain the lab's purpose and how to navigate the repo (fixes #7). (#8)
+- Add v5 visual memory map with operator runbook. (#6)
+- Record experiment 001 and finding 004 from the pipeline run. (#5)
+- Add experiment log for hands-on pipeline exercises. (#3)
+```
+
+All entries credited:
+
+``` text
+@rafsaw
+```
+
+and the Contributors block contained one deduplicated contributor.
+
+### Credit verification
+
+The skill did not copy the PR `author` field blindly.
+
+It checked every credited author against commit authorship.
+
+The report stated:
+
+``` text
+10 credits checked
+10 / 10 commit authorship coverage
+0 mismatches
+```
+
+No carry-forward/supersede correction was needed.
+
+The run reported:
+
+``` text
+Supersede detections: 0
+Merge-capture corrections: 0
+```
+
+### Human boundary
+
+The generated block intentionally left:
+
+``` text
+## Highlights
+<!-- TODO: Highlights ... -->
+```
+
+for human authorship.
+
+This exposed a release-specific control boundary:
+
+``` text
+automation owns:
+facts / categorization / attribution
+
+human owns:
+release Highlights / narrative emphasis
+```
+
+### Downstream delegation boundary
+
+The dry-run report described what a normal run would have done next:
+
+``` text
+create/update CHANGELOG.md
+        ↓
+DELEGATES
+om-auto-create-pr
+        ↓
+docs-only PR mechanics
+```
+
+but because `--dry-run` was set:
+
+``` text
+CHANGELOG.md was not created
+om-auto-create-pr was not invoked
+no PR: chaining line was emitted
+```
+
+### Comparison with Experiment 009
+
+Both experiments consumed the same real merged history.
+
+Experiment 009 asked:
+
+``` text
+Is the tracker consistent with authoritative merged work?
+```
+
+Experiment 010 asked:
+
+``` text
+What shipped, how should it be grouped,
+and who should receive release credit?
+```
+
+The shared evidence surface therefore branched into two independent
+post-merge capabilities:
+
+``` text
+                    MERGED PR HISTORY
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+ om-close-fixed-issues      om-auto-update-changelog
+              │                         │
+ tracker reconciliation        release narrative
+```
+
+### Result
+
+Confirmed that `om-auto-update-changelog` is a Release Engineering
+capability that builds an auditable release narrative from merged PR
+history.
+
+It also confirmed that the post-merge lifecycle is not a single chain:
+tracker reconciliation and release documentation are sibling
+capabilities over the same merged evidence.
+
+Observed in this experiment:
+
+``` text
+● explicit release window and version
+● no-tag degraded release-window mode
+● complete enumeration of 10 real merged PRs
+● category derivation across all 10 PRs
+● structured release-section generation
+● authoritative fixes #7 suffix carried into the release entry
+● contributor deduplication
+● 10/10 contributor-credit verification against commits
+● no supersede/carry-forward correction needed
+● human-owned Highlights boundary
+● full in-memory CHANGELOG draft
+● dry-run prevented file mutation
+● dry-run prevented delegation to om-auto-create-pr
+● same merged history interpreted differently from tracker reconciliation
+● sibling relationship with om-close-fixed-issues
+```
+
+Documented but not exercised:
+
+``` text
+○ real CHANGELOG.md creation/update
+○ delegation to om-auto-create-pr
+○ resulting docs PR
+○ review of the generated changelog PR
+○ release-window reachability from an actual tag
+○ version inference from a project manifest
+○ disagreement gate between changelog heading date and tag date
+○ supersede credit rule
+○ carry-forward attribution correction
+○ existing changelog format preservation
+```
+
+Not tested:
+
+``` text
+◌ actual release publication
+◌ human-written Highlights
+◌ whether the generated 0.1.0 narrative would be accepted unchanged
+```
+

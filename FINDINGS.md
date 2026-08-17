@@ -2497,3 +2497,581 @@ is ever invoked.
 
 This human-gated handoff and non-execution of `om-auto-create-pr` were
 **runtime observed in Lesson 14**.
+
+------------------------------------------------------------------------
+
+## Finding 037 --- `om-close-fixed-issues` is a post-merge tracker reconciliation safety net
+
+### Question
+
+Is `om-close-fixed-issues` simply the mechanism that closes every Issue
+after a PR merge?
+
+### Evidence
+
+Lesson 15 runtime-tested:
+
+``` text
+om-close-fixed-issues --dry-run
+```
+
+against the real Learning Lab history for:
+
+``` text
+2026-08-10 → 2026-08-17
+```
+
+The run inspected:
+
+``` text
+10 merged PRs
+0 closed-without-merge PRs
+0 drafts
+```
+
+It found two authoritative PR→Issue close relationships:
+
+``` text
+PR #8 → Issue #7
+PR #3 → Issue #2
+```
+
+Both relationships came from `closingIssuesReferences`.
+
+Both Issues were already closed before the run.
+
+The resulting actions were therefore:
+
+``` text
+#8 → #7 → skipped: already CLOSED
+#3 → #2 → skipped: already CLOSED
+```
+
+with:
+
+``` text
+closed 0
+commented 0
+skipped 2
+unmatched-mentions 0
+dry-run-would-have 0
+```
+
+### Observation
+
+The skill did not treat "nothing to do" as a failure.
+
+It verified that authoritative merged work and tracker state were already
+consistent and produced a reconciliation report showing that no mutation
+was required.
+
+The runtime model was:
+
+``` text
+merged PR history
+        ↓
+authoritative PR→Issue links
+        ↓
+current Issue state
+        ↓
+consistent?
+   ┌────┴────┐
+  yes       no
+   ↓         ↓
+ no-op     reconcile
+```
+
+### Conclusion
+
+`om-close-fixed-issues` is best understood as a **post-merge tracker
+reconciliation safety net**, not merely an Issue-closing helper.
+
+Its responsibility is:
+
+``` text
+verify merged-work truth
+against tracker truth
+        ↓
+repair only when inconsistent
+```
+
+A clean no-op is a correct steady-state outcome.
+
+This behavior was **runtime observed in Lesson 15**.
+
+------------------------------------------------------------------------
+
+## Finding 038 --- Post-merge Issue closing requires authoritative close evidence, not bare references
+
+### Question
+
+How does `om-close-fixed-issues` avoid closing an Issue merely because a
+PR mentions `#N`?
+
+### Evidence
+
+The Lesson 15 dry-run found many `#N` references across the remaining
+PRs in the window.
+
+Only these two were treated as authoritative close relationships:
+
+``` text
+PR #8 → Issue #7
+PR #3 → Issue #2
+```
+
+because the tracker supplied `closingIssuesReferences`.
+
+The other `#N` references were ignored for action. They resolved either
+to pull requests or already-closed Issues, and none resolved to an open
+Issue with an authoritative close signal.
+
+The skill's inspected contract also states:
+
+``` text
+closingIssuesReferences
+        OR
+explicit close keyword + #N
+```
+
+as authority, while bare `#N` mentions are non-authoritative.
+
+### Observation
+
+The runtime distinguished:
+
+``` text
+"mentions #7"
+```
+
+from:
+
+``` text
+"Fixes #7"
+```
+
+or an equivalent tracker-parsed closing relationship.
+
+No conversational reference was promoted to closing authority.
+
+### Conclusion
+
+Post-merge tracker reconciliation uses an **evidence threshold** for
+mutation:
+
+``` text
+reference
+≠
+closure authority
+```
+
+The skill requires an authoritative close relationship before it can
+close an Issue.
+
+This reduces the risk that ordinary PR cross-references are mistaken for
+proof that work is complete.
+
+The safety behavior was **runtime observed in Lesson 15**, while the
+broader keyword fallback behavior remains documented.
+
+------------------------------------------------------------------------
+
+## Finding 039 --- `om-auto-update-changelog` is a release-engineering capability, not a simple docs helper
+
+### Question
+
+What does `om-auto-update-changelog` actually do with merged work?
+
+### Evidence
+
+Lesson 15 runtime-tested:
+
+``` text
+om-auto-update-changelog
+  --since 2026-08-10
+  --version 0.1.0
+  --dry-run
+```
+
+against the same 10 real merged PRs used by
+`om-close-fixed-issues`.
+
+The skill:
+
+``` text
+resolved the release window
+enumerated 10 merged PRs
+categorized every PR
+verified contributor attribution against commit authorship
+built a structured release entry
+left Highlights as a human-authored TODO
+```
+
+The resulting draft contained:
+
+``` text
+2 Features
+2 Improvements
+6 Specs & Documentation entries
+1 Contributor
+```
+
+The run also carried through the authoritative Issue relationship for
+PR #8 as:
+
+``` text
+(fixes #7)
+```
+
+inside the release entry.
+
+### Observation
+
+The skill did more than edit Markdown formatting.
+
+It interpreted merged delivery history as a release-level representation
+of shipped work.
+
+Its observed transformation was:
+
+``` text
+merged PR window
+        ↓
+release boundary
+        ↓
+category derivation
+        ↓
+credit verification
+        ↓
+normalized summaries
+        ↓
+structured release narrative
+```
+
+### Conclusion
+
+`om-auto-update-changelog` is a **Release Engineering / Release
+Documentation capability**.
+
+Its core job is not:
+
+``` text
+write changelog text
+```
+
+but:
+
+``` text
+translate merged delivery history
+into an auditable release narrative
+```
+
+The PR-delivery mechanics remain a downstream concern delegated to
+`om-auto-create-pr` in a normal run.
+
+This release-narrative behavior was **runtime observed in Lesson 15**.
+
+------------------------------------------------------------------------
+
+## Finding 040 --- Release-window resolution degrades explicitly when release metadata is missing
+
+### Question
+
+What happens when `om-auto-update-changelog` cannot use the preferred
+release reachability model because the repository has no tags?
+
+### Evidence
+
+The Learning Lab has no Git tags.
+
+During Lesson 15, the changelog dry-run reported:
+
+``` text
+git describe --tags → no tag
+```
+
+and explicitly entered its documented degraded mode.
+
+Instead of silently pretending reachability was available, it built the
+window from:
+
+``` text
+baseRefName == main
+```
+
+within:
+
+``` text
+merged:>=2026-08-10
+merged:<=2026-08-17
+```
+
+All 10 PRs in the repository's window targeted `main`, so for this
+repository the degraded fallback selected the same practical set.
+
+### Observation
+
+The missing release metadata changed the execution mode, but the skill
+surfaced that fact in the report.
+
+The observed model was:
+
+``` text
+preferred release reachability
+        ↓
+metadata available?
+   ┌────┴────┐
+  yes       no
+   ↓         ↓
+normal    explicit degraded mode
+window    + report the degradation
+```
+
+### Conclusion
+
+Release-window discovery is designed to **degrade transparently rather
+than silently**.
+
+This matters because release tooling can otherwise appear correct while
+quietly omitting shipped work.
+
+The degraded no-tag path was **runtime observed in Lesson 15**.
+
+------------------------------------------------------------------------
+
+## Finding 041 --- Release contributor credit is evidence-verified rather than copied from PR authorship
+
+### Question
+
+How does `om-auto-update-changelog` decide who should receive release
+credit?
+
+### Evidence
+
+The Lesson 15 changelog dry-run performed contributor verification for
+all 10 consumed PRs.
+
+The report stated that every credited author was compared against commit
+authorship and that all 10 passed:
+
+``` text
+Credit verification: 10 checked
+0 mismatches
+```
+
+All ten PRs resolved to:
+
+``` text
+@rafsaw
+```
+
+with full commit coverage and no supersede/carry-forward correction
+required.
+
+The run found:
+
+``` text
+Supersede detections: 0
+Merge-capture corrections: 0
+```
+
+### Observation
+
+The skill did not simply trust the merged PR's `author` field.
+
+Credit was checked against the actual commits that carried the work.
+
+### Conclusion
+
+Contributor attribution in the release narrative is treated as an
+**evidence-backed release artifact**, not a cosmetic field.
+
+A useful model is:
+
+``` text
+PR metadata
+    +
+commit authorship
+    +
+supersede / attribution rules
+        ↓
+verified release credit
+```
+
+The simple all-credits-match path was **runtime observed in Lesson 15**.
+Supersede and carry-forward correction paths remain documented but were
+not exercised.
+
+------------------------------------------------------------------------
+
+## Finding 042 --- Post-merge tracker reconciliation and release documentation are sibling capabilities over the same merged history
+
+### Question
+
+Are `om-close-fixed-issues` and `om-auto-update-changelog` a required
+sequence?
+
+### Evidence
+
+Lesson 15 ran both skills against the same real Learning Lab merged
+history.
+
+`om-close-fixed-issues` interpreted the history as:
+
+``` text
+Which authoritative PR→Issue relationships exist,
+and is the tracker already correct?
+```
+
+Its result was:
+
+``` text
+2 authoritative links
+both already satisfied
+0 mutations required
+```
+
+`om-auto-update-changelog` interpreted the same history as:
+
+``` text
+What shipped in this release window,
+how should it be categorized,
+and who should be credited?
+```
+
+Its result was a complete draft release entry.
+
+Neither skill delegated to the other.
+
+The changelog skill's documented downstream delegation is to:
+
+``` text
+om-auto-create-pr
+```
+
+for PR mechanics in a real run.
+
+### Observation
+
+The two skills share an evidence surface:
+
+``` text
+merged PR history
+```
+
+but reconcile different project surfaces:
+
+``` text
+tracker state
+```
+
+and:
+
+``` text
+release documentation
+```
+
+### Conclusion
+
+The Lesson 15 relationship is:
+
+``` text
+                    MERGED PR HISTORY
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+ om-close-fixed-issues      om-auto-update-changelog
+              │                         │
+ tracker reconciliation        release narrative
+```
+
+They are **siblings**, not a mandatory sequence, not alternatives, and
+neither automatically invokes the other.
+
+This relationship was **runtime observed in Lesson 15**.
+
+------------------------------------------------------------------------
+
+## Finding 043 --- Dry-run can expose almost the full post-merge execution model without manufacturing release work
+
+### Question
+
+Can post-merge skills be meaningfully learned without creating synthetic
+Issues, releases, or repository mutations?
+
+### Evidence
+
+Both Lesson 15 runtime experiments were executed with:
+
+``` text
+--dry-run
+```
+
+`om-close-fixed-issues` still performed:
+
+``` text
+repo/context resolution
+window discovery
+PR enumeration
+authoritative-link extraction
+Issue-state checks
+action classification
+final reconciliation report
+```
+
+but made no tracker mutation.
+
+`om-auto-update-changelog` still performed:
+
+``` text
+release-window resolution
+PR enumeration
+categorization
+credit verification
+draft entry construction
+per-PR audit
+```
+
+but:
+
+``` text
+did not create CHANGELOG.md
+did not invoke om-auto-create-pr
+did not create a PR
+```
+
+### Observation
+
+The high-value reasoning and state-reconciliation parts of both skills
+were observable independently from their mutation/delivery mechanics.
+
+This allowed the Learning Lab to use existing real history rather than
+inventing work merely to trigger a side effect.
+
+### Conclusion
+
+For lifecycle discovery, `--dry-run` can act as a **high-fidelity
+observation boundary**:
+
+``` text
+real repository history
+        ↓
+real execution model
+        ↓
+real classification / draft artifacts
+        ↓
+no mutation
+```
+
+This supports the Learning Lab principle:
+
+``` text
+learn capability boundaries
+≠
+execute every discovered action
+```
+
+The usefulness of dry-run as a post-merge learning strategy was
+**runtime observed in Lesson 15**.
+

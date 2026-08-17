@@ -504,7 +504,7 @@ body.full-reference #deep-reference{display:block}
     <h1>Open Mercato <span>Skills</span><br>Learning Map</h1>
     <div class="subtitle">
       Szybka mapa pamięci: jak repo, tracker state, durable spec artifacts, implementation engines i runtime QA składają się w agentic SDLC.
-      V17 zachowuje Lessons 1–13 i dodaje Lesson 14: Idea Shaping / Routing przez om-brainstorm.
+      V18 zachowuje Lessons 1–14 i dodaje Lesson 15: Post-Merge Lifecycle przez om-close-fixed-issues oraz om-auto-update-changelog.
       <code>om-auto-qa-pr</code> orkiestruje change-oriented UI QA, <code>om-prepare-test-env</code> oddziela environment lifecycle,
       <code>test-env.json</code> jest shared runtime contractem, browser provider ukrywa implementation szczegóły, a
       <code>om-integration-tests</code> zamienia runtime observation w durable executable tests.
@@ -512,25 +512,26 @@ body.full-reference #deep-reference{display:block}
       jawny <code>status=no-app</code> / <code>baseUrl=null</code> i repo-local durable discovery knowledge.
       Lesson 12 zbudowała osobny lekki Capability Map dla całej kolekcji, Lesson 13 runtime-observed feedback loop:
       <code>finished runs → om-pipeline-retro → quantified rework / telemetry gaps → HUMAN GATE → om-prepare-issue → improvement Issue</code>. Lesson 14 domknęła początek lifecycle: <code>rough idea → om-brainstorm → repo/tracker evidence → alternatives → challenger → HUMAN GATE → handoff brief → Next:</code>. Runtime pokazał też, że poprawnym wynikiem brainstormu może być <code>build nothing</code> dla proponowanego produktu.
+      Lesson 15 domknęła stronę po merge: te same merged PRs zostały odczytane przez dwie sibling capabilities — <code>om-close-fixed-issues</code> jako tracker reconciliation i <code>om-auto-update-changelog</code> jako release narrative. Oba runtime'y wykonaliśmy w <code>--dry-run</code>, więc poznaliśmy execution model bez sztucznego release ani mutacji trackera/repo.
       Nadal są dwie warstwy: 30-second Quick Map oraz Full Reference z runbookiem, gates, evidence i process gaps.
     </div>
   </div>
   <div class="meta">
-    Version: v17 · Lesson 14 idea shaping / routing + brainstorm runtime<br>
-    Focus: idea shaping → routing → delivery → runtime verification → pipeline observability → continuous improvement<br>
-    Repo state: <code>main</code> · Lesson 14 Experiment 008 complete · brainstorm handoff brief created · downstream execution intentionally not started<br>
+    Version: v18 · Lesson 15 post-merge lifecycle + dual dry-run runtime<br>
+    Focus: idea shaping → routing → delivery → runtime verification → merge → post-merge reconciliation/release narrative → pipeline observability → continuous improvement<br>
+    Repo state: <code>main</code> · Lesson 15 post-merge dry-runs complete · tracker clean · CHANGELOG draft observed in-memory · no post-merge mutations performed<br>
     Updated: 2026-08-17
   </div>
 </header>
 
 <div class="banner">
-  <strong>Najważniejsza korekta po Lesson 14:</strong> pipeline zaczyna się wcześniej niż Issue albo Spec.
-  <code>om-brainstorm</code> jest repo-aware <strong>idea-shaping and routing capability</strong>: najpierw sprawdza istniejącą rzeczywistość,
-  doprecyzowuje problem, porównuje alternatywy i deleguje challenge obecnego kierunku. W runtime Lesson 14 challenger zmienił preferowane rozwiązanie:
-  zamiast nowego <code>LEARNING-STATUS.md</code> pozostawiliśmy istniejący Learning Map jako source of truth.
-  Dla proponowanego dashboardu wygrało <strong>build nothing</strong>; pozostała tylko mała korekta stale facts / discoverability.
-  Po <strong>✕ HUMAN GATE</strong> skill zapisał handoff brief i zwrócił machine-readable <code>Next: om-auto-create-pr ...</code>,
-  ale <strong>nie uruchomił downstream delivery</strong>.
+  <strong>Najważniejsza korekta po Lesson 15:</strong> <strong>post-merge lifecycle nie jest jedną sekwencją.</strong>
+  Dwie observed sibling capabilities konsumują tę samą historię merged PRs, ale uzgadniają inne surfaces:
+  <code>om-close-fixed-issues</code> sprawdza authoritative PR→Issue links i naprawia tracker tylko przy rozjeździe,
+  natomiast <code>om-auto-update-changelog</code> buduje release-level narrative, kategoryzuje shipped work i weryfikuje contributor attribution.
+  W naszym Labie tracker był już czysty: PR #8→Issue #7 i PR #3→Issue #2 były authoritative, ale Issues były już zamknięte.
+  Changelog dry-run z tych samych 10 PRs zbudował pełny draft <code>0.1.0</code>; brak tagów uruchomił documented degraded mode po <code>baseRefName == main</code>.
+  <strong>Nie ma strzałki changelog → close issues ani odwrotnie.</strong>
 </div>
 <div class="mode-switch" role="group" aria-label="Learning map view">
   <button class="mode-btn active" id="quick-mode" type="button" aria-pressed="true">Quick Map</button>
@@ -540,6 +541,7 @@ body.full-reference #deep-reference{display:block}
 
 <nav class="nav">
   <a href="#lesson14">Idea Shaping</a>
+  <a href="#lesson15">Post-Merge</a>
   <a href="#mindset">Mindset</a>
   <a href="#foundation">Foundation</a>
   <a href="#config">Config Model</a>
@@ -568,6 +570,8 @@ body.full-reference #deep-reference{display:block}
   <a href="#lesson11">Lesson 11</a>
   <a href="#lesson12">Lesson 12</a>
   <a href="#lesson13">Lesson 13</a>
+  <a href="#lesson14">Lesson 14</a>
+  <a href="#lesson15">Lesson 15</a>
   <a href="#next">Next</a>
 </nav>
 
@@ -587,8 +591,8 @@ body.full-reference #deep-reference{display:block}
 
 <section class="quick-shell" id="quick-map">
   <div class="quick-head">
-    <div><h2>Quick Map — 30-second memory refresh</h2><p>Najpierw przypomnij sobie system: foundation, delivery lifecycles, runtime QA/testing, PR orchestration oraz feedback loop, który analizuje historię pipeline'u i tworzy improvement backlog dopiero po human gate.</p></div>
-    <div class="quick-badge">Lessons 1–13 · delivery + observability</div>
+    <div><h2>Quick Map — 30-second memory refresh</h2><p>Najpierw przypomnij sobie system: foundation, idea shaping, delivery lifecycles, runtime QA/testing, merge, dwie sibling post-merge capabilities oraz feedback loop, który analizuje historię pipeline'u i tworzy improvement backlog dopiero po human gate.</p></div>
+    <div class="quick-badge">Lessons 1–15 · idea → delivery → post-merge → improvement</div>
   </div>
   <div class="quick-body">
     <div class="arch-title">Foundation — zanim zacznie płynąć praca</div>
@@ -694,6 +698,8 @@ body.full-reference #deep-reference{display:block}
           <div class="relay" style="color:var(--blue)">L11: change → QA orchestrator → shared test env → browser evidence / durable tests</div>
           <div class="relay" style="color:var(--purple)">L12: 36 skills → 17 capability groups → lightweight Capability Map</div>
           <div class="relay" style="color:var(--amber)">L13: finished runs → pipeline retro → HUMAN GATE → improvement Issue</div>
+          <div class="relay" style="color:var(--green)">L14: rough idea → brainstorm → challenger → HUMAN GATE → handoff brief / Next:</div>
+          <div class="relay" style="color:var(--blue)">L15: merged PR history → sibling post-merge views: tracker reconciliation + release narrative</div>
           <p style="margin:0;color:var(--muted);font-size:11px;line-height:1.55">Autonomy is layered: orchestrators compose narrow skills, while durable artifacts, tracker state, policy guards and explicit human gates remain control points.</p>
         </div>
         <div class="quick-card quick-next">
@@ -772,6 +778,15 @@ body.full-reference #deep-reference{display:block}
       Memory cue: <code>observe → quantify → rank → HUMAN GATE → prepare backlog → HUMAN GATE → optional delivery</code>.
     </div>
 
+    <div class="callout" style="border-left-color:var(--green);background:rgba(69,230,181,.05)">
+      <strong>Lesson 15 post-merge runtime:</strong>
+      <code>om-close-fixed-issues --dry-run</code> przeanalizował 10 merged PRs w fallbackowym 7-day window i znalazł dwa authoritative close links:
+      <code>#8 → #7</code> oraz <code>#3 → #2</code>. Oba Issues były już CLOSED, więc real reconciliation work = 0; bare <code>#N</code> references nie zostały potraktowane jako authority.
+      Następnie <code>om-auto-update-changelog --since 2026-08-10 --version 0.1.0 --dry-run</code> skonsumował te same 10 PRs i zbudował pełny in-memory release draft:
+      2 Features, 2 Improvements, 6 Specs &amp; Documentation, 1 contributor. Brak tagów uruchomił documented degraded mode po <code>baseRefName == main</code>.
+      Memory cue: <code>same merged history → tracker truth || release narrative</code>; sibling capabilities, nie sekwencja.
+    </div>
+
     <div class="mental-map">
       <div class="mental-map-head">
         <div>
@@ -809,9 +824,15 @@ body.full-reference #deep-reference{display:block}
         <div class="mental-arrow">→</div>
         <div class="mental-node merge"><b>om-approve-merge-pr</b><span>merge gates + linked PR discovery + human authority</span></div>
         <div class="mental-arrow">→</div>
+        <div class="mental-split">
+          <div class="mental-split-label">post-merge siblings · ● observed Lesson 15</div>
+          <div class="mental-node observed"><b>om-close-fixed-issues</b><span>merged history → authoritative PR→Issue reconciliation</span></div>
+          <div class="mental-node observed"><b>om-auto-update-changelog</b><span>merged window → release narrative / CHANGELOG draft</span></div>
+        </div>
+        <div class="mental-arrow">→</div>
         <div class="mental-node observed"><b>om-pipeline-retro</b><span>finished runs → rework evidence → improvement opportunity</span></div>
       </div>
-      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → build → review/QA → merge → observe pipeline → improve</code>. Lesson 13 closes the loop: pipeline history becomes quantified evidence, but tracker mutation and execution remain separate human-controlled decisions.</div>
+      <div class="mental-note"><strong>Memory chain:</strong> <code>design → route → build → review/QA → merge → post-merge reconcile/document → observe pipeline → improve</code>. Lesson 13 closes the loop: pipeline history becomes quantified evidence, but tracker mutation and execution remain separate human-controlled decisions.</div>
     </div>
 
     <div class="feature-quick">
@@ -970,7 +991,7 @@ body.full-reference #deep-reference{display:block}
     </div>
 
     <div class="coverage">
-      <div class="coverage-head"><h3>Current Coverage Map</h3><span>Po Lesson 13 znamy observed delivery lifecycles, QA no-app boundary oraz runtime-observed pipeline retro → improvement backlog handoff.</span></div>
+      <div class="coverage-head"><h3>Current Coverage Map</h3><span>Po Lesson 15 znamy observed delivery lifecycles, QA no-app boundary, dwie post-merge sibling capabilities oraz runtime-observed pipeline retro → improvement backlog handoff.</span></div>
       <div class="coverage-flow">
         <div class="cov-node observed"><div class="cov-name">auto-fix-issue</div><div class="cov-state">● observed<br>problem orchestration</div></div>
         <div class="cov-node observed"><div class="cov-name">auto-write-spec</div><div class="cov-state">● observed<br>brief → spec PR</div></div>
@@ -984,10 +1005,12 @@ body.full-reference #deep-reference{display:block}
         <div class="cov-node observed"><div class="cov-name">prepare-test-env</div><div class="cov-state">● no-app observed<br>○ runnable env docs</div></div>
         <div class="cov-node documented"><div class="cov-name">integration-tests</div><div class="cov-state">○ documented<br>durable test assets</div></div>
         <div class="cov-node documented"><div class="cov-name">continue / autopilot</div><div class="cov-state">○ documented<br>◌ runtime untested</div></div>
+        <div class="cov-node observed"><div class="cov-name">close-fixed-issues</div><div class="cov-state">● observed dry-run<br>tracker reconciliation</div></div>
+        <div class="cov-node observed"><div class="cov-name">update-changelog</div><div class="cov-state">● observed dry-run<br>release narrative</div></div>
         <div class="cov-node observed"><div class="cov-name">pipeline-retro</div><div class="cov-state">● observed<br>runs → improvement evidence</div></div>
         <div class="cov-node observed"><div class="cov-name">prepare-issue #13</div><div class="cov-state">● observed<br>retro → durable backlog</div></div>
       </div>
-      <div class="coverage-caption">Knowledge coverage after Lesson 13: flat and loop fresh implementation are runtime-observed; QA layering is documented; environment discovery/no-app contract is runtime-observed. Pipeline retro + human-gated improvement handoff are now observed. Full browser QA, generated env scripts + cold/warm reuse, integration-test authoring, resume/autopilot runtime and claim collision remain untested.</div>
+      <div class="coverage-caption">Knowledge coverage after Lesson 15: flat and loop fresh implementation are runtime-observed; QA layering is documented; environment discovery/no-app contract is runtime-observed. Pipeline retro + human-gated improvement handoff are now observed. Full browser QA, generated env scripts + cold/warm reuse, integration-test authoring, resume/autopilot runtime and claim collision remain untested.</div>
     </div>
     <div class="quick-only-note">Chcesz szczegóły? Przełącz na <strong>Full Reference</strong> u góry — wszystkie sekcje Full Reference są zachowane i rozszerzone o Lesson 11.</div>
   </div>
@@ -1190,6 +1213,8 @@ body.full-reference #deep-reference{display:block}
         <div class="state-row"><div class="k">Runtime QA</div><div class="v">○ om-auto-qa-pr · ●/○ om-prepare-test-env · test-env.json · browser provider · ○ om-integration-tests</div></div>
         <div class="state-row"><div class="k">QA artifacts</div><div class="v">○ screenshots + report.md/json · ● no-app descriptor · ● repo-local environment discovery skill</div></div>
         <div class="state-row"><div class="k">Delivery</div><div class="v">PR + review + QA + CI state</div></div>
+        <div class="state-row"><div class="k">Post-merge tracker</div><div class="v">● authoritative PR→Issue reconciliation via <code>om-close-fixed-issues</code></div></div>
+        <div class="state-row"><div class="k">Release narrative</div><div class="v">● merged PR window → categorized CHANGELOG draft via <code>om-auto-update-changelog</code></div></div>
         <div class="state-row"><div class="k">Observability</div><div class="v">● om-pipeline-retro · finished PR markers · clean/rework classification · excess time · telemetry gaps</div></div>
         <div class="state-row"><div class="k">Improvement backlog</div><div class="v">● HUMAN GATE → om-prepare-issue → Issue #13 · repo-aware analysis + labels + compatibility</div></div>
         <div class="state-row"><div class="k">Installed skills</div><div class="v">.agents/skills/ + skills-lock.json</div></div>
@@ -1406,6 +1431,18 @@ body.full-reference #deep-reference{display:block}
         <b>Fresh spec implementation</b>
         <code>/om-auto-implement-spec &lt;spec-path&gt;</code>
         <p>● Lessons 7 + 10: resolver wybiera fresh <code>om-auto-create-pr</code>. Flat jest default; <code>--loop</code> lub plan ponad threshold routuje dalej do <code>om-auto-create-pr-loop</code>. PR #10 pokazał flat, PR #12 loop.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam merged PR history i chcę uzgodnić tracker</div>
+        <b>Post-merge tracker reconciliation</b>
+        <code>/om-close-fixed-issues --dry-run</code>
+        <p>● Lesson 15: authoritative close links → verify Issue state → repair only if inconsistent. Dry-run w Labie znalazł 2 links już poprawnie zamknięte, więc mutation count = 0.</p>
+      </div>
+      <div class="decision-card">
+        <div class="q">mam merged PR window i chcę release narrative</div>
+        <b>Release documentation</b>
+        <code>/om-auto-update-changelog --since &lt;date&gt; --version &lt;x.y.z&gt; --dry-run</code>
+        <p>● Lesson 15: 10 merged PRs → category + attribution verification → draft CHANGELOG entry. Real run deleguje PR mechanics do <code>om-auto-create-pr</code>; dry-run zatrzymuje się przed mutation.</p>
       </div>
       <div class="decision-card">
         <div class="q">mam zakończone pipeline runs i chcę znaleźć rework</div>
@@ -2017,6 +2054,33 @@ body.full-reference #deep-reference{display:block}
         <div class="status observed">● observed · Lesson 14</div>
       </article>
 
+
+      <article class="skill" data-kind="analysis" data-status="observed">
+        <h3>om-close-fixed-issues</h3>
+        <div class="role">Post-merge tracker reconciliation over recent PR history.</div>
+        <dl>
+          <dt>Input</dt><dd>recent merged + closed-unmerged PR window; default <code>last-release</code>, fallback 7 days</dd>
+          <dt>Authority</dt><dd><code>closingIssuesReferences</code> first; close-keyword fallback; never bare <code>#N</code></dd>
+          <dt>Safety</dt><dd>skip already closed / blocked / do-not-close / in-progress; non-base merge and unmerged PR only comment</dd>
+          <dt>Mutation</dt><dd>real run may claim + close Issue; <code>--dry-run</code> prohibits all mutations</dd>
+          <dt>Observed</dt><dd>Lesson 15: 10 merged PRs; #8→#7 and #3→#2 authoritative; both Issues already closed; 0 actionable work</dd>
+        </dl>
+        <div class="status observed">● observed · Lesson 15 dry-run</div>
+      </article>
+
+      <article class="skill" data-kind="review" data-status="observed">
+        <h3>om-auto-update-changelog</h3>
+        <div class="role">Release-engineering capability that turns a merged PR window into a reviewed release narrative.</div>
+        <dl>
+          <dt>Input</dt><dd><code>--version</code>, <code>--since</code>, release ref/date; merged PR window</dd>
+          <dt>Does</dt><dd>resolve release window → categorize PRs → verify contributor attribution → build CHANGELOG entry</dd>
+          <dt>Boundary</dt><dd><code>Highlights</code> intentionally remains human-authored</dd>
+          <dt>Delegates</dt><dd>real run → <code>om-auto-create-pr</code>; dry-run prints full entry and audit only</dd>
+          <dt>Observed</dt><dd>Lesson 15: 10 PRs → 2 features, 2 improvements, 6 docs/spec entries; no tags → documented degraded baseRefName mode</dd>
+        </dl>
+        <div class="status observed">● observed · Lesson 15 dry-run</div>
+      </article>
+
       <article class="skill" data-kind="analysis" data-status="observed">
         <h3>om-pipeline-retro</h3>
         <div class="role">Read-only pipeline observability / continuous-improvement analyzer over finished PR history.</div>
@@ -2050,10 +2114,10 @@ body.full-reference #deep-reference{display:block}
 <section class="section" id="coverage">
   <div class="section-head">
     <div>
-      <h2>5a. Coverage gaps — what remains after pipeline-retro discovery</h2>
-      <p>Po Lesson 13 Pipeline Observability nie jest już knowledge gapem: retro classification, rework-cost model i human-gated improvement handoff są runtime-observed. QA nadal ma real-app runtime gaps: znamy orchestrator, environment compiler, shared descriptor i integration-test boundary. Runtime gapem pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path.</p>
+      <h2>5a. Coverage gaps — what remains after post-merge discovery</h2>
+      <p>Po Lesson 15 Post-Merge Lifecycle i Pipeline Observability nie są już knowledge gapami: retro classification, rework-cost model i human-gated improvement handoff są runtime-observed. QA nadal ma real-app runtime gaps: znamy orchestrator, environment compiler, shared descriptor i integration-test boundary. Runtime gapem pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path.</p>
     </div>
-    <div class="section-kicker">repo coverage · post-Lesson 13</div>
+    <div class="section-kicker">repo coverage · post-Lesson 15</div>
   </div>
   <div class="section-body">
     <div class="table-wrap">
@@ -2072,7 +2136,9 @@ body.full-reference #deep-reference{display:block}
           <tr><td>om-auto-qa-pr</td><td>installed · ○ documented / ◌ full runtime not tested</td><td>Lesson 11 resolved its architecture: review-first QA orchestrator → shared test env → browser-provider operations → screenshots/report evidence. No runnable app existed for a full run.</td></tr>
           <tr><td>om-prepare-test-env</td><td>installed · ● no-app path observed / ○ runnable generation documented</td><td>Experiment 006 consumed the Lab config, discovered no app, wrote <code>test-env.json</code> with <code>status=no-app</code>/<code>baseUrl=null</code>, deferred browser install and persisted repo-local discovery knowledge.</td></tr>
           <tr><td>om-integration-tests</td><td>installed · ○ documented / ◌ runtime not tested</td><td>Documented as test-authoring + execution + failure-analysis capability that preserves repo-native runner and reuses the shared test environment.</td></tr>
-          <tr><td>om-pipeline-retro</td><td>installed · ● observed</td><td>Experiment 007: 30-day read-only retro over 10 finished PRs; 9 classifiable; 7 clean, 2 unexplained second passes, 0 hard recoveries, 1.1h excess, 0% declared Outcome coverage; human-gated handoff to Issue #13 observed.</td></tr>
+                    <tr><td>om-close-fixed-issues</td><td>installed · ● observed dry-run</td><td>Lesson 15: same-repo post-merge reconciliation over 10 merged PRs; authoritative links #8→#7 and #3→#2 were already satisfied; no mutation needed.</td></tr>
+          <tr><td>om-auto-update-changelog</td><td>installed · ● observed dry-run</td><td>Lesson 15: explicit 2026-08-10 window + version 0.1.0 produced a full in-memory release entry. No tags caused documented reachability degradation; no file/PR mutation occurred.</td></tr>
+<tr><td>om-pipeline-retro</td><td>installed · ● observed</td><td>Experiment 007: 30-day read-only retro over 10 finished PRs; 9 classifiable; 7 clean, 2 unexplained second passes, 0 hard recoveries, 1.1h excess, 0% declared Outcome coverage; human-gated handoff to Issue #13 observed.</td></tr>
           <tr><td>CI / required checks / branch protection</td><td>◌ absent in lab</td><td>Repo still has only <code>git diff --check</code>; richer engine checks in Experiment 004 were run-specific, not repo-level gates.</td></tr>
           <tr><td>om-auto-fix-pr / other autopilot companions</td><td>partly missing</td><td>Lesson 9 exposed delegated capabilities in the routing matrix. Lesson 11 installed QA companions; remaining missing companions still require explicit installation rather than improvisation.</td></tr>
         </tbody>
@@ -2141,6 +2207,8 @@ body.full-reference #deep-reference{display:block}
           <div class="state-row"><div class="k">Cross-link</div><div class="v">spec/implementation PRs remain separate but linked. Lesson 10: #12 referenced #11; merge skill discovered the pair and coordinated #12 → re-check #11 → #11</div></div>
           <div class="state-row"><div class="k">Runtime env</div><div class="v">● <code>test-env.json</code> carries current environment state; Experiment 006 recorded <code>status=no-app</code> / <code>baseUrl=null</code> instead of inventing a target</div></div>
           <div class="state-row"><div class="k">Repo-local knowledge</div><div class="v">● <code>.ai/skills/om-prepare-test-env/SKILL.md</code> persisted discovery evidence + invalidation/re-attempt triggers</div></div>
+          <div class="state-row"><div class="k">Post-merge tracker</div><div class="v">● merged PR window + authoritative close links → reconciliation report; real run may mutate Issues, dry-run returns planned/no-op state</div></div>
+          <div class="state-row"><div class="k">Release narrative</div><div class="v">● merged PR window → categorized draft CHANGELOG block; normal run hands file edit to <code>om-auto-create-pr</code></div></div>
           <div class="state-row"><div class="k">Retro → backlog</div><div class="v">● ranked retro evidence + HUMAN GATE → <code>om-prepare-issue</code> → Issue #13 with repo-specific analysis, compatibility notes and SDLC classification</div></div>
         </div>
       </div>
@@ -2169,7 +2237,7 @@ body.full-reference #deep-reference{display:block}
       <h2>7. What I Actually Observed</h2>
       <p>Oddzielamy rzeczy praktycznie zobaczone od tych tylko opisanych w dokumentacji. Numery są klikalne — każdy wiersz da się zweryfikować.</p>
     </div>
-    <div class="section-kicker">Lessons 1–13 · Experiments 001–007 · Findings 001–032 · PR #9 / #10 / #11 / #12 + QA no-app runtime evidence</div>
+    <div class="section-kicker">Lessons 1–15 · Experiments 001–010 · Findings through Lesson 15 · PR #9 / #10 / #11 / #12 + QA no-app runtime evidence</div>
   </div>
   <div class="section-body table-wrap">
     <table>
@@ -2238,7 +2306,14 @@ body.full-reference #deep-reference{display:block}
         <tr><td>Lazy browser provisioning on no-app path</td><td style="color:var(--green)">● observed</td><td>Experiment 006</td><td>configured <code>agent-browser</code> remained uninstalled because nothing could drive it</td></tr>
         <tr><td>Durable repo-local environment knowledge</td><td style="color:var(--green)">● observed</td><td><code>.ai/skills/om-prepare-test-env/SKILL.md</code></td><td>discovery conclusion + machine facts + consumer rules + re-attempt triggers persisted</td></tr>
         <tr><td>Full browser QA / env cold-warm / integration test authoring</td><td style="color:var(--blue)">○ documented / ◌ not tested</td><td>Lesson 11 contracts only</td><td>requires a real runnable application; this Lab intentionally did not fabricate one</td></tr>
-        <tr><td>Pipeline retro read-only analysis</td><td style="color:var(--green)">● observed</td><td>Experiment 007 · 10 finished PRs / 9 classifiable</td><td>finished history → classification + cost + telemetry gaps</td></tr>
+                <tr><td>Post-merge tracker reconciliation</td><td style="color:var(--green)">● observed</td><td>Lesson 15 · <code>om-close-fixed-issues --dry-run</code></td><td>same merged history can be reconciled against authoritative tracker links without creating new work</td></tr>
+        <tr><td>Authoritative close-link safety</td><td style="color:var(--green)">● observed</td><td>#8→#7 and #3→#2 recognized; bare #N mentions ignored</td><td>conversation reference ≠ authority to close</td></tr>
+        <tr><td>Steady-state no-op reconciliation</td><td style="color:var(--green)">● observed</td><td>2 authoritative links already CLOSED; dry-run-would-have 0</td><td>reconciliation safety net may correctly do nothing</td></tr>
+        <tr><td>Release narrative from merged PR window</td><td style="color:var(--green)">● observed</td><td>Lesson 15 · <code>om-auto-update-changelog --dry-run</code></td><td>10 merged PRs → structured release entry</td></tr>
+        <tr><td>Release-window degraded mode</td><td style="color:var(--green)">● observed</td><td>no git tags → fallback to baseRefName == main</td><td>missing release metadata degrades transparently instead of silently truncating history</td></tr>
+        <tr><td>Contributor attribution verification</td><td style="color:var(--green)">● observed</td><td>10/10 PR credits verified against commit authorship</td><td>release credit is evidence-backed, not just PR-author copying</td></tr>
+        <tr><td>Post-merge sibling relationship</td><td style="color:var(--green)">● observed</td><td>same 10 merged PRs consumed by both Lesson 15 skills</td><td>tracker reconciliation || release narrative; neither delegates to the other</td></tr>
+<tr><td>Pipeline retro read-only analysis</td><td style="color:var(--green)">● observed</td><td>Experiment 007 · 10 finished PRs / 9 classifiable</td><td>finished history → classification + cost + telemetry gaps</td></tr>
         <tr><td>Clean / unexplained classification</td><td style="color:var(--green)">● observed</td><td>7 clean · 2 second-pass cause not stated · 0 hard recovery</td><td>second pass does not imply recovery cause</td></tr>
         <tr><td>Rework cost baseline</td><td style="color:var(--green)">● observed</td><td>median clean 1.0h · unexplained excess 1.1h</td><td>cost = time beyond clean-run baseline</td></tr>
         <tr><td>Declared outcome observability gap</td><td style="color:var(--green)">● observed</td><td>0% <code>Outcome:</code> coverage</td><td>missing cause telemetry is itself a finding</td></tr>
@@ -2348,9 +2423,9 @@ body.full-reference #deep-reference{display:block}
   <div class="section-head">
     <div>
       <h2>8a. Process gaps — repo coverage vs actual OM questions</h2>
-      <p>Lesson 13 zamknęła knowledge gap wokół Pipeline Observability / Continuous Improvement: znamy runtime classifier, cost model, read-only boundary i human-gated handoff. Lesson 11 zamknęła knowledge gap wokół QA architecture i dała runtime evidence dla environment discovery/no-app boundary. Otwarty pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path; nie każdy documented contract wymaga eksperymentu.</p>
+      <p>Lesson 15 zamknęła knowledge gap wokół Post-Merge Lifecycle, a Lesson 13 zamknęła gap wokół Pipeline Observability / Continuous Improvement: znamy runtime classifier, cost model, read-only boundary i human-gated handoff. Lesson 11 zamknęła knowledge gap wokół QA architecture i dała runtime evidence dla environment discovery/no-app boundary. Otwarty pozostaje pełny browser QA na realnej aplikacji oraz normalny generated-env fast path; nie każdy documented contract wymaga eksperymentu.</p>
     </div>
-    <div class="section-kicker">post-Lesson 13 correction</div>
+    <div class="section-kicker">post-Lesson 15 correction</div>
   </div>
   <div class="section-body">
     <div class="arch-title">A · Repo / coverage gaps — czego ten lab nadal nie przećwiczył</div>
@@ -2801,6 +2876,77 @@ body.full-reference #deep-reference{display:block}
       <p><strong>Pipeline observability is a feedback loop above delivery:</strong></p>
       <div class="next-chain"><code>finished runs</code><span>→</span><code>retro</code><span>→</span><code>ranked evidence</code><span>→</span><code>HUMAN GATE</code><span>→</span><code>prepare Issue</code><span>→</span><code>HUMAN GATE</code></div>
       <div class="callout"><strong>Exercise boundary:</strong> Issue #13 remains an open backlog artifact. No implementation branch or improvement PR was created.</div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="lesson15">
+  <div class="section-head">
+    <div>
+      <h2>Lesson 15 — Post-Merge Lifecycle</h2>
+      <p>Dwie sibling capabilities nad tą samą historią merged PRs: tracker reconciliation oraz release documentation. Runtime wykonany wyłącznie w dry-run, bez sztucznego release i bez mutacji.</p>
+    </div>
+    <div class="section-kicker">● post-merge siblings observed · 2026-08-17</div>
+  </div>
+  <div class="section-body">
+    <div class="grid-2">
+      <div class="card">
+        <h3>Branch A — Tracker Reconciliation</h3>
+        <div class="mini-flow" style="margin-top:14px">
+          <div class="mini-node"><code>10 merged PRs</code><span>2026-08-10 → 2026-08-17</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>om-close-fixed-issues --dry-run</code><span>authoritative links only</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>#8 → #7 · #3 → #2</code><span>closingIssuesReferences</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>already CLOSED</code><span>0 actionable mutations</span></div>
+        </div>
+        <div class="callout">
+          <strong>Observed boundary:</strong> bare <code>#N</code> mentions never became authority. A clean no-op is a valid reconciliation outcome.
+        </div>
+      </div>
+      <div class="card">
+        <h3>Branch B — Release Narrative</h3>
+        <div class="mini-flow" style="margin-top:14px">
+          <div class="mini-node"><code>same 10 merged PRs</code><span>explicit release window</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>om-auto-update-changelog --dry-run</code><span>version 0.1.0</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>categorize + verify credit</code><span>10/10 commit authorship verified</span></div>
+          <div class="v-arrow">↓</div>
+          <div class="mini-node"><code>draft CHANGELOG entry</code><span>2 features · 2 improvements · 6 docs/specs</span></div>
+        </div>
+        <div class="callout">
+          <strong>Observed boundary:</strong> no tags → documented degraded mode. <code>Highlights</code> remains human-authored; dry-run stopped before file edit and before delegation to <code>om-auto-create-pr</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="mental-map" style="margin-top:18px">
+      <div class="mental-map-head">
+        <div>
+          <h3>Lesson 15 mental model — one history, two truths</h3>
+          <p>Nie sekwencja. Nie alternatives. Dwa siblings, które mogą być uruchamiane niezależnie albo obok siebie w release prep.</p>
+        </div>
+        <div class="mental-map-badge">MERGED WORK → branch</div>
+      </div>
+      <div class="mental-chain">
+        <div class="mental-node merge"><b>MERGED PR HISTORY</b><span>shared evidence surface</span></div>
+        <div class="mental-arrow">→</div>
+        <div class="mental-split">
+          <div class="mental-split-label">sibling post-merge capabilities</div>
+          <div class="mental-node observed"><b>om-close-fixed-issues</b><span>tracker truth · repair only if inconsistent</span></div>
+          <div class="mental-node observed"><b>om-auto-update-changelog</b><span>release truth · draft narrative / CHANGELOG</span></div>
+        </div>
+        <div class="mental-arrow">→</div>
+        <div class="mental-split">
+          <div class="mental-split-label">different outputs</div>
+          <div class="mental-node observed"><b>reconciliation report</b><span>0 mutations in our steady-state run</span></div>
+          <div class="mental-node observed"><b>release draft</b><span>normal run would delegate docs PR mechanics</span></div>
+        </div>
+      </div>
+      <div class="mental-note"><strong>Key finding:</strong> <code>same merged evidence ≠ same capability</code>. Post-merge state has at least two independent views: tracker correctness and release communication.</div>
     </div>
   </div>
 </section>

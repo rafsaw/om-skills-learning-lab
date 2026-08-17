@@ -107,7 +107,7 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
 <header>
   <div class="eyebrow">Open Mercato Skills Learning Lab</div>
   <h1>Capability Map</h1>
-  <div class="subtitle">Version 6 · A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
+  <div class="subtitle">Version 7 · A lightweight orientation map for the Open Mercato skill landscape: 36 skills grouped into 17 capabilities. Use this page to remember the architecture fast; keep detailed evidence in the Learning Map, FINDINGS.md and EXPERIMENTS.md.</div>
   <div class="legend">
     <span class="chip"><span class="dot obs">●</span> Observed</span>
     <span class="chip"><span class="dot doc">○</span> Documented</span>
@@ -131,10 +131,10 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
       <div class="node">RUNTIME QA</div><div class="arrow">→</div>
       <div class="node">STABILIZE</div><div class="arrow">→</div>
       <div class="node">MERGE</div><div class="arrow">→</div>
-      <div class="node">POST-MERGE</div>
+      <div class="node">POST-MERGE<br><span class="small">release docs + tracker reconcile</span></div>
     </div>
     <div class="cross">
-      <span>Brainstorm may route to Issue / Spec / direct PR — or build nothing</span><span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
+      <span>Brainstorm may route to Issue / Spec / direct PR — or build nothing</span><span>Post-merge branches into release narrative + tracker reconciliation</span><span>PR Autopilot</span><span>Pipeline Retro</span><span>UX / Product Design</span><span>Skill Authoring</span><span>Pipeline Foundation</span>
     </div>
   </div>
 </section>
@@ -319,7 +319,80 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
     <line class="msg artifact" x1="807" y1="560" x2="110" y2="560" marker-end="url(#c4)"/><text class="label label-artifact" x="458" y="546">ARTIFACT · EXECUTABLE TESTS / RESULTS</text>
   </svg><div class="seq-note"><strong>Important:</strong> <code>om-auto-qa-pr</code> and <code>om-integration-tests</code> are sibling capabilities. Both use <code>om-prepare-test-env</code>.</div></div>
 
-  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 5 · Pipeline learning loop</div>
+
+  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 5 · Post-merge lifecycle — sibling capabilities</div>
+  <svg class="seq-svg" viewBox="0 0 1120 760" role="img" aria-label="Post-merge lifecycle branching into release documentation and tracker reconciliation"><defs>
+    <marker id="a5pm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d3dde8"/></marker>
+    <marker id="b5pm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8fc7ff"/></marker>
+    <marker id="c5pm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8bd49c"/></marker></defs>
+
+    <rect class="participant participant-human" x="25" y="28" width="145" height="58" rx="10"/>
+    <text class="ptitle" x="97" y="51">Human</text><text class="psub" x="97" y="70">you / operator</text>
+
+    <rect class="participant" x="215" y="28" width="150" height="58" rx="10"/>
+    <text class="ptitle" x="290" y="51">Merged PRs</text><text class="psub" x="290" y="70">shared history</text>
+
+    <rect class="participant" x="430" y="28" width="205" height="58" rx="10"/>
+    <text class="ptitle" x="532" y="51">om-auto-update-changelog</text><text class="psub" x="532" y="70">release documentation</text>
+
+    <rect class="participant" x="705" y="28" width="195" height="58" rx="10"/>
+    <text class="ptitle" x="802" y="51">om-close-fixed-issues</text><text class="psub" x="802" y="70">tracker reconciliation</text>
+
+    <rect class="participant" x="945" y="28" width="150" height="58" rx="10"/>
+    <text class="ptitle" x="1020" y="51">om-auto-create-pr</text><text class="psub" x="1020" y="70">docs delivery</text>
+
+    <line class="life human-life" x1="97" y1="86" x2="97" y2="720"/>
+    <line class="life" x1="290" y1="86" x2="290" y2="720"/>
+    <line class="life" x1="532" y1="86" x2="532" y2="720"/>
+    <line class="life" x1="802" y1="86" x2="802" y2="720"/>
+    <line class="life" x1="1020" y1="86" x2="1020" y2="720"/>
+
+    <rect class="human-note" x="28" y="112" width="138" height="56" rx="8"/>
+    <text class="human-note-text" x="97" y="135">HUMAN ACTION</text>
+    <text class="human-note-text" x="97" y="153">choose post-merge check</text>
+
+    <line class="msg" x1="97" y1="205" x2="532" y2="205" marker-end="url(#a5pm)"/>
+    <text class="label" x="315" y="191">INVOKE · om-auto-update-changelog --dry-run</text>
+
+    <line class="msg" x1="290" y1="260" x2="532" y2="260" marker-end="url(#a5pm)"/>
+    <text class="label" x="411" y="246">consume merged PR window</text>
+
+    <rect x="445" y="292" width="175" height="88" rx="8" fill="#142334" stroke="#31557b"/>
+    <text class="tiny" x="532" y="314" text-anchor="middle">categorize PRs</text>
+    <text class="tiny" x="532" y="335" text-anchor="middle">verify attribution</text>
+    <text class="tiny" x="532" y="356" text-anchor="middle">build release narrative</text>
+
+    <line class="msg artifact" x1="532" y1="415" x2="97" y2="415" marker-end="url(#c5pm)"/>
+    <text class="label label-artifact" x="314" y="401">ARTIFACT · draft CHANGELOG entry</text>
+
+    <rect class="gate" x="150" y="444" width="515" height="52" rx="9"/>
+    <text class="gate-title" x="169" y="465">✕ HUMAN BOUNDARY</text>
+    <text class="gate-text" x="314" y="465">Highlights remain human-authored; dry-run stops before file/PR mutation.</text>
+
+    <line class="msg" x1="97" y1="545" x2="802" y2="545" marker-end="url(#a5pm)"/>
+    <text class="label" x="449" y="531">INVOKE · om-close-fixed-issues --dry-run</text>
+
+    <line class="msg" x1="290" y1="595" x2="802" y2="595" marker-end="url(#a5pm)"/>
+    <text class="label" x="546" y="581">consume same merged PR history</text>
+
+    <rect x="715" y="615" width="175" height="74" rx="8" fill="#142334" stroke="#31557b"/>
+    <text class="tiny" x="802" y="638" text-anchor="middle">resolve PR → Issue links</text>
+    <text class="tiny" x="802" y="659" text-anchor="middle">verify tracker state</text>
+    <text class="tiny" x="802" y="680" text-anchor="middle">repair only if inconsistent</text>
+
+    <line class="msg artifact" x1="802" y1="715" x2="97" y2="715" marker-end="url(#c5pm)"/>
+    <text class="label label-artifact" x="449" y="701">ARTIFACT · reconciliation report</text>
+
+    <line class="msg delegate" x1="532" y1="515" x2="1020" y2="515" marker-end="url(#b5pm)" stroke-dasharray="6 6"/>
+    <text class="label label-delegate" x="776" y="501">NORMAL RUN ONLY · DELEGATES to om-auto-create-pr</text>
+  </svg>
+  <div class="seq-note">
+    <strong>Lesson 15 runtime:</strong> both skills consumed the same real merged history but answered different questions.
+    <code>om-auto-update-changelog</code> produced a release-level narrative from 10 merged PRs; <code>om-close-fixed-issues</code> reconciled authoritative PR→Issue links and found the tracker already clean.
+    They are <strong>siblings, not a sequence</strong>. The changelog skill delegates to <code>om-auto-create-pr</code> only in a real run; our dry-run intentionally stopped before mutation.
+  </div></div>
+
+  <div class="seq-svg-wrap" style="margin-top:14px"><div class="eyebrow">Sequence 6 · Pipeline learning loop</div>
   <svg class="seq-svg" viewBox="0 0 920 610" role="img" aria-label="Pipeline retro feedback loop"><defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d3dde8"/></marker><marker id="c5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8bd49c"/></marker></defs>
     <rect class="participant participant-human" x="35" y="28" width="150" height="58" rx="10"/><text class="ptitle" x="110" y="51">Human</text><text class="psub" x="110" y="70">you / operator</text>
     <rect class="participant" x="245" y="28" width="175" height="58" rx="10"/><text class="ptitle" x="332" y="51">om-pipeline-retro</text><text class="psub" x="332" y="70">read-only analysis</text>
@@ -404,11 +477,15 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
 
   <div class="zone-title">C · Post-Delivery / Operations</div>
   <div class="grid">
-    <div class="card"><div class="card-top"><div><div class="num">13</div><h3>Release Documentation</h3></div><span class="status">UNEXPLORED</span></div>
-      <ul class="skills"><li><span class="doc">○</span> om-auto-update-changelog</li></ul><div class="purpose">merged PR window → CHANGELOG release PR</div>
+    <div class="card"><div class="card-top"><div><div class="num">13</div><h3>Release Documentation / Release Narrative</h3></div><span class="status">EXPLORED</span></div>
+      <ul class="skills"><li><span class="obs">●</span> om-auto-update-changelog</li></ul>
+      <div class="purpose">merged PR window → categorize shipped work → verify attribution → draft release narrative → CHANGELOG PR</div>
+      <div class="evidence">Evidence: Lesson 15 runtime dry-run — 10 real merged PRs, degraded no-tag window handling, contributor verification, draft 0.1.0 entry, no file/PR mutation</div>
     </div>
-    <div class="card"><div class="card-top"><div><div class="num">14</div><h3>Post-Merge Tracker Reconciliation</h3></div><span class="status">UNEXPLORED</span></div>
-      <ul class="skills"><li><span class="doc">○</span> om-close-fixed-issues</li></ul><div class="purpose">merged work → reconcile authoritative fixed Issues</div>
+    <div class="card"><div class="card-top"><div><div class="num">14</div><h3>Post-Merge Tracker Reconciliation</h3></div><span class="status">EXPLORED</span></div>
+      <ul class="skills"><li><span class="obs">●</span> om-close-fixed-issues</li></ul>
+      <div class="purpose">merged PR history → authoritative PR→Issue evidence → verify tracker state → repair only when inconsistent</div>
+      <div class="evidence">Evidence: Lesson 15 runtime dry-run — 10 merged PRs, 2 authoritative close links already satisfied, 0 actionable mutations, bare #N mentions safely ignored</div>
     </div>
     <div class="card"><div class="card-top"><div><div class="num">15</div><h3>Pipeline Observability / Continuous Improvement</h3></div><span class="status">FEEDBACK LOOP</span></div>
       <ul class="skills"><li><span class="obs">●</span> om-pipeline-retro</li></ul><div class="purpose">finished runs → quantify rework → expose telemetry gaps → rank pipeline improvements</div><div class="evidence">Evidence: Lesson 13 runtime retro + handoff to Issue #13</div>
@@ -427,19 +504,20 @@ h1{font-size:38px;line-height:1.08;margin:8px 0 10px}
   </div>
 </section>
 
+
 <section class="section">
   <h2>Where next?</h2>
   <div class="next">
     <div class="card hero">
       <div class="star">★</div>
-      <h3>Post-Merge Lifecycle</h3>
-      <ul class="skills"><li><span class="doc">○</span> om-auto-update-changelog</li><li><span class="doc">○</span> om-close-fixed-issues</li></ul>
-      <div class="purpose">Idea shaping is now runtime-observed. A strong next discovery is the still-unexplored post-merge side: how merged work becomes release documentation and authoritative tracker reconciliation.</div>
+      <h3>Merge Queue / Readiness Visibility</h3>
+      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li></ul>
+      <div class="purpose">Post-merge lifecycle is now runtime-observed. A strong next discovery is the still-unexplored pre-merge portfolio view: how open PRs are classified as Ready / Almost Ready / Blocked across the queue.</div>
     </div>
     <div class="card">
       <h3>Alternatives</h3>
-      <ul class="skills"><li><span class="doc">○</span> om-merge-buddy</li><li><span class="doc">○</span> om-pr-autopilot</li><li><span class="doc">○</span> om-auto-fix-pr</li></ul>
-      <div class="purpose">Explore release-manager visibility, PR-state orchestration, or merge-readiness stabilization.</div>
+      <ul class="skills"><li><span class="doc">○</span> om-pr-autopilot</li><li><span class="doc">○</span> om-auto-fix-pr</li><li><span class="doc">○</span> om-create-skill</li></ul>
+      <div class="purpose">Deepen PR-state orchestration, merge-readiness stabilization, or inspect the meta-level skill-authoring capability.</div>
       <div class="small" style="margin-top:12px">Parked: CI-heavy stabilization · UX stack · full browser-driven QA · implementation of Issue #13 · execution of Lesson 14 handoff brief</div>
     </div>
   </div>
