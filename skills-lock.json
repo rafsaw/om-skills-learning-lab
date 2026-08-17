@@ -55,6 +55,12 @@
       "skillPath": "skills/om-auto-write-spec/SKILL.md",
       "computedHash": "90b6730d90521a13078f9b086aea61f68f8602602b5dd03ef71af1390648d019"
     },
+    "om-brainstorm": {
+      "source": "open-mercato/skills",
+      "sourceType": "github",
+      "skillPath": "skills/om-brainstorm/SKILL.md",
+      "computedHash": "15927f39251ce56a80c158ee14e286622c0ea26433a98bad26f281afa288f595"
+    },
     "om-check-and-commit": {
       "source": "open-mercato/skills",
       "sourceType": "github",
